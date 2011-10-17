@@ -1,9 +1,8 @@
 # Beard.js -- Javascript Template Engine Management
 
-> Currently works on [mustache.js]
+> Currently beard can work with Mustache, Yajet, jQote, doT
 
 Well, beard.js can help saving your time managing templates.
-It is currently based on Mustache.js, however, the future plan is to enable beard to manage other kinds of js template engines.
 
 ## Background
 
@@ -11,7 +10,7 @@ I was tired of managing template as ugly javascript strings, so I included them 
 
 Therefore, I finally decided to re-pick my previous attempt, clean the code and publish it as a tiny js lib.
 
-NOTE: Beard.js relies on jQuery. And current Beard.js has [mustache.js] included as a closure.
+NOTE: Beard.js relies on jQuery. The rest of this document will use the syntax of mustache for demonstration. Keep in mind that not only Mustache but any js template engine can work with Beard, once Beard knows how to call it.
 
 ## Get started
 
