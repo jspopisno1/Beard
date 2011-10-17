@@ -52,8 +52,9 @@ In your page's javascript, include:
 ### Beard.init()
 
 Pass in the name of javascript template engine that Beard is going to work with.
+
 Current available template engines:
-['mustache', 'Yajet', 'doT', 'jQote2'] `(default: mustache)`
+[ 'mustache', 'Yajet', 'doT', 'jQote2' ] `(default: mustache)`
 
     Beard.init('Yajet');
 
