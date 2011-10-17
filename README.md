@@ -49,6 +49,15 @@ In your page's javascript, include:
 
 ## API
 
+### Beard.init()
+
+Pass in the name of javascript template engine that Beard is going to work with.
+Current available template engines:
+['mustache', 'Yajet', 'doT', 'jQote2'] `(default: mustache)`
+
+    Beard.init('Yajet');
+
+
 ### Beard.load()
 
 If you include all the templates in the specific zone with id 'beardTemplates', the load() method will load them into the Btpls object, and remove them after compilation.
