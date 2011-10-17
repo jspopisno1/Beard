@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+    <head>
+        <title>TOG v0.1 (beta)</title>
+        <script type='text/javascript' src='jquery-1.6.min.js'></script>
+        <script type='text/javascript' src='beard.js'></script>
+        <script type='text/javascript' src='beardUtils.js'></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                Beard.load();
+
+                Beard.loadHtml("<div data-beard='fromLoadHtml' path='myTemplate.subTemplate1'>from load html</div>");
+                Beard.loadScript("from raw template script.", 'newNamespace.script');
+                Beard.loadRemote('remote1.html', {
+                    'path': 'remote'
+                }, function(){
+                    Beard.loadRemote('remote2.html', {
+                        'path': 'remote.script',
+                        'isScript': true
+                    }, function(){
+                        var defs = Beard.getIDEDefs();
+                        $('<div/>').appendTo('body')[0].innerText = defs;
+
+                        // testing the compiled functions
+                        $('<div/>').appendTo('body')[0].innerText = Btpls.myTemplate({name: 'Liangliang Zheng'});
+                        $('<div/>').appendTo('body')[0].innerText = Btpls.remote.script({greeting: 'Hello'});
+                    });
+                });
+
+            })
+        </script>
+    </head>
+    <body>
+
+        <div id="beardTemplates">
+            <div data-beard="myTemplate">
+                <!--@ hi, this is text inside comment. @-->
+                <!-- normal comment -->
+                <div>
+                    Beard: Hello World.
+                    Hi, {{name}}.
+                </div>
+
+                <div data-beard="subTemplate1">
+                    hi, this is from sub template 1.
+                    <div data-beard="subSubTemplate1">
+                        from sub sub template 1
+                    </div>
+                </div>
+            </div>
+            <div data-beard="subTemplate2" data-beard-path="myTemplate">
+                hi, this is from sub template 2
+                <div data-beard="subSubTemplate2">
+                    from sub sub template 2
+                </div>
+            </div>
+            <div data-beard="script" data-beard-path="remote">
+                foo
+            </div>
+        </div>
+    </body>
+</html>
