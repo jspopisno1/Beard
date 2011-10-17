@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+    <head>
+        <title>Beard.js - Mustache Examples</title>
+        <script type='text/javascript' src='../jquery-1.6.min.js'></script>
+        <script type='text/javascript' src='../beard.js'></script>
+        <script type='text/javascript' src='../beardUtils.js'></script>
+        <script type='text/javascript' src='../templateEngines/mustache.js'></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                Beard.load();
+
+                Beard.loadHtml("<div data-beard='fromLoadHtml' path='myTemplate.subTemplate1'>from load html</div>");
+                Beard.loadScript("from raw template script.", 'newNamespace.script');
+                
+                //                // you need to test this part in a web environment
+                //                Beard.loadRemote('remote1.html', {
+                //                    'path': 'remote'
+                //                }, function(){
+                //                    Beard.loadRemote('remote2.html', {
+                //                        'path': 'remote.script',
+                //                        'isScript': true
+                //                    }, function(rsp){
+                //                        var defs = Beard.getIDEDefs();
+                //                        if(typeof console != 'undefined' && typeof console.log == 'function'){
+                //                            console.log(Btpls.remote.script({greeting: 'Hello'}));
+                //                        }
+                //
+                //                        // testing the compiled functions
+                //                        $('<div/>').appendTo('body')[0].innerText = Btpls.myTemplate({name: 'Liangliang Zheng'});
+                //                        $('<div/>').appendTo('body')[0].innerText += '\n\n';
+                //                        $('<div/>').appendTo('body')[0].innerText = Btpls.remote.script({greeting: 'Hello'});
+                //
+                //                    });
+                //                });
+
+                var defs = Beard.getIDEDefs();
+                if(typeof console != 'undefined' && typeof console.log == 'function'){
+                    console.log(defs);
+                    console.log(Btpls.myTemplate({name: 'Liangliang Zheng'}));
+                }
+                $('<div/>').appendTo('body')[0].innerText = defs;
+
+                // testing the compiled functions
+                $('<div/>').appendTo('body')[0].innerText += '\n\n';
+                $('<div/>').appendTo('body')[0].innerText = Btpls.myTemplate({name: 'Liangliang Zheng'});
+            })
+        </script>
+    </head>
+    <body>
+
+        <div id="beardTemplates">
+            <div data-beard="myTemplate">
+                <!--@ hi, this is text inside comment. @-->
+                <!-- normal comment -->
+                <div>
+                    Beard: Hello World.
+                    Hi, {{name}}.
+                </div>
+                <!--@
+                <script type='text/javascript'>
+                    alert('here');
+                </script>@-->
+
+                <div data-beard="subTemplate1">
+                    hi, this is from sub template 1.
+                    <div data-beard="subSubTemplate1">
+                        from sub sub template 1
+                    </div>
+                </div>
+            </div>
+            <div data-beard="subTemplate2" data-beard-path="myTemplate">
+                hi, this is from sub template 2
+                <div data-beard="subSubTemplate2">
+                    from sub sub template 2
+                </div>
+                <div data-beard="topLevel" data-beard-path="">
+                    not a sub template
+                </div>
+            </div>
+            <div data-beard="script" data-beard-path="remote">
+                foo
+            </div>
+        </div>
+    </body>
+</html>

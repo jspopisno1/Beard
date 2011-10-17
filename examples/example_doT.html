@@ -1,0 +1,71 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+    <head>
+        <title>Beard.js - doT Examples</title>
+        <script type='text/javascript' src='../jquery-1.6.min.js'></script>
+        <script type='text/javascript' src='../beard.js'></script>
+        <script type='text/javascript' src='../beardUtils.js'></script>
+        <script type='text/javascript' src='../templateEngines/doT.js'></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                Beard.init('doT').load();
+
+                Beard.loadHtml("<div data-beard='fromLoadHtml' data-beard-path='myTemplates.subTemplate1'>from load html</div>");
+                Beard.loadScript("from raw template script.", 'newNamespace.script');
+                
+                var defs = Beard.getIDEDefs();
+
+                output(defs);
+                output(Btpls.myTemplates({name: 'Liangliang Zheng'}));
+                output(Btpls.myTemplates.tpl1(data));
+                output(Btpls.myTemplates.tpl2());
+
+            })
+
+            window.data = {
+                'header': "Header",
+                'header2': "Header2",
+                'header3': "Header3",
+                'header4': "Header4",
+                'header5': "Header5",
+                'header6': "Header6",
+                'list': ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+            };
+
+            function output(str){
+                if(typeof console != 'undefined' && typeof console.log == 'function'){
+                    console.log(str);
+                }
+
+                $('<div/>').appendTo('body')[0].innerText += '\n\n';
+                $('<div/>').appendTo('body')[0].innerText = str;
+            }
+        </script>
+    </head>
+    <body>
+
+        <div id="beardTemplates">
+            <div data-beard="myTemplates">
+                hello, {{=it.name}}.
+                <div data-beard="tpl1">
+                    <div>
+                        <h1 class='header'>{{=it.header}}</h1>
+                        <h2 class='header2'>{{=it.header2}}</h2>
+                        <h3 class='header3'>{{=it.header3}}</h3>
+                        <h4 class='header4'>{{=it.header4}}</h4>
+                        <h5 class='header5'>{{=it.header5}}</h5>
+                        <h6 class='header6'>{{=it.header6}}</h6>
+                        <ul class='list'>
+                            {{ for (var i = 0, l = it.list.length; i < l; i++) { }}
+                            <li class='item'>{{=it.list[i]}}
+                            </li>{{ } }}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div data-beard="tpl2" data-beard-path="myTemplates">
+                sub tpl #2
+            </div>
+        </div>
+    </body>
+</html>
