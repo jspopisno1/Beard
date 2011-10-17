@@ -18,6 +18,7 @@ NOTE: Beard.js relies on jQuery. And current Beard.js has [mustache.js] included
 1. Include jQuery, Beard.js (and BeardUtils.js if you would like to generate a dummy definition for Netbeans IDE. We will talk about it later)
 
 2. Add 
+
 	<div id='beardTemplates'>
 		<div data-beard='myTemplate'>
 			Hello, {{name}}
@@ -26,9 +27,11 @@ NOTE: Beard.js relies on jQuery. And current Beard.js has [mustache.js] included
 			</div>
 		</div>
 	</div>
+	
 to the html body.
 
 3. In your page's javascript, include:
+
 	$(document).ready(function(){
 		// load the templates
 		Beard.load();
