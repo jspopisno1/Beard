@@ -35,31 +35,3 @@
     }
 
 })(window)
-
-;
-(function(){
-    var Btpls;
-    Btpls = {
-        "myTemplate" : {},
-        "fromLoadHtml" : {},
-        "newNamespace" : {},
-        "remote" : {}
-    }
-    Btpls.myTemplate = {
-        "subTemplate1" : {},
-        "subTemplate2" : {}
-    }
-    Btpls.myTemplate.subTemplate1 = {
-        "subSubTemplate1" : {}
-    }
-    Btpls.myTemplate.subTemplate2 = {
-        "subSubTemplate2" : {}
-    }
-    Btpls.newNamespace = {
-        "script" : {}
-    }
-    Btpls.remote = {
-        "testRemote" : {},
-        "script" : {}
-    }
-});

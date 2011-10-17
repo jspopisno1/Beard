@@ -116,12 +116,12 @@
                     // first try the defined path
                     var $t = $(this);
                     var path = $t.attr(BEARD_PATH);
-                    if(!path){
+                    if(path === undefined){
                         var $p = $t.parent().closest('['+ BEARD_NODE + ']');
                         var parent = $p.data('beard-path');
                         path = (parent? parent+ '.':'' ) + $t.attr(BEARD_NODE);
                     } else {
-                        path = path + '.' + $t.attr(BEARD_NODE);
+                        path = (path?path + '.':'') + $t.attr(BEARD_NODE);
                     }
                     $t.data('beard-path', path);
                 })
@@ -212,6 +212,9 @@
 
                 $beard.html('<div '+ BEARD_NODE + '="' + leaf + '" ' + BEARD_PATH+'="' + path + '"><!--@'+content + '@--></div>');
                 this.load();
+            },
+            to_html: function(string, data){
+                return Mustache.to_html(string, data);
             }
         }
     }();
@@ -634,4 +637,3 @@
      */
 
 })(window, document)
-
