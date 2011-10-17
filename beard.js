@@ -135,18 +135,14 @@
                 })
                 .each(function(){
 
-                    // remove the <!--@ @--> annotation
-                    var $t = $(this);
-                    var html = $t.html().split('<!--@').join('')
-                    .split('@-->').join('');
-                    $t.html(html);
-                })
-                .each(function(){
-
                     // compile all the templates into Btpls
                     var $t = $(this);
                     var path = $t.data('beard-path');
-                    tplScr[path] = $t.html();
+
+                    tplScr[path] = $t.html()
+                    // remove the <!--@ @--> annotation
+                    .split('<!--@').join('').split('@-->').join('');
+
                     var f = function(data){
                         try{
                             return Mustache.to_html(tplScr[path], data);
