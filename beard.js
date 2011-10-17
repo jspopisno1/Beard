@@ -234,6 +234,10 @@
         'Yajet' :function(path, data){
             return tpls[path](data);
         }
+        ,
+        'haml' :function(path, data){
+            return tpls[path](data);
+        }
     }
 
     // all preparing funcs
@@ -256,6 +260,10 @@
             });
             tpls[path] = yajet.compile(template);
         }
+        ,
+        'haml': function(path, template){
+            tpls[path] = Haml(template);
+        }
     }
 
     function detectTmpl(){
@@ -274,6 +282,10 @@
                 break;
             case 'Yajet':
                 if(typeof g.YAJET == 'function')
+                    return true;
+                break;
+            case 'haml':
+                if(typeof g.Haml == 'function')
                     return true;
                 break;
         }

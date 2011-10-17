@@ -44,14 +44,14 @@
         <div id="beardTemplates">
             <div data-beard="myTemplates">
                 hello, $this.name. 
-                <div data-beard="tpl1">
-                    <div>
+                <div data-beard="tpl1"><!--@
+                    <div $this.header='test'>
                         <h1 class='header'>$this.header</h1><h2 class='header2'>$this.header2</h2>
                         <h3 class='header3'>$this.header3</h3><h4 class='header4'>$this.header4</h4>
                         <h5 class='header5'>$this.header5</h5><h6 class='header6'>$this.header6</h6>
                         <ul class='list'>$(FOREACH (i => this.list)<li class='item'>$i</li>$)</ul>
                     </div>
-                </div>
+                @--></div>
             </div>
             <div data-beard="tpl2" data-beard-path="myTemplates">
                  $this.header : sub tpl #2
