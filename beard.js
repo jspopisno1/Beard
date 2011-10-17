@@ -210,7 +210,7 @@
                 var leaf = levels.pop();
                 path = levels.join('.');
 
-                $beard.html('<div '+ BEARD_NODE + '="' + leaf + '" ' + BEARD_PATH+'="' + path + '"><!--@'+content + '@--></div>');
+                $beard.html($('<div '+ BEARD_NODE + '="' + leaf + '" ' + BEARD_PATH+'="' + path + '"><!--@'+content + '@--></div>'));
                 this.load();
             },
             to_html: function(string, data){
@@ -223,7 +223,7 @@
         __tpls__: []
     };
     var tplScr = {};
-    
+    Beard._tplScr = tplScr;
 
     /*
      * mustache.js — Logic-less templates in JavaScript

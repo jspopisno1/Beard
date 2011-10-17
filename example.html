@@ -17,13 +17,21 @@
                     Beard.loadRemote('remote2.html', {
                         'path': 'remote.script',
                         'isScript': true
-                    }, function(){
+                    }, function(rsp){
                         var defs = Beard.getIDEDefs();
+                        if(typeof console != 'undefined' && typeof console.log == 'function'){
+                            console.log(defs);
+                            console.log(Btpls.myTemplate({name: 'Liangliang Zheng'}));
+                            console.log(Btpls.remote.script({greeting: 'Hello'}));
+                        }
                         $('<div/>').appendTo('body')[0].innerText = defs;
 
                         // testing the compiled functions
+                        $('<div/>').appendTo('body')[0].innerText += '\n\n';
                         $('<div/>').appendTo('body')[0].innerText = Btpls.myTemplate({name: 'Liangliang Zheng'});
+                        $('<div/>').appendTo('body')[0].innerText += '\n\n';
                         $('<div/>').appendTo('body')[0].innerText = Btpls.remote.script({greeting: 'Hello'});
+
                     });
                 });
 
