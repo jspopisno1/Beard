@@ -37,11 +37,15 @@ In your page's javascript, include:
 		// load the templates
 		Beard.load();
 
+		
 		// ok, you are ready to use the compiled functions
+		
 		Btpls.myTemplate({name: 'Liangliang'});
 		// output: Hello, Liangliang
+		
 		Btpls.myTemplate.subTemplate();
 		// output: <h1>heading</h1>
+		
 	});
 
 ## API
@@ -56,8 +60,10 @@ If you have some dynamic templates (in a format of HTML) to be loaded, call this
 
 	Beard.loadHtml('<div data-beard="newTpl">hi again, {{name}}</div>');
 	// ==> Btpls.newTpl(data)
+	
 	Beard.loadHtml('<div data-beard="newTpl">hi again, {{name}}</div>', 'myNamespace');
 	// ==> Btpls.myNamespace.newTpl(data)
+	
 	Beard.loadHtml('<div data-beard="newTpl" data-beard-path="test">hi again, {{name}}</div>', 'myNamespace');
 	// ==> Btpls.myNamespace.test.newTpls(data)
 
@@ -118,18 +124,22 @@ The original structure of blocks will be kept, unless there is another attribute
 	// => 
 	
 	var Btpls;
+	
     Btpls = {
         "tpl1" : {},
         "notASubTpl" : {},
         "newSpace" : {},
     }
+	
     Btpls.tpl1 = {
         "subTpl1" : {},
         "subTpl2" : {}
     }
+	
     Btpls.tpl1.subTpl2 = {
         "subSubTpl1" : {}
     }
+	
     Btpls.newSpace = {
         "tpl2" : {}
     }
@@ -147,7 +157,7 @@ The original structure of blocks will be kept, unless there is another attribute
 ### beardUtils.js
 
 After loading beardUtils.js, a new method getIDEDefs() will be populated to Beard.
-If you call Beard.getIDEDefs(), it will return you the current templates structure as lines of javascript assignments.
+If you call Beard.getIDEDefs(), it will return you the current templates structure as lines of javascript assignments. I create this util method because I am a little bit lazy...
 
 Well, the advantage is... if you are using some IDE (say, NetBeans), if you copy this def part to your project.
 The instant help will know the structure of the templates. For instance, the example above. If you run getIDEDefs() and copy 
