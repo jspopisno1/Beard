@@ -4,18 +4,29 @@
         <title>Beard.js Examples</title>
         <script type='text/javascript' src='../jquery-1.6.min.js'></script>
         <script type='text/javascript' src='../beard.js'></script>
-        <script type='text/javascript' src='../beardExt.js'></script>
+<!--        <script type='text/javascript' src='../beardExt.js'></script>-->
         <script type="text/javascript">
-            $(document).ready(function(){
-                Beard.init({nodeDef: 'beard'}).load()
-                
-                $('body').append(Btpls.Test([
-                    {name:'Liangliang'},
-                    {name:'Wanwan'},
-                    {name:'James'},
-                    {name:'Johnson'}
-                ]));
-            })
+//            $(document).ready(function(){
+//                Beard.init({nodeDef: 'beard'}).load()
+//
+//                $('body').append(Btpls.Test([
+//                    {name:'Liangliang'},
+//                    {name:'Wanwan'},
+//                    {name:'James'},
+//                    {name:'Johnson'}
+//                ]));
+//            })
+ window.sharedVariables = {
+    'header': "Header",
+    'header2': "Header2",
+    'header3': "Header3",
+    'header4': "Header4",
+    'header5': "Header5",
+    'header6': "Header6",
+    'list': ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+  };
+             Beard.loadScript("<div><h1 class='header'>[`` d.header`]</h1><h2 class='header2'>[`` d.header2`]</h2><h3 class='header3'>[`` d.header3`]</h3><h4 class='header4'>[`` d.header4`]</h4><h5 class='header5'>[`` d.header5`]</h5><h6 class='header6'>[`` d.header6`]</h6><ul class='list'>[## loop(d.list, function(l){ #]<li class='item'>[`` l `]</li>[## }) #]</ul></div>", 'BeardTest');
+            Beard.utils.log(Btpls.BeardTest(sharedVariables));
         </script>
     </head>
     <body>

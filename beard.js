@@ -268,16 +268,14 @@
                 })
                 return Beard;
             }
-            if(!path){
-                var e = new Error('A name is required for a template string');
-                e.type = 'BeardTemplateError';
-                throw e;
-            }
             if(!engineName){
                 Beard.init();
             }
             if(engineName == 'beard'){
                 f = compileTemplate(content, path);
+                if(!path){
+                    return f;
+                }
             } else {
                 tmplPrepareFunc(path, content);
 
