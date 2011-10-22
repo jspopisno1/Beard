@@ -1,21 +1,22 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 <html>
     <head>
-        <title>Beard.js - Yajet Examples</title>
+        <title>Beard.js - Haml Examples</title>
         <script type='text/javascript' src='../jquery-1.6.min.js'></script>
         <script type='text/javascript' src='../beard.js'></script>
-        <script type='text/javascript' src='../beardUtils.js'></script>
+        <script type='text/javascript' src='../beardExt.js'></script>
         <script type='text/javascript' src='../templateEngines/haml.js'></script>
         <script type="text/javascript">
+
             $(document).ready(function(){
-                Beard.init('haml').load();
+                Beard.init({engine: 'haml'}).load();
                 
                 var defs = Beard.getIDEDefs();
 
                 output(defs);
-                output(Btpls.myTemplates({name: 'Liangliang Zheng'}));
-                output(Btpls.myTemplates.tpl1(data));
-                output(Btpls.myTemplates.tpl2(data));
+                output(Btpls.MyTemplates({name: 'Liangliang Zheng'}));
+                output(Btpls.MyTemplates.Tpl1(data));
+                output(Btpls.MyTemplates.Tpl2(data));
 
             })
 
@@ -55,7 +56,8 @@ Hi
   %h6.header6= header6
   %ul.list
     :each item in list
-      %li.item= item</div>
+      %li.item= item
+                </div>
             </div>
             <div data-beard="tpl2" data-beard-path="myTemplates">
 = header

@@ -1,0 +1,30 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+    <head>
+        <title>Beard.js Examples</title>
+        <script type='text/javascript' src='../jquery-1.6.min.js'></script>
+        <script type='text/javascript' src='../beard.js'></script>
+        <script type='text/javascript' src='../beardExt.js'></script>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                Beard.init({nodeDef: 'beard'}).load()
+                
+                $('body').append(Btpls.Test([
+                    {name:'Liangliang'},
+                    {name:'Wanwan'},
+                    {name:'James'},
+                    {name:'Johnson'}
+                ]));
+            })
+        </script>
+    </head>
+    <body>
+        <div beard="test">
+            <!--@
+                [## sort(d, 'name desc');
+                loop(d, function(item){
+                    out(item.name + '<br/>')
+                }) #]
+            @--></div>
+    </body>
+</html>

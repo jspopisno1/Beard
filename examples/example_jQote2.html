@@ -1,21 +1,21 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 <html>
     <head>
-        <title>Beard.js - doT Examples</title>
+        <title>Beard.js - jQote2 Examples</title>
         <script type='text/javascript' src='../jquery-1.6.min.js'></script>
         <script type='text/javascript' src='../beard.js'></script>
-        <script type='text/javascript' src='../beardUtils.js'></script>
+        <script type='text/javascript' src='../beardExt.js'></script>
         <script type='text/javascript' src='../templateEngines/jQote2.js'></script>
         <script type="text/javascript">
             $(document).ready(function(){
-                Beard.init('jQote2').load();
+                Beard.init({engine: 'jQote2'}).load();
                 
                 var defs = Beard.getIDEDefs();
 
                 output(defs);
-                output(Btpls.myTemplates({name: 'Liangliang Zheng'}));
-                output(Btpls.myTemplates.tpl1(data));
-                output(Btpls.myTemplates.tpl2(data));
+                output(Btpls.MyTemplates({name: 'Liangliang Zheng'}));
+                output(Btpls.MyTemplates.Tpl1(data));
+                output(Btpls.MyTemplates.Tpl2(data));
 
             })
 
@@ -45,6 +45,7 @@
         <div id="beardTemplates">
             <div data-beard="myTemplates">
                 hello, <%= this.name %>.
+                <%= Btpls.MyTemplates.Tpl2({header: this.name}) %>
                 <div data-beard="tpl1">
                     <div><h1 class='header'><%= this.header %></h1><h2 class='header2'><%= this.header2 %></h2>
                         <h3 class='header3'><%= this.header3 %></h3><h4 class='header4'><%= this.header4 %></h4>
@@ -55,7 +56,7 @@
                 </div>
             </div>
             <div data-beard="tpl2" data-beard-path="myTemplates">
-                 <%= this.header%> : sub tpl #2
+                 <%= this.header %> sub tpl #2
             </div>
         </div>
     </body>
