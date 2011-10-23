@@ -59,6 +59,8 @@
     *                       log only if canLog || (!canLog && isDebug)
     *           111022 -    remove with for better performance! use another method call dynamic compilation
     *                       refine the lib for future minifying
+    *                       enabling loadScript() to just return the compiled function
+    *                       moving sort() to beardExt.js
     *
     *
     * TODO:
@@ -341,6 +343,8 @@
             _options.codeClose];
 
             tplTags._seq.sort(cmpLength);
+
+            safeMode = _options.safemode;
 
             return Beard;
         },
