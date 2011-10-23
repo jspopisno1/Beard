@@ -688,8 +688,8 @@
         try{
             var F = new Function('d', code);
             if(isDebug){
-                utils.log('---- SUCCESS: The compiled function for template <<' + path + '>> : ---- \n\n',
-                    F.toString());
+                utils.log('---- SUCCESS: The compiled function for template <<' + path + '>> : ---- \n\n');
+                utils.log(F.toString());
             }
             return F;
         } catch(e) {
@@ -757,10 +757,11 @@
                 console.log.apply(console, arguments);
             } else {
                 if(!$debug){
-                    $debug = $('<div id="debug"></div>').appendTo('body');
+                    $debug = $('<div id="debug"></div>');
+                    $('body').append($debug);
                 }
                 if(msg){
-                    $('<div/>').appendTo($debug)[0].innerText = '\n' + msg.toString();
+                    $('<div></div>').appendTo($debug)[0].innerText = '\n' + msg.toString();
                 }
             }
         },
