@@ -7,17 +7,19 @@
         <script type='text/javascript' src='../beardExt.js'></script>
         <script type="text/javascript">
             var l = Beard.utils.log;
-            Beard.ready(function(){
-                l('inside ready');
-                var h = Btpls.Test.SubFunc('Liangliang Zheng', 27, [
-                    'reading', 'coding', 'wanwan'
-                ])
-                $('body').append(h);
-                l(h);
-            });
-            l('outside ready');
 
             $(document).ready(function(){
+//Beard.init({debug: true, nodeDef: 'beard'})
+                Beard.ready(function(){
+                    l('inside ready');
+                    var h = Btpls.Test.SubFunc('Liangliang Zheng', 27, [
+                        'reading', 'coding', 'wanwan'
+                    ])
+                    $('body').append(h);
+                    l(h);
+                });
+                l('outside ready');
+
                 Beard.init({debug: true, nodeDef: 'beard'}).load()
                 //                Beard.utils.log(Btpls.Test.toString());
 
@@ -40,7 +42,7 @@
 
                 $('body').append(Btpls.Test(v));
 
-                Beard.loadScript("[## log('new sub func') #]", 'test.subFunc');
+                Beard.loadScript("[## log('new sub func'); #]", 'test.subFunc');
                 Btpls.Test.SubFunc();
                 Btpls.Test.SubRef();
                 Beard.loadScript("[## log('new test') #]", 'test');
@@ -52,7 +54,7 @@
         </script>
     </head>
     <body>
-        <div beard="test$b" bargs="data">
+        <div beard="test#b" bargs="data">
             <!--@
                 [##  sort(data.names, 'name desc');
                 loop(data.names, function(item){
@@ -71,7 +73,7 @@
                 [## }) #]
             </ul></div>
             @-->
-            <div beard="SubFunc$a" bargs="name, age, hobbies">
+            <div beard="SubFunc#a" bargs="name, age, hobbies">
                 <!--@
                    <p> Hi, my name is [`/ name `].
                    <p> I'm [`` age `] year[`` age > 1?'s':'' `] old.

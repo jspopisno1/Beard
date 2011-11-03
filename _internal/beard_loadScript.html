@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+    <head>
+        <title>Beard.js Examples</title>
+        <script type='text/javascript' src='../jquery-1.6.min.js'></script>
+        <script type='text/javascript' src='../beard.js'></script>
+        <script type='text/javascript' src='../beardExt.js'></script>
+        <script type="text/javascript">
+            var l = Beard.utils.log;
+
+            $(document).ready(function(){
+                Beard.init({debug: true})
+                .loadScript({
+                    'a:sub2':{
+                        'sub3(imgsrc)':{
+                            '': 'asdfasdf'
+                        }
+                    },
+                    'UserTable#ut': {
+                        '': 'adsfasdfasd',
+                        'Row#a': 'wa haha',
+                        'EditRow': {
+                            '': 'new tpl',
+                            'inputs()->inputs':'',
+                            'Icon->Extra.Icon': ''
+                        }
+                    },
+                    'Inputs': {
+                        'editRow->ut:editRow': '',
+                        'text(val, name, id, class)': 'asdfasd',
+                        'check(checked, name, id, class)': 'adfasd',
+                        'radio': 'adfawefa adfas',
+                        'ut:EditRow': 'inside inputs'
+                    }
+                })
+                .loadScript({
+                    'UserTable#ut': {
+                        '': 'adsfasdfasd',
+                        'Row#a': 'wa haha',
+                        'EditRow': {
+                            '': 'new tpl',
+                            'inputs()->inputs':''
+                        }
+                    },
+                    'Inputs': {
+                        'editRow->ut:editRow': '',
+                        'text(val, name, id, class)': '[## log(newUtil.test) #]',
+                        'check(checked, name, id, class)': 'adfasd',
+                        'radio': 'adfawefa adfas',
+                        'ut:EditRow': 'inside inputs'
+                    }
+                })
+
+                Beard.extendUtils({'newUtil': {'test': 3}});
+                Btpls.Inputs.Text();
+                l(Btpls.Inputs.Text);
+            })
+        </script>
+    </head>
+    <body>
+        <div beard="test#b" bargs="data">
+            <!--@
+                [##  sort(data.names, 'name desc');
+                loop(data.names, function(item){
+                    out(item.name + '<br/>')
+                })  #]
+            <hr>
+            <div><h1 class='header'>[`` data.header`]</h1>
+            <h2 class='header2'>[`` data.header2`]</h2>
+            <h3 class='header3'>[`` data.header3`]</h3>
+            <h4 class='header4'>[`` data.header4`]</h4>
+            <h5 class='header5'>[`` data.header5`]</h5>
+            <h6 class='header6'>[`` data.header6`]</h6>
+            <ul class='list'>
+                [## loop(data.list, function(l){ #]
+                <li class='item'>[`` l `]</li>
+                [## }) #]
+            </ul></div>
+            @-->
+            <div beard="SubFunc#a" bargs="name, age, hobbies">
+                <!--@
+                   <p> Hi, my name is [`/ name `].
+                   <p> I'm [`` age `] year[`` age > 1?'s':'' `] old.
+                   <p> My hobbies are :
+                   <p><ul>[## loop(hobbies, function(hb){
+                            out('<li>' + hb);
+                           }) #] </ul>
+                   </p>
+                @-->
+            </div>
+            <div beard="SubRef" bref="a:"></div>
+            <div beard="SubRef2" bref="a:"></div>
+            <div beard="SubRefTop" bref="b:"></div>
+        </div>
+    </body>
+</html>

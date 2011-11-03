@@ -26,11 +26,12 @@
     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-    * Updates:
-    *
-    * Pop:      111019 -    support to doT
-    *           111021 -    extends utils, init for your own app
-    *
+ * Updates:
+ *
+ * Pop:      111019 -       support to doT
+ *           111021 -       extends utils, init for your own app
+ *           111031 -       remove support to other engines
+ *
  */
 
 (function(g){
@@ -43,83 +44,6 @@
     var tpls = Beard.__tpls;
     var utils = Beard.utils;
 
-    Beard.extendEngines({
-        // all render funcs
-        'mustache': function(path, data, extra, $tpl){
-            var html = Mustache.to_html(tpls[path], data);
-            return html;
-        }
-        ,
-        'doT' :function(path, data, extra, $tpl){
-            if(data === null || data === undefined){
-                data = {}
-            }
-            data.$u = Beard.utils;
-            data.$t = $tpl;
-            var html = tpls[path](data);
-            delete data.$u;
-            delete data.$t;
-            return html;
-        }
-        ,
-        'jQote2' :function(path, data, extra, $tpl){
-            return $.jqote(tpls[path], [data]);
-        }
-        ,
-        'Yajet' :function(path, data, extra, $tpl){
-            return tpls[path](data);
-        }
-        ,
-        'haml' :function(path, data, extra, $tpl){
-            return tpls[path](data);
-        }
-    }, {
-        // all compile funcs
-        'mustache': function(path, template){
-            tpls[path] = template;
-        }
-        ,
-        'doT': function(path, template){
-            tpls[path] = g.doT.template(template);
-        }
-        ,
-        'jQote2': function(path, template){
-            tpls[path] = $.jqotec(template);
-        }
-        ,
-        'Yajet': function(path, template){
-            var yajet = new YAJET({
-                with_scope: false
-            });
-            tpls[path] = yajet.compile(template);
-        }
-        ,
-        'haml': function(path, template){
-            tpls[path] = Haml(template);
-        }
-    }, {
-        // all detect funcs
-        'mustache': function(){
-            if(typeof Mustache != 'undefined' && typeof Mustache.to_html == 'function')
-                return true;
-        },
-        'doT': function(){
-            if(typeof g.doT != 'undefined' && typeof g.doT.template == 'function')
-                return true;
-        },
-        'jQote2': function(){
-            if(typeof $.jqotec == 'function')
-                return true;
-        },
-        'Yajet': function(){
-            if(typeof g.YAJET == 'function')
-                return true;
-        },
-        'haml': function(){
-            if(typeof g.Haml == 'function')
-                return true;
-        }
-    })
 
     Beard.extendUtils({
         // utils to be extended
@@ -178,7 +102,7 @@
             }
             var colStr = col[0];
             o.push('try{if(a.', colStr, cmp1, 'b.', colStr, ')return -1;else if(a.', colStr, cmp2, 'b.', colStr, ')return 1;',
-                'else{', index == len? 'return 0' : utils._generateSortFunc(cols, index + 1, len), '}}catch(e){return 0}');
+            'else{', index == len? 'return 0' : utils._generateSortFunc(cols, index + 1, len), '}}catch(e){return 0}');
             return o.join('');
         },
         _sortFuncs: {
@@ -207,17 +131,16 @@
         equaClose : '`]',
 
         // html config
-        nodeDef: 'data-beard',
-        nodePath: 'data-beard-path',
-        nodeUnwrap: 'data-beard-unwrap',
-        nodeRemote: 'data-beard-remote',
-        nodeData: 'data-beard-data',
-        nodeShow: 'data-beard-show',
-        beardZone: 'beardTemplates',
-        withinZone: false,
+        //        nodeDef: 'data-beard',
+        //        nodePath: 'data-beard-path',
+        //        nodeUnwrap: 'data-beard-unwrap',
+        //        nodeRemote: 'data-beard-remote',
+        //        nodeData: 'data-beard-data',
+        //        nodeShow: 'data-beard-show',
+        //        beardZone: 'beardTemplates',
+        //        withinZone: false,
 
         // compile config
-        funcPre: '',
         varPre: '',
         debug: false,
         safemode: true,
@@ -254,3 +177,6 @@
     }
 
 })(window)
+
+
+

@@ -7,52 +7,48 @@
         <script type='text/javascript' src='../beardExt.js'></script>
         <script type="text/javascript">
             var l = Beard.utils.log;
-            Beard.ready(function(){
-                l('inside ready');
-                var h = Btpls.Test.SubFunc('Liangliang Zheng', 27, [
-                    'reading', 'coding', 'wanwan'
-                ])
-                $('body').append(h);
-                l(h);
-            });
-            l('outside ready');
 
             $(document).ready(function(){
-                Beard.init({debug: true, nodeDef: 'beard'}).load()
-                //                Beard.utils.log(Btpls.Test.toString());
+                Beard.init({debug: true})
+                .loadRemote('remote_html.html',{
+                    callback: function(){l('ready 1')}
+                })
+                .ready(function(){
+                    l('ready 2');
+                })
+                .loadHtml('<div beard="Test2">[## log("test 2 load html") #]<div beard="Test3" bref="test.SubRefTop.SubRef"></div></div>', 'top')
+                .ready(function(){
+                    l('ready 3');
+                })
+                .loadRemote('remote_text',{
+                    type: 'text',
+                    callback: function(){l('ready 4')},
+                    path: 'Test1.Test_text'
+                })
+                .loadRemote('remote_text',{
+                    type: 'text',
+                    path: 'WhatsUp'
+                })
+                .ready(function(){
+                    l('ready 5');
+                })
+                .loadRemote('remote_json.php', {
+                    type: 'json',
+                    callback: function(){l('ready 6')},
+                    path: 'TestRemotePath'
+                })
+                .ready(function(){
+                    l(Btpls.Test.SubFunc('Liang', 27, ['coding', 'wanwan', 'tv show']))
+                    Beard.extendUtils({'what': 'haha'});
+                    l(Btpls.Test.SubFunc('Liang', 27, ['coding', 'wanwan', 'tv show']))
+                })
 
-                var v = {
-                    'header': "Header",
-                    'header2': "Header2",
-                    'header3': "Header3",
-                    'header4': "Header4",
-                    'header5': "Header5",
-                    'header6': "Header6",
-                    'list': ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
-                    names: [
-                        {name:'Liangliang'},
-                        {name:'Wanwan'},
-                        {name:'James'},
-                        {name:'Johnson'}
-                    ]
-                };
-
-
-                $('body').append(Btpls.Test(v));
-
-                Beard.loadScript("[## log('new sub func') #]", 'test.subFunc');
-                Btpls.Test.SubFunc();
-                Btpls.Test.SubRef();
-                Beard.loadScript("[## log('new test') #]", 'test');
-                Btpls.Test();
-                Beard.loadScript("[## log('new sub func 2') #]", 'test.subFunc');
-                Btpls.Test.SubFunc();
-                Btpls.Test.SubRef();
+                l('outside ready');
             })
         </script>
     </head>
     <body>
-        <div beard="test$b" bargs="data">
+        <div beard="test#b" bargs="data">
             <!--@
                 [##  sort(data.names, 'name desc');
                 loop(data.names, function(item){
@@ -71,7 +67,7 @@
                 [## }) #]
             </ul></div>
             @-->
-            <div beard="SubFunc$a" bargs="name, age, hobbies">
+            <div beard="SubFunc#a" bargs="name, age, hobbies">
                 <!--@
                    <p> Hi, my name is [`/ name `].
                    <p> I'm [`` age `] year[`` age > 1?'s':'' `] old.
