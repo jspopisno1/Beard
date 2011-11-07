@@ -1,0 +1,58 @@
+Some snippet of the page will be used frequently. Instead of defining it again and
+again, you can simply make it a template and call it.
+<p>
+Beard will even help you with organising all the templates by allowing you create
+a reference to that template.
+<p>
+e.g., &lt;div beard='Button' bref='Inputs.FancyButton' >&lt;/div> will refer to
+the template <b>Inputs.FancyButton</b>.
+<p>
+Inside the template, you can easily call a sub template using t.SubTemplate().
+And if you want the output to be printed to the stream, use out().
+<p>
+Note that, if you re-compile a template, its references will be updated by Beard
+<p>
+If a template tries to refer to another unknown template, the target template will
+be compiled as a 'Not Implemented' template. Of course, you can compile a new template
+for it later to remove this 'Not Implemented' exception.
+***
+<div beard='Top'>
+    <!--@ 
+    This is a root template.
+    I will call Button here : [## out(t.Button()) #].
+    I will call SubTpl here : [## out(t.SubTpl()) #].
+    or call it like this : [## out(t['SubTpl']()) #].
+     @-->
+    <div beard='SubTpl'>
+        <!--@ 
+            This is sub template.
+            I will call Button here : [## out(t.p().Button()) // .p() => go up one level #].
+         @-->
+    </div>
+    <div beard='LongText' bref='Inputs.LongText'></div>
+    <div beard='Button' bref='Inputs.Button'></div>
+</div>
+<div beard='Inputs'>
+    <div beard='Button'>
+    <!--@ <input type='button' value='click me' /> @-->
+    </div>
+</div>
+***
+Beard.load();
+
+***
+var data =  ''
+
+result = Btpls.Top();
+
+Beard.loadScript('<input type="button" value="don\'t click me" />', 'Inputs.Button');
+
+result += '\n\n';
+result += Btpls.Top();
+
+result += '\n\n';
+try{
+    result += Btpls.Top.LongText();
+} catch(e) {
+    result += e.message;
+}

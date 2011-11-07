@@ -1,0 +1,50 @@
+Beard can help you with customising the template to meet your taste.
+<p>
+Try setting up the 'bargs' attribute, the value you set here will be
+compiled as the argument names of the template. e.g., bargs='name, age' will
+build up a template like function(name, age, _e_).
+<p>
+The extra argument _e_ will always be appended to the argument list. Using
+this extra argument, you can easily pass some extra data into the template
+without dirtying the original data.
+<p>For instance, if you want to pass some
+essential function into the template, but you don't want to inject it into
+the data, you may do it like: Btpls.MyTemplate(data, {usefulFunc: theFunc}).
+You can then use e.usefultFunc() to call this function inside your template.
+<p>
+If bargs is not set, the default argument list will be function(d, _e_).
+***
+<div beard='TestArgs'>
+    <div beard='Sub1'>
+        <!--@[`` d.name `]'s age is [`` d.age `].@-->
+    </div>
+    <div beard='Sub2' bargs='name, age'>
+        <!--@[`` name `]'s age is [`` age `].@-->
+    </div>
+    <div beard='Sub3' bargs='name, age'>
+        <!--@[`` name `]'s age is [`` e.ageText(age) `].@-->
+    </div>
+</div>
+***
+Beard.load();
+
+***
+var data =  {
+    name: 'Little boy',
+    age: 5
+}
+
+var ageText = function(age){
+    if(age < 10) return 'less than 10';
+    else if(age > 10) return 'more than 10';
+    else return 'exactly 10';
+}
+
+result = Btpls.TestArgs.Sub1(data);
+
+result += '\n\n';
+result += Btpls.TestArgs.Sub2(data.name, data.age);
+result += '\n\n';
+result += Btpls.TestArgs.Sub3(data.name, data.age, {
+    ageText: ageText
+});

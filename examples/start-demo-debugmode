@@ -1,0 +1,30 @@
+
+Mixing two language together can easily break something. Most of the template
+engines do not provide good way for debugging.
+<p>
+Beard.js tries hard to prevent the engine from being another black box, as it
+make some efforts into making the developer's life easier.
+<p>
+Turning debug on, you can get all information of compiling and template
+rendering.
+<p>
+In this demo page, you can explicitly turn on or off the debug mode using the link beneath
+the description section. Note
+that if you call .init() to switch the debug mode, this button will also change.
+***
+<div beard="Test">
+    <!--@
+    Please open the console of browser to see the log... or if you are using IE <9.0,
+the debug info will just beneath the page.
+    [`` d.var1 `]
+    [`` d.var2 `]
+    [`` d.var3 `]
+    @-->
+</div>
+***
+Beard.init({debug: true}).load();
+***
+var data =  {var1: 'value of var1', var3: 'value of var2'}
+result = Btpls.Test(data);
+
+result += '\n\n';

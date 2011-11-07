@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+    <head>
+        <title>Beard.js Examples</title>
+        <script type='text/javascript' src='../js/jquery-1.6.min.js'></script>
+        <script type='text/javascript' src='../../beard.js'></script>
+        <script type="text/javascript">
+            var l = Beard.utils.log;
+            
+            
+
+            $(document).ready(function(){
+                Beard.init({debug: true}).load();
+
+                var data =  [
+                    {id: 'item1', text: 'Top Item #1', subItems: [
+                            {id: 'item1', text: 'Level 2 Item #1', subItems: [
+                                    {id: 'item1', text: 'Level 3 Item #1', subItems: [
+                                            {id: 'item1', text: 'Level 4 Item #1'},
+                                            {id: 'item1', text: 'Level 4 Item #2'},
+                                            {id: 'item1', text: 'Level 4 Item #3'}
+                                        ]},
+                                    {id: 'item1', text: 'Level 3 Item #2', subItems: [
+                                            {id: 'item1', text: 'Level 4 Item #4'},
+                                        ]},
+                                    {id: 'item1', text: 'Level 3 Item #3', subItems: []}
+                                ]},
+                            {id: 'item1', text: 'Level 2 Item #2', subItems: []} ,
+                            {id: 'item1', text: 'Level 2 Item #3'} ,
+                            {id: 'item1', text: 'Level 2 Item #4', subItems: [
+                                    {id: 'item1', text: 'Level 3 Item #4', subItems: []} ,
+                                    {id: 'item1', text: 'Level 3 Item #5', subItems: []}
+                                ]}
+                        ]},
+                    {id: 'item1', text: 'Top Item #2', subItems: [
+                            {id: 'item1', text: 'Level 2 Item #5', subItems: [
+                                    {id: 'item1', text: 'Level 3 Item #6', subItems: [
+                                            {id: 'item1', text: 'Level 4 Item #5'}
+                                        ]},
+                                    {id: 'item1', text: 'Level 3 Item #7', subItems: [
+                                            {id: 'item1', text: 'Level 4 Item #6'},
+                                        ]},
+                                    {id: 'item1', text: 'Level 3 Item #8', subItems: []}
+                                ]},
+                            {id: 'item1', text: 'Level 2 Item #6', subItems: []} ,
+                            {id: 'item1', text: 'Level 2 Item #7'}
+                        ]},
+                    {id: 'item1', text: 'Top Item #3', subItems: [
+                            {id: 'item1', text: 'Level 2 Item #8', subItems: [
+                                    {id: 'item1', text: 'Level 3 Item #9', subItems: [
+                                            {id: 'item1', text: 'Level 4 Item #7'},
+                                            {id: 'item1', text: 'Level 4 Item #8'},
+                                            {id: 'item1', text: 'Level 4 Item #9'}
+                                        ]}
+                                ]},
+                            {id: 'item1', text: 'Level 2 Item #9', subItems: []}
+                        ]}
+                ]
+
+                result = Btpls.Menu(data);
+
+                l(result);
+            })
+        </script>
+    </head>
+    <body>
+        <div beard="Menu" bargs="items">
+            <!--@
+            <ul>
+            [##
+            loop(items, function(item){
+                out(t.Item(item));
+            }) #]
+            </ul>
+            @-->
+            <div beard="Item" bargs="item">
+                <!--@
+                <li id='[`` item.id `]'> 
+                    [`/ item.text `]
+                    
+                    [## if(has(item.subItems)){
+                        out(t.p()(item.subItems));
+                    } #]
+                </li>
+                @-->
+            </div>
+        </div>
+
+    </body>
+</html>

@@ -1,0 +1,31 @@
+***
+<div beard='Engines'>
+<!--@
+    <div class='title'>[`` d.title `]</div>
+    <ul>
+        [## for(var i = 0; i < d.engines.length; i++){
+           out(t.Engine(d.engines[i]));
+        } #]
+    </ul>
+@-->
+   <div beard='Engine'>
+   <!--@
+        <li><div><label>Name</label> [`` d.name `]</div>
+            [## for(var i = 0; i < d.descrs; i++){
+                var descr = d.descrs[i];
+                type = descr.href? 'Res':'Text';
+                out(t[type](descr));
+            } #]
+        </li>
+   @-->
+        <div beard='Res'>
+        <!--@ <li><a href='[`` d.href `]>d.text</a></li> @-->
+        </div>
+        <div beard='Text'>
+        <!--@ <li>d.text</li> @-->
+        </div>
+    </div>
+</div>
+***
+
+***

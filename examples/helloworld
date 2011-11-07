@@ -1,0 +1,34 @@
+Hello world is the very first example. You will learn that
+[`` some.thing `] is the assignment template tag, similar to
+<%= %>, and the
+variable d, is the magic var which refers to the argument passed to
+the template.
+
+<p>
+
+At the left hand side, there are all the examples. Clicking on one of them,
+the example will be loaded into the page. It is a two-level menu.
+
+<p>
+Beneath are all the sections for an example. HTML is normally the template.
+Text in HTML editor will be append to body before re-running the example.
+<p>
+Javascript section contains the js to compile the template.
+<p>Data sectionis to define the data to be passed into the template.
+In this section,
+the template will eventually be run, and the result shall be put into
+a var called 'result', in order for presenting the result of the template.
+<p>
+Finally, you may expand and collapse the section by clicking on its
+title. Enjoy!
+***
+<div beard='HelloWorld'>
+    <!--@ Hello world. my name is [`` d `] @-->
+</div>
+***
+Beard.load();
+***
+data = 'Beard';
+
+result = Btpls.HelloWorld(data);
+

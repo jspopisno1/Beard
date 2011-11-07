@@ -1,1 +1,192 @@
-Beard Demo
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" href="codemirror/lib/codemirror.css">
+        <script src="codemirror/lib/codemirror.js" type="text/javascript"></script>
+        <link rel="stylesheet" href="codemirror/theme/default.css">
+        <link rel="stylesheet" href="css/main.css">
+        <script src="codemirror/mode/xml/xml.js" type="text/javascript"></script>
+        <script src="codemirror/mode/javascript/javascript.js" type="text/javascript"></script>
+        <!--[if IE]>
+        <style type='text/css'>
+            .CodeMirror-scroll.cm-s-default{
+                margin-top: -16px;
+            }
+
+            #banner .content .beard-title {
+                float:left;
+                position: absolute;
+                margin-top: -35px;
+            }
+            #banner .content .beard-js {
+                float:left;
+                position: absolute;
+                margin-left: 150px;
+                margin-top: -20px;
+            }
+            #banner .content {
+                height: 30px;
+            }
+            #body #navigate ul li ul li a{
+                padding-left: 20px;
+                margin-left: -20px;
+            }
+        </style>
+        <![endif]-->
+        <script src="js/jquery-1.6.min.js" type="text/javascript"></script>
+        <script src="js/beard.js" type="text/javascript"></script>
+        <script src="js/index.js" type="text/javascript"></script>
+        <style type="text/css">
+        </style>
+    </head>
+    <body>
+        <div id="banner">
+            <div class="content">
+                <div class="beard-title" >BEARD</div>
+                <div class="beard-js">.js</div>
+            </div>
+        </div>
+        <div id="body">
+            <div id="navigate">
+                <ul>
+                    <li>
+                        <a href="javascript:void(0)"> Get Started </a>
+                        <ul>
+                            <li> <a href="#exmp_helloworld">  Hello World </a>  </li>
+                            <li> <a href="#exmp_howto">  How to </a>  </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"> Quick Demos </a>
+                        <ul>
+                            <li> <a href="#exmp_start_demo_comps">   Template Composition </a>  </li>
+                            <li> <a href="#exmp_start_demo_comps2">   Template Recursive Composition </a>  </li>
+                            <li> <a href="#exmp_start-demo-safemode">   Safe Mode </a>  </li>
+                            <li> <a href="#exmp_start-demo-debugmode">   Debug Mode </a>  </li>
+                            <li> <a href="#exmp_start-demo-datamode">   An Advanced Example </a>  </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"> Syntax </a>
+                        <ul>
+                            <li> <a href="#exmp_syntax-comment-tag">  Template Syntax </a>  </li>
+                            <li> <a href="#exmp_syntax-html">  HTML Syntax </a>  </li>
+                            <li> <a href="#exmp_syntax-reference"> Create a Reference </a>  </li>
+                            <li> <a href="#exmp_syntax-arguments"> Customise the Arguments </a>  </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"> Utils </a>
+                        <ul>
+                            <li> <a href="#exmp_utils_loop">  loop () </a>  </li>
+                            <li> <a href="#exmp_utils_esc">  esc () </a>  </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <!-- end of nagivate -->
+            </div>
+            <div id="content">
+                <div class="description">
+                </div>
+                <div class="link-zone">[ <span class="debug link-text">debug on</span> ]
+                    [ <span class="descr-hide link-text">hide description</span> ]</div>
+                <div class="tabs">
+                    <ul>
+                        <li id="tab_htmlEd"><a href="javascript:void(0)">Html</a></li>
+                        <li id="tab_jsEd"><a href="javascript:void(0)">Javascript</a></li>
+                        <li id="tab_dataEd"><a href="javascript:void(0)">Data</a></li>
+                        <li id="tab_resEd"><a href="javascript:void(0)">Result Text Mode</a></li>
+                        <li id="tab_resHtml"><a href="javascript:void(0)">Result Html Mode</a></li>
+                        <li id="tab_reset" class="last"><a href="javascript:void(0)">Reset</a></li>
+                    </ul>
+                </div>
+                <div id="editors">
+                    <div class="editor-container">
+                        <div class="divEditor">
+                            <div class="editor-title">
+                                <span class="light">{</span>
+                                <span class="dark">{</span>
+                                <span class="editor-header">HTML</span>
+                                <span class="dark">}</span>
+                                <span class="light">}</span>
+                                <div class="top">[ <span class="link-text">top</span> ]</div>
+                            </div>
+                            <div class="editor html">
+                                <textarea id="htmlEd">
+                                </textarea>
+                            </div>
+                        </div>
+                        <div class="divEditor">
+                            <div class="editor-title">
+                                <span class="light">{</span>
+                                <span class="dark">{</span>
+                                <span class="editor-header">Javascript</span>
+                                <span class="dark">}</span>
+                                <span class="light">}</span>
+                                <div class="top">[ <span class="link-text">top</span> ]</div>
+                            </div>
+                            <div class="editor js">
+                                <textarea id="jsEd">
+                                </textarea>
+                            </div>
+                        </div>
+                        <div class="divEditor">
+                            <div class="editor-title">
+                                <span class="light">{</span>
+                                <span class="dark">{</span>
+                                <span class="editor-header">Data</span>
+                                <span class="dark">}</span>
+                                <span class="light">}</span>
+                                <div class="top">[ <span class="link-text">top</span> ]</div>
+                            </div>
+                            <div class="editor data">
+                                <div id="dataEd">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="divEditor">
+                            <div class="editor-title">
+                                <span class="light">{</span>
+                                <span class="dark">{</span>
+                                <span class="editor-header">Result Plain Text Mode</span>
+                                <span class="dark">}</span>
+                                <span class="light">}</span>
+                                <div class="top">[ <span class="link-text">top</span> ]</div>
+                            </div>
+                            <div class="editor result">
+                                <div id="resEd">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="divEditor">
+                            <div class="editor-title">
+                                <span class="light">{</span>
+                                <span class="dark">{</span>
+                                <span class="editor-header">Result HTML Mode</span>
+                                <span class="dark">}</span>
+                                <span class="light">}</span>
+                                <div class="top">[ <span class="link-text">top</span> ]</div>
+                            </div>
+                            <div class="editor result-html">
+                            </div>
+                        </div>
+                        <!-- end of editor container -->
+                    </div>
+                </div>
+                <!-- end of content -->
+            </div>
+            <!-- end of body -->
+        </div>
+        <div id="footer"></div>
+        <div beard='HelloWorld'>
+            <!--@ Hello world. my name is [`` d `] @-->
+        </div>
+    </body>
+</html>
