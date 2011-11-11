@@ -33,6 +33,11 @@ and open the template in the editor.
             #banner .content {
                 height: 30px;
             }
+            #banner .descr {
+                position: absolute;
+                margin-top: 10px;
+                margin-left: 300px;
+            }
             #body #navigate ul li ul li a{
                 padding-left: 20px;
                 margin-left: -20px;
@@ -48,6 +53,7 @@ and open the template in the editor.
     <body>
         <div id="banner">
             <div class="content">
+                <div class="descr">A Javascript Template Engine on jQuery (pre-beta version)</div>
                 <div class="beard-title" >BEARD</div>
                 <div class="beard-js">.js</div>
             </div>
@@ -79,13 +85,109 @@ and open the template in the editor.
                             <li> <a href="#exmp_syntax-html">  HTML Syntax </a>  </li>
                             <li> <a href="#exmp_syntax-reference"> Create a Reference </a>  </li>
                             <li> <a href="#exmp_syntax-arguments"> Customise the Arguments </a>  </li>
+                            <li> <a href="#exmp_syntax-path"> Specify the Path </a>  </li>
+                            <li> <a href="#exmp_syntax-configure"> Configure Your Own Syntax </a>  </li>
                         </ul>
                     </li>
                     <li>
-                        <a href="javascript:void(0)"> Utils </a>
+                        <a href="javascript:void(0)"> Inside a Template </a>
                         <ul>
+                            <li> <a href="#exmp_inside-t">  t </a>  </li>
+                            <li> <a href="#exmp_inside-d">  d </a>  </li>
+                            <li> <a href="#exmp_inside-e0"> e (simple case)</a>  </li>
+                            <li> <a href="#exmp_inside-e"> e (complex case)</a>  </li>
+                            <li> <a href="#exmp_inside-g"> g </a>  </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"> Outside the Templates </a>
+                        <ul>
+                            <li> <a href="#exmp_outside-beard">  Beard </a>  </li>
+                            <li> <a href="#exmp_outside-utils">  Beard.utils </a>  </li>
+                            <li> <a href="#exmp_outside-btpls"> Btpls & compiled templates</a>  </li>
+                            <li> <a href="#exmp_outside-node">  BeardNode </a>  </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"> Beard Utils </a>
+                        <ul>
+                            <li> <a href="#exmp_utils_out">  out () </a>  </li>
                             <li> <a href="#exmp_utils_loop">  loop () </a>  </li>
                             <li> <a href="#exmp_utils_esc">  esc () </a>  </li>
+                            <li> <a href="#exmp_utils_log">  log () </a>  </li>
+                            <li> <a href="#exmp_utils_has">  has () </a>  </li>
+                            <li> <a href="#exmp_utils_strcat">  strcat () </a>  </li>
+                            <li> <a href="#exmp_utils_field">  field () </a>  </li>
+                            <li> <a href="#exmp_utils_partial">  partial () </a>  </li>
+                            <li> <a href="#exmp_utils_search">  search () </a>  </li>
+                            <li> <a href="#exmp_utils_sort">  sort () </a>  </li>
+                            <li> <a href="#exmp_api-extendUtils">  Extend the Utils </a>  </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"> Advanced Feature (Data) </a>
+                        <ul>
+                            <li> <a href="#exmp_data-render"> Render into a <br/>jQuery object </a>  </li>
+                            <li> <a href="#exmp_data-interact"> Interact with the HTML </a>  </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"> Beard API (normal) </a>
+                        <ul>
+                            <li> <a href="#exmp_api-init">  init ()</a>  </li>
+                            <li> <a href="#exmp_api-load">  load ()</a>  </li>
+                            <li> <a href="#exmp_api-loadRemote">  loadRemote () </a>  </li>
+                            <li> <a href="#exmp_api-loadHtml"> loadHtml () </a>  </li>
+                            <li> <a href="#exmp_api-loadScript"> loadScript () </a>  </li>
+                            <li> <a href="#exmp_api-ready"> ready () </a>  </li>
+                            <li> <a href="#exmp_api-debug"> $debug () </a>  </li>
+                            <li> <a href="#exmp_api-beard"> $beard () </a>  </li>
+                            <li> <a href="#exmp_api-isDebug"> isDebug () </a>  </li>
+                            <li> <a href="#exmp_api-clearAll"> clearAll () </a>  </li>
+                            <li> <a href="#exmp_api-extendUtils"> extendUtils () </a>  </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"> Beard API (event) </a>
+                        <ul>
+                            <li> <a href="#exmp_api-event"> initEvents () </a>  </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"> Beard API (data) </a>
+                        <ul>
+                            <li> <a href="#exmp_api-bindBeard">  bindBeard ()</a>  </li>
+                            <li> <a href="#exmp_api-bindBeardOnly">  bindBeardOnly ()</a>  </li>
+                            <li> <a href="#exmp_api-clearDataCache">  clearDataCache () </a>  </li>
+                            <li> <a href="#exmp_api-parseHtml"> parseHtml () </a>  </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"> Beard Node API </a>
+                        <ul>
+                            <li> <a href="#exmp_nodeapi-prev">  prev () / next () </a>  </li>
+                            <li> <a href="#exmp_nodeapi-prevAll">  prevAll () / nextAll () / siblings () </a>  </li>
+                            <li> <a href="#exmp_nodeapi-nodeUp">  nodeUp ()</a>  </li>
+                            <li> <a href="#exmp_nodeapi-nodeDown">  nodeDown ()</a>  </li>
+                            <li> <a href="#exmp_nodeapi-nodeDownAll">  nodeDownAll ()</a>  </li>
+                            <li> <a href="#exmp_nodeapi-after">  after () / before ()</a>  </li>
+                            <li> <a href="#exmp_nodeapi-show">  show () / hide () </a>  </li>
+                            <li> <a href="#exmp_nodeapi-remove"> remove () </a>  </li>
+                            <li> <a href="#exmp_nodeapi-appendTo"> appendTo () / <br/>prependTo () </a>  </li>
+                            <li> <a href="#exmp_nodeapi-insertAfter"> insertAfter () / <br/>insertBefore () </a>  </li>
+                            <li> <a href="#exmp_nodeapi-wrapData"> wrapData () </a>  </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)"> Extended $.fn </a>
+                        <ul>
+                            <li> <a href="#exmp_jqr-nodeUp">  nodeUp () / nodeDown ()</a>  </li>
+                            <li> <a href="#exmp_jqr-bindBeard">  bindBeard () </a>  </li>
+                            <li> <a href="#exmp_jqr-wrapData"> wrapData () </a>  </li>
+                            <li> <a href="#exmp_jqr-bVal"> bVal () </a>  </li>
+                            <li> <a href="#exmp_jqr-lookUp"> lookUp () </a>  </li>
+                            <li> <a href="#exmp_jqr-union"> union () </a>  </li>
+                            <li> <a href="#exmp_jqr-initEvents"> initEvents () </a>  </li>
                         </ul>
                     </li>
                 </ul>
@@ -182,11 +284,24 @@ and open the template in the editor.
                 </div>
                 <!-- end of content -->
             </div>
+            <div class="clear"></div>
             <!-- end of body -->
         </div>
-        <div id="footer"></div>
-        <div beard='HelloWorld'>
-            <!--@ Hello world. my name is [`` d `] @-->
+        <div id="debug" style="padding:15px;">
+        </div>
+        <div id="footer">
+            <div class="content">
+                <div style="margin-bottom:3px;">
+                This library is under MIT license. 
+                 Copyright (c) 2011
+                <a href="mailto:jspopisno1@gmail.com">Liangliang Zheng</a> (jsPop)
+                <br/>
+                </div>
+                <i style="font-size:9pt;color:#333;">
+                Note that the library is not yet in beta version.
+                 The API might be changed before the beta version.
+                </i>
+            </div>
         </div>
     </body>
 </html>

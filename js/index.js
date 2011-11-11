@@ -43,7 +43,7 @@
         clearTimeout(timer);
         resEd.setValue('----- Re-run the Case -----');
         timer = setTimeout(function(){
-            Beard.clearAll().init({
+            Beard.reset().init({
                 debug: false
             });
             try{
@@ -244,9 +244,9 @@
                 },
                 dataType: 'text',
                 error: function(){
-                    htmlEd.setValue('This case is still under construction.');
-                    jsEd.setValue('// This case is still under construction.');
-                    dataEd.setValue('result = "No case was found."');
+                    htmlEd.setValue('This example is still under construction.');
+                    jsEd.setValue('// This example is still under construction.');
+                    dataEd.setValue('result = "This example is still under construction."');
                     jqr.descr.html('The case "' + key + '" cannot be found. <p> Please choose another case from the menu.');
                 },
                 complete: function(){

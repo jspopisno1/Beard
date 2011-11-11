@@ -1,0 +1,39 @@
+Sometimes you may want to append more sub templates to a template afterwards.
+Specifying the attribute 'bpath' can help you do that.
+<p>
+Or the other way around, you can also first specify the sub templates, and then
+define its parent template.
+***
+<div beard='Root'>
+    <!--@ a very long long long template @-->
+</div>
+<div beard='Sub1' bpath='Root'>
+    <!--@ you want to insert a sub template to template 'Root' @-->
+</div>
+<div beard='Sub2' bpath='Root'>
+    <!--@ you want to insert another sub template to template 'Root' @-->
+</div>
+
+<div beard='Sub1' bpath='Root2'>
+    <!--@ you want to insert a sub template to template 'Root2' @-->
+</div>
+<div beard='Sub2' bpath='Root2'>
+    <!--@ you want to insert another sub template to template 'Root2' @-->
+</div>
+<div beard='Root2'>
+    <!--@ a very long long long template @-->
+</div>
+***
+Beard.load();
+
+***
+var data =  ''
+
+result = Btpls.Root();
+result += '\n\n';
+result += Btpls.Root.Sub1();
+result += '\n\n';
+result += Btpls.Root2();
+result += '\n\n';
+result += Btpls.Root2.Sub2();
+result += '\n\n';

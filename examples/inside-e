@@ -1,0 +1,83 @@
+This is a more complicated example. It will go through a tree of nodes,
+find out the number of descendants of each node and also the total size.
+<p>
+Using the expression <b>t(node, subE = {level: e.level + 1})</b>, you can
+see that creating a recursive function is doable and easy.
+***
+<div beard='Node'>
+    <!--@
+       [## 
+        // if there is no level or level == 0, it must be the root node
+        if(!e.level){
+            e.level = 0;
+        }
+
+        // processing the child nodes
+        e.size = d.size;
+        e.descNum = 0; // number of descendants
+        var cont = [];
+        loop(d.children, function(node){
+            cont.push( t(node, subE = {level: e.level + 1}) );
+            e.size += subE.size;
+            e.descNum += 1 + subE.descNum;
+        });
+
+        // if no child nodes
+        if(cont.length > 0){
+            cont = '<ul>\n' + cont.join('') + '\n</ul>';
+        } else {
+            cont = '';
+        }
+
+        // if it is not the root, print out the node info
+        if(e.level) { #]
+            <li><span style='font-weight:bold'>[`` d.name `] @ LEVEL [``e.level `] </span>
+                Total size : <i>[`` e.size `]</i>.
+                [## if(e.descNum) { #] Descendant Number : <i>[`` e.descNum `]</i>. [## } #]
+            </li>
+        [## } #]
+
+        [`` cont // print out the child nodes `]
+    @-->
+</div>
+***
+Beard.load();
+
+***
+var data =  {
+    size: 0,
+    children: [
+        {size: 45, name: 'node 1', children: [
+            {size: 4, name: 'node 1.1', children: [
+                {size: 87, name: 'node 1.1.1', children: []},
+                {size: 12, name: 'node 1.1.2'},
+                {size: 3, name: 'node 1.1.3', children: null}
+            ]},
+            {size: 15, name: 'node 1.2'}
+        ]},
+        {size: 45, name: 'node 2', children: [
+            {size: 4, name: 'node 2.1', children: [
+                {size: 87, name: 'node 2.1.1', children: []},
+                {size: 12, name: 'node 2.1.2'},
+                {size: 3, name: 'node 2.1.3', children: [
+                    {size: 1, name: 'node 2.1.3.1', children: [
+                        {size: 5, name: 'node 2.1.3.1.1', children: []},
+                        {size: 12, name: 'node 2.1.3.1.2'},
+                        {size: 13, name: 'node 2.1.3.1.3', children: null}
+                    ]}
+                ]}
+            ]},
+            {size: 14, name: 'node 2.2', children: [
+                {size: 19, name: 'node 2.2.1', children: []}
+            ]},
+            {size: 25, name: 'node 2.3'}
+        ]},
+        {size: 35, name: 'node 3', children: [
+            {size: 41, name: 'node 3.1'},
+            {size: 23, name: 'node 3.2'}
+        ]}
+    ]
+};
+
+result = Btpls.Node(data);
+result += '\n\n';

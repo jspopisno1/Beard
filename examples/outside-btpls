@@ -1,0 +1,52 @@
+The compiled template will locate in an object called <b>Btpls</b>.
+<p>
+A compiled template is a callable object. For instance, there is a template
+called 'Tmpl'. You can call it like this <b>Btpls.Tmpl(data)</b>, and this will return
+you the rendered html text.
+<p>
+Another useful usage is that <b>Btpls.Tmpl.$(data)</b> will return you a
+jQuery object. It is an extreme useful thing, if you would like to utilise the advanced
+usage of Beard, say, bind data & template with the dom tree.
+<p>
+If you call <b>Btpls.Tmpl.p()</b>, you will get the parent template of <b>Tmpl</b>.
+Previously we talked about the magical variable <b>t</b>. It is in fact the current
+template object.
+
+***
+<div beard='Root'>
+    <div beard='Legal'>
+    <!--@ func will return : [`` func() `] @-->
+    </div>
+    <div beard='Underscore'>
+    <!--@ func will return : [`` _func() `] @-->
+    </div>
+    <div beard='Var'>
+    <!--@ someVal equals to : [`` someVal `] @-->
+    </div>
+</div>
+***
+Beard.load();
+
+***
+var data =  ''
+
+Beard.extendUtils({func: function(){ return '{{ from func }}' } });
+result = Btpls.Root.Legal();
+result += '\n\n';
+
+Beard.extendUtils({func: function(){ return '{{ new from func }}' } });
+result += Btpls.Root.Legal();
+result += '\n\n';
+
+Beard.extendUtils({_func: function(){ return '{{ new from func }}' } });
+try{
+result += Btpls.Root.Underscore();
+} catch(e){
+result += e.message;
+}
+result += '\n\n';
+
+Beard.extendUtils({someVal: 'some Val' });
+result += Btpls.Root.Var();
+result += '\n\n';
+

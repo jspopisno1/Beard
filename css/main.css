@@ -17,6 +17,7 @@ body{
     margin: 0;
     padding: 0;
     text-align: center;
+    font-family: "Verdana", "Verdana", "Lucida Sans Unicode", "Lucida Grande";
 }
 
 body a{
@@ -93,6 +94,7 @@ div.top .top-text{
 
 #banner{
     width:100%;
+/*    background: #f0f8ff;*/
     height:30px;
     padding-top:90px;
     border-bottom: #bbb 3px solid;
@@ -111,6 +113,7 @@ div.top .top-text{
 #banner .content .beard-title{
     _display: inline;
     font-family: Impact;
+    background: #f0f8ff;
     background-color: white;
     color: #56C6D3;
     text-decoration: none;
@@ -119,7 +122,7 @@ div.top .top-text{
     letter-spacing: 0;
     font-size: 50px;
     display: inline-block;
-    padding: 8px 12px 8px 14px;
+    padding: 8px 12px 0px 14px;
     margin-top: -30px;
 }
 #banner .content .beard-js{
@@ -132,6 +135,13 @@ div.top .top-text{
     font-size: 50px;
     margin-left: -8px;
     display: inline-block;
+}
+#banner .descr{
+    float: right;
+    margin-top: 30px;
+    color: #555;
+    font-style: italic;
+    font-family: "Verdana", "Verdana", "Lucida Sans Unicode", "Lucida Grande";
 }
 
 #body #navigate{
@@ -150,7 +160,6 @@ div.top .top-text{
 #body #navigate ul{
     list-style-type: none;
     list-style: none;
-    font-family: Impact;
     font-size:18px;
     padding-top: 0;
     margin: 20px 0px 20px;
@@ -173,6 +182,7 @@ div.top .top-text{
 
 #body #navigate ul li a{
     cursor:pointer;
+    font-family: Impact;
     width: 100%;
     z-index:1000;
     display:block;
@@ -299,4 +309,31 @@ div.top .top-text{
 }
 #body #content .tabs ul li.hidden a{
     color: #bbb;
+}
+
+/* footer */
+
+#footer {
+    clear: both;
+    width: 100%;
+    margin-top: 15px;
+    margin-bottom: 0px;
+/*    background: #f0f8ff;*/
+    text-align: right;
+    border-top: #bbb 1px solid;
+    color: #555;
+}
+#footer .content{
+    padding: 12px 0 40px 0;
+    margin-right: 50px;
+}
+
+/* global css */
+a {
+    font-family: "Verdana", "Verdana", "Lucida Sans Unicode", "Lucida Grande";
+    color: #333;
+}
+
+a:hover{
+    text-decoration: none;
 }

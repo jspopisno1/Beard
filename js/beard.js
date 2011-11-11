@@ -1,7 +1,7 @@
 /*
     beard.js
 
-    !!! REQUIRE jQuery 1.5 or above !!!
+    !!! REQUIRE jQuery 1.4.2 or above !!! (for the .delegate() function @ initEvent())
 
     The MIT License
 
@@ -150,10 +150,30 @@
     *                       global var as g
     *                       enable level for each tpl rendering
     *           111107 -    refined event binding
+    *           111110 -    BeardSlot
+    *                       BeardNodt.refresh(), BeardSlot.refresh()
+    *           111111 -    BeardSlot -> thread refresh!
     *
     *
     * TODO:                 *** START
+    *                       ***
     *                       *** examples for testing
+    *                       *** requirements
+    *                           data bound template can only have one input
+    *                           the extra param is an shared object across nodes under a same slot
+    *                       *** BeardSlot -> the container of BeardNodes
+    *                           slot tag
+    *                           BeardNode.slot('name').remove(BeardNode)
+    *                           .insert(idx, beardNode) or .insert(idx, argument list)
+    *                           .append
+    *                           .prepend
+    *                           .refresh()
+    *                           .findBy( BeardNode or BeardNode.__objid_ )
+    *                       *** BeardNode
+    *                           .slotUp()
+    *                           .refresh() -> '', 'slot name 1', 'slot name 2' ...
+    *                           .onRefresh({'':func, 'slot name 1': func ... }
+    *                               func($old, $new, BeardNode)
     *                       *** comment tag
     *                       *** t.$()
     *                       *** parseBeard() -> inject the $node to data
@@ -214,7 +234,7 @@
                     return this.data('beard-value', val);
                 },
                 bindBeard: function(){
-                    Beard.bindData(this);
+                    Beard.bindBeard(this);
                     return this;
                 },
                 wrapData: function(){
@@ -259,7 +279,7 @@
                     return data;
                 },
                 lookUp: function(sel){
-                    var ret;
+                    var ret, empty = $();
 
                     ret = this.filter(sel).eq(0);
                     if(ret.size()) return ret;
@@ -273,29 +293,22 @@
                         if(ret.size()) return false;
                         ret = $t.prevAll(sel).eq(0);
                         if(ret.size()) return false;
+                        ret = empty;
                     })
                     return ret;
-                },
-                parentField: function(name){
-                    var sel = _dsel(name);
-                    var $t = this.lookUp(sel);
-                    return {
-                        $: $t,
-                        d: $t.bVal()
-                    }
                 },
                 nodeUp: function(name){
                     name = name||'';
                     var sel = _sel(name);
-                    return this.lookUp(sel).data('bn-'+name);
+                    return this.lookUp(sel).data('_bn');
                 },
                 nodeDown:function(name){
                     name = name||'';
                     var sel = _sel(name);
                     var t;
                     t = this.filter(sel).eq(0);
-                    if(t.size()) return t.data('bn-'+name);
-                    else return this.find(sel).eq(0).data('bn-'+name);
+                    if(t.size()) return t.data('_bn');
+                    else return this.find(sel).eq(0).data('_bn');
                 },
                 union: function($o){
                     var a = this.toArray();
@@ -317,13 +330,12 @@
                 this[i] = obj[i];
             }
         }
+        this.id();
+        this.__slot = null;
     }
 
     function _sel(name){
-        return name?'[data-bn-' + name + ']':'[data-bn]';
-    }
-    function _dsel(name){
-        return name?'[data-beard-field="' + name + '"]':'[data-beard-field]';
+        return name?'[data-bn="' + name + '"]':'[data-bn]';
     }
     function _data(data){
         if(data instanceof BeardNode){
@@ -337,69 +349,73 @@
         _start: function(n){
             this.$s = $(n);
             this.$ = [];
-            this.$_ = [];
+            this._slots = {};
         },
         _push: function(n){
-            if(n.nodeType == d.ELEMENT_NODE){
+            if(n.nodeType == ELEMENT_NODE){
                 if(!this.$n ){
                     var q = this.$n = $(n)
-                    .attr('data-bn', '1')
-                    .attr('data-bn-' + this._name, '1')
-                    .data('bn-'+this._name, this);
-                    if(!q.attr('bn-'))q.data('bn-', this);
+                    .attr('data-bn', this.__name)
+                    .data('_bn', this);
                 }
-                this.$_.push(n);
             }
             this.$.push(n);
         },
         _end: function(n){
             this.$e = $(n);
-            this.$_ = $(this.$_);
             this.$ = $(this.$);
         },
         prev: function(name){
             name = name || '';
-            return this.$s.prevAll(_sel(name)).eq(0).data('bn-'+name);
+            return this.$s.prevAll(_sel(name)).eq(0).data('_bn');
         },
         prevAll: function(name){
             name = name || '';
-            var sel = 'bn-' + name;
+            var sel = '_bn';
             return $.map(this.$s.prevAll(_sel(name)), function(i){
                 return $(i).data(sel);
             })
         },
         next: function(name){
             name = name || '';
-            return this.$e.nextAll(_sel(name)).eq(0).data('bn-'+name);
+            return this.$e.nextAll(_sel(name)).eq(0).data('_bn');
         },
         nextAll: function(name){
             name = name || '';
-            var sel = 'bn-' + name;
             return $.map(this.$e.nextAll(_sel(name)),function(i){
-                return $(i).data(sel);
+                return $(i).data('_bn');
             })
         },
         siblings: function(name){
             name = name || '';
-            var sel = 'bn-' + name;
             return $.map(this.$n.siblings(_sel(name)), function(i){
-                return $(i).data(sel);
+                return $(i).data('_bn');
             })
         },
-        nodeUp: function(name){
+        parent: function(name){
             name = name || '';
-            return this.$n.lookUp(_sel(name)).eq(0).data('bn-'+name);
+            return this.$s.parent().lookUp(_sel(name)).eq(0).data('_bn');
         },
-        nodeDown: function(name){
+        parents: function(name){
             name = name || '';
-            var d = this.$_.filter(_sel(name)).not(this.$n).eq(0);
-            if(d.size())return d.data('bn-'+name);
-            return this.$_.find(_sel(name)).eq(0).data('bn-'+name);
+            var res = [], n = this;
+            while(true){
+                n = n.$s.parent().lookUp(_sel(name)).eq(0).data('_bn');
+                if(!n) return res;
+                var n1 = n;
+                res.push(n1);
+            }
         },
-        nodeDownAll: function(name){
+        child: function(name){
             name = name || '';
-            var sel = 'bn-' + name;
-            return $.map(this.$_.filter(_sel(name)).not(this.$n).union(this.$_.find(_sel(name))), function(i){
+            var d = this.$.filter(_sel(name)).not(this.$n).eq(0);
+            if(d.size())return d.data('_bn');
+            return this.$.find(_sel(name)).eq(0).data('_bn');
+        },
+        children: function(name){
+            name = name || '';
+            var sel = '_bn';
+            return $.map(this.$.filter(_sel(name)).not(this.$n).union(this.$.find(_sel(name))), function(i){
                 return $(i).data(sel);
             })
         },
@@ -411,11 +427,15 @@
             this.$e.after(_data(data));
             return this;
         },
+        replace: function(beardNode){
+            this.after(beardNode).remove();
+            return beardNode;
+        },
         hide: function(){
             this.$.hide();
             this.$.each(function(){
                 if(this.nodeType == d.TEXT_NODE){
-                    if(!('hiddenVal' in this)) this.hiddenVal = this.nodeValue;
+                    if(!('_hiddenVal' in this)) this._hiddenVal = this.nodeValue;
                     this.nodeValue = '';
                 }
             })
@@ -425,7 +445,7 @@
             this.$.show();
             this.$.each(function(){
                 if(this.hiddenVal){
-                    this.nodeValue = this.hiddenVal;
+                    this.nodeValue = this._hiddenVal;
                 }
             })
             return this;
@@ -435,14 +455,14 @@
             else this.$.remove();
             return this;
         },
-        appendTo: function(target){
-            this.$.appendTo($(target));
-            return this;
-        },
-        prependTo: function(target){
-            this.$.prependTo($(target));
-            return this;
-        },
+        //        appendTo: function(target){
+        //            this.$.appendTo($(target));
+        //            return this;
+        //        },
+        //        prependTo: function(target){
+        //            this.$.prependTo($(target));
+        //            return this;
+        //        },
         insertAfter: function(target){
             if(target instanceof BeardNode){
                 this.$.insertAfter(target.$e);
@@ -461,6 +481,172 @@
         },
         wrapData: function(){
             return this.$.wrapData();
+        },
+        id: function(){
+            if(!this.__objid_){
+                utils._objId(this, true);
+            }
+            return this.__objid_;
+        },
+        _onRefresh: function(){},
+        onRefresh: function(func){
+            if(typeof func == 'function'){
+                this._onRefresh = func;
+            }
+        },
+        refresh: function(deepRefresh, extra){
+            var slots = this._slots, self = false;
+
+            if(deepRefresh){
+                for(var slotName in slots){
+                    if(slots.hasOwnProperty(slotName)){
+                        slots[slotName].refresh(true, extra);
+                    }
+                }
+            } 
+
+            //            if(self){
+            var args = [this[this._arg], extra]; // **** for the obj for beard node
+            var nbn = this.tpl._bn.apply(this.tpl, args);
+
+            this.after(nbn.$)
+
+            // moving slots back
+            for(slotName in slots){
+
+                // removing slots from top level
+                var os = this.slot(slotName).$, idx;
+                if((idx = this.$.index(os)) != -1){
+                    this.$.splice(idx, 1);
+                }
+                if(slots.hasOwnProperty(slotName)){
+                    var ns = nbn.slot(slotName).$;
+                    // adding slots to top level of the new html
+                    if((idx = nbn.$.index(ns)) != -1){
+                        nbn.$.splice(idx, 1, this.slot(slotName).$[0]);
+                    }
+                    ns.before(this.slot(slotName).$)
+                    .remove();
+                }
+                this._onRefresh(nbn.$, args);
+            }
+
+            this.remove();
+            this.$s = nbn.$s;
+            this.$e = nbn.$e;
+            this.$n = nbn.$n.data('_bn', this);
+            this.$ = nbn.$;
+            //            }
+
+            this._dirty = false;
+        // end of refresh
+        },
+        slot: function(name){
+            return this._slots[name];
+        }
+    }
+
+    var BeardSlot = function(tplPath, objId, parentNode, $n){
+        if(tplPath){
+            this.tpl = getTplFunction(tplPath);
+        }
+        this.parent = parentNode;
+        this.$ = $n;
+        this.nodes = [];
+        this.raw = null;
+        this._refreshIdx = -1;
+        if(objId){
+            this.init(objCache[objId]);
+        }
+    }
+    BeardSlot.prototype = {
+        init: function(raw){
+            this.$.html('');
+            this.loadRaw(raw);
+        },
+        loadRaw: function(raw){
+            // this object has been loaded and should not be loaded again
+            if('_slotdata' in raw) return;
+            // clear the embeded slot data to prevent memory leaking
+            if(this.raw)this.raw._slotdata = null;
+            // re-embed slot data to the new raw object
+            this.raw = raw;
+            raw._slotdata = this.nodes;
+
+            // repare the queue
+            var t = this, queue = [];
+            Beard.utils.loop(raw, function(data){
+                queue.push(data);
+            })
+
+            var slot = this, bn;
+            // pushing the loading task to Beard' thread
+            // the function should be :
+            // func ( runNum ) -> return true if finish, otherwise false
+            Beard.thread(function(run){
+                if(slot.__removed) return true;
+                for(var i = 0; i < run; i ++){
+                    var d = queue.shift();
+                    if(typeof d == 'undefined') return true;
+                    slot.nodes.push(bn = t.tpl.bn(d));
+                    if(!bn) continue;
+                    bn.__slot = slot;
+                    slot.$.append(bn.$);
+                }
+                return false;
+            })
+        },
+        refresh: function(deepRefresh, extra){
+            var t = this;
+            clearTimeout(t._thread);
+
+            if(deepRefresh)
+                t.deepRefresh = true;
+
+            if(t._refreshIdx != -1){
+                t._refreshIdx = 0;
+                return;
+            } else {
+                t._refreshIdx = 0;
+                Beard.thread(function(run){
+                    if(t.__removed) return true;
+                    for(var i = 0; i < run; i++){
+                        if(t._refreshIdx >= t.nodes.length){
+                            t._refreshIdx = -1;
+                            t.deepRefresh = false;
+                            return true;
+                        }
+                        t.nodes[t._refreshIdx++].refresh(t.deepRefresh, extra);
+                    }
+                    return false;
+                }, true);
+            }
+        },
+        insert: function(obj, pos){
+        // obj: beard node, raw data
+        // pos: beard node, number
+        
+        },
+        remove: function(pos, range){
+        // pos : number, array, beard node
+        // range : number, default 1
+
+        },
+        extra: function(key, val){
+            if(typeof val == 'undefined'){
+                return this._extra[key];
+            } else {
+                this._extra[key] = val;
+            }
+        },
+        move: function(obj, dis){
+
+        },
+        append: function(obj){
+
+        },
+        prepend: function(obj){
+
         }
     }
 
@@ -477,17 +663,16 @@
         // template config
         codeOpen : '[##',
         codeClose : '#]',
-        equaOpen : '[``',
+        equalOpen : '[``',
         escapeOpen : '[`/',
         commentOpen : '[//',
         htmlCommentOpen : '[///',
         commentClose : '/]',
-        equaClose : '`]',
+        equalClose : '`]',
 
         // html config
         nodeDef: 'beard',
         nodePath: 'bpath',
-        nodeRemote: 'bremote',
         nodeData: 'bdata',
         nodeDatabind: 'bdatabind',
         nodeArgs: 'bargs',
@@ -504,7 +689,7 @@
 
     isDebug = false, safeMode = true, $debug, locIndex = 0,
     canLog = typeof console != 'undefined' && typeof console.log == 'function',
-    rgxKey = /^\s*(?:([^\:]+)\:)?([^#\(]*)(?:#([^\(]+))?(?:\(([^\)]*)\))?\s*/,
+    rgxTplName = /^\s*([\w\.]+)\s*(?:\(([^\)]*)\))?(?:\->\s*([\w\.]+))?\s*$/,
     rgxNewLine = /\n|\r\n|\n\r|\r/,
 
     tplTags, ec,
@@ -514,8 +699,6 @@
         else return 1;
     },
     E = '\x1b', EE = E+E, EEE = EE + E, EEEE = EEE + E,
-    rgxTagName = /^[^\(]+/, //, rgxTagArgs = /\s*\(\s*\)\s*/;
-
 
     // for the tpls
     Btpls = g.Btpls = {
@@ -527,6 +710,7 @@
         return ''
     },
     STRING = 'string', FUNCTION = 'function',
+    COMMENT_NODE = 8, ELEMENT_NODE = 1,
     firstRun = true, readyFuncs = [], operationQueue = [],
     withinZone,
 
@@ -652,11 +836,14 @@
                 } else {
                     if(typeof path == 'string'){
                         var cf = {};
-                        var tmp = path.split('->');
-                        parseJsonPathStr(tmp[0], cf, 'p', sc, '');
-                        if(1 in tmp){
-                            parseJsonPathStr(tmp[0], cf, 'r', sc, '');
+                        if(path.charAt(0) == '!'){
+                            cf.b = true;
+                            path = path.substr(1);
                         }
+                        var m = rgxTplName.exec(path);
+                        cf.p = m[1];
+                        cf.a = m[2];
+                        cf.r = m[3];
                     } else {
                         cf = path;
                     }
@@ -665,21 +852,11 @@
                     } else {
                         f = getTplFunction(cf.r);
                     }
-                    tmp = cf.p.split('.');
+                    var tmp = cf.p.split('.');
                     pushFunction(cf.p, tmp[tmp.length - 1], f, cf.r);
                 }
             } else if(typeof content == 'object' && content != null){
-                var sc = {};
-                var idx = 0;
-                while(true){
-                    var res = prepareJsonTpls(content, sc, idx, idx, '');
-                    if(!res){
-                        throw 'There is cross-ref keys in the tpls path shortcut.';
-                    } else if(res == 2){
-                        break;
-                    }
-                    idx ++
-                }
+                prepareJsonTpls(content, '');
                 loadEachScript(content);
             }
             if(_run == 1) nextOp();
@@ -728,18 +905,18 @@
             BEARD_ARGS = _options.nodeArgs;
             BEARD_REF = _options.nodeRef;
 
-            ec = _options.equaClose;
+            ec = _options.equalClose;
 
             tplTags = {};
             tplTags[_options.codeOpen] = ec + 'o' + E;
-            tplTags[_options.equaOpen] = ec + 'q' + E;
+            tplTags[_options.equalOpen] = ec + 'q' + E;
             tplTags[_options.escapeOpen] = ec + 's' + E;
             tplTags[_options.commentOpen] = ec + 'c' + E;
             tplTags[_options.htmlCommentOpen] = ec + 'h' + E;
             tplTags[_options.commentClose] = ec;
             tplTags[_options.codeClose] = ec;
             tplTags['_seq'] = [_options.htmlCommentOpen,_options.commentOpen,_options.codeOpen,
-            _options.equaOpen, _options.escapeOpen,
+            _options.equalOpen, _options.escapeOpen,
             _options.codeClose, _options.commentClose];
 
             tplTags._seq.sort(cmpLength);
@@ -765,17 +942,17 @@
             }
             return Beard;
         },
-        bindData: function($scope){
-            return Beard.bindDataOnly($scope).clearData();
+        bindBeard: function($scope){
+            return Beard.bindBeardOnly($scope).clearDataCache();
         },
         parseHtml: function(h){
             if(!(h instanceof jQuery)){
-                h = $($(d.createElement('div')).html(h).contents());
+                h = $($('<div>' + h + '</div>').contents());
             }
-            Beard.bindData(h);
+            Beard.bindBeard(h);
             return h;
         },
-        bindDataOnly: function($scope){
+        bindBeardOnly: function($scope){
             if(hasDataCached){
                 if(!$scope){
                     $scope = $('body');
@@ -795,7 +972,7 @@
             }
             return Beard;
         },
-        clearData: function(){
+        clearDataCache: function(){
             objCache = {};
             hasDataCached = false;
             return Beard;
@@ -816,12 +993,14 @@
             }
             return F.apply(this, fArgs);
         },
-        clearAll: function(){
+        reset: function(){
             operationQueue = [];
             running = false;
             firstRun = true;
             tplsByPath = {};
             objCache = {};
+            _options = $.extend({}, defOpts);
+            resetUtils();
             // for the tpls
             Btpls = g.Btpls = {
                 __tpls__: [],
@@ -830,6 +1009,44 @@
             if($beard) $beard.html('');
             withinZone = _options.withinZone;
             return Beard;
+        },
+        _threads: [],
+        _run: 10,
+        _interval: 1,
+        _thread_idx: -1,
+        _thread_timer: false,
+        thread: function(func, unshift){
+            // if the slot is short, run it straigt away
+            if(func(Beard._run)) return;
+
+            if(unshift){
+                Beard._threads.unshift(func);
+            } else {
+                Beard._threads.push(func);
+            }
+
+            if(Beard._thread_timer == false){
+                Beard._thread_timer = setTimeout(function(){
+                    Beard.startThread();
+                }, Beard._interval)
+            }
+        },
+        startThread: function(){
+            // iteratively run the first 4 threads
+            var suiteNum = Beard._threads.length;
+            suiteNum = suiteNum > 4?4:suiteNum;
+            var thread_idx = (++Beard._thread_idx)%suiteNum;
+
+            if(Beard._threads[thread_idx](Beard._run)){
+                Beard._threads.splice(thread_idx, 1);
+            }
+            if(Beard._threads.length){
+                Beard._thread_timer = setTimeout(function(){
+                    Beard.startThread();
+                }, Beard._interval)
+            } else {
+                Beard._thread_timer = false;
+            }
         },
         initEvents: function(events, path, $context, action, type){
             if(!$context){
@@ -893,7 +1110,7 @@
         var m, bn, stk = [];
         for(var i = 0, len = a.length; i < len; i ++ ){
             var n = a[i];
-            if(n.nodeType == d.COMMENT_NODE){
+            if(n.nodeType == COMMENT_NODE){
                 if(n.nodeValue){
                     if(m = rgxNodeStart.exec(n.nodeValue)){
                         if(bn){
@@ -916,7 +1133,7 @@
                     stk[j]._push(n);
                 }
             }
-            if(n.nodeType == d.ELEMENT_NODE){
+            if(n.nodeType == ELEMENT_NODE){
                 bindBeardNodes(n.childNodes);
             }
         }
@@ -952,101 +1169,48 @@
         }
     }
 
-    function parseJsonPathStr(str, obj, t, sc, p){
-        var m = rgxKey.exec(str), t1= t+'1', t2=t+'2';
-        if(m){
-            if(m[1] && (m[1] in sc)){
-                obj[t] = sc[m[1]] + (m[2]? '.' + m[2]: '');
-            } else {
-                if(m[1]){
-                    obj[t1] = m[1];
-                    obj[t] = m[2];
-                } else{
-                    obj[t] = p + m[2];
-                }
-            }
-            if(!obj[t1] && m[3]){
-                sc[m[3]] = obj[t];
-            } else {
-                obj[t2] = m[3];
-            }
-            if(t == 'p'){
-                obj.a = m[4];
-            }
-        } else {
-            throw new Error('Cannot parse the json as a set of templates. failed @ ' + str);
-        }
-    }
-    function prepareJsonTpls(j, sc, notFirst, idx, p){ // sc : shortcuts
-        var fn = 2;
+    
+    function prepareJsonTpls(j, p){ // sc : shortcuts
         for(var key in j){
             if(key && j.hasOwnProperty(key)){
-                if(!notFirst){
-                    if(typeof j[key] == 'object'){
-                        cf = j[key][''] = { // cf : config
-                            t: j[key][''],
-                            d: true
-                        }
-                    } else {
-                        j[key] = { // cf : config
-                            '':{
-                                t: j[key],
-                                d: false
-                            }
-                        }
-                        var cf = j[key][''];
-                    }
-                    // cf : 
-                    // t->template string, d->go down
-                    // p1 path prefix, p path, p2 path assignment
-                    // r1 reference prefix, r reference, r2 reference assignment
-                    // b databind
-                    if(key.charAt(0) == '!'){
-                        cf.b = true;
-                        var tmpKey = key.substr(1);
-                    } else {
-                        tmpKey = key
-                    }
-                    // first, parse the key
-                    var tmp = tmpKey.split('->');
-                    parseJsonPathStr(tmp[0], cf, 'p', sc, p);
-                    if(1 in tmp){
-                        parseJsonPathStr(tmp[1], cf, 'r', sc, '');
+                if(typeof j[key] == 'object'){
+                    cf = j[key][''] = { 
+                        t: j[key][''],
+                        d: true
                     }
                 } else {
-                    cf = j[key][''];
-                    if(cf.p1 && (cf.p1 in sc)){
-                        cf.p = sc[cf.p1] + '.' + cf.p;
-                        cf.p1 = '';
-                        if(cf.p2){
-                            sc[cf.p2] = cf.p;
+                    j[key] = { // cf : config
+                        '':{
+                            t: j[key],
+                            d: false
                         }
                     }
-                    if(cf.r1 && (cf.r1 in sc)){
-                        cf.r = sc[cf.r1] + (cf.r?'.' + cf.r:'');
-                        cf.r1 = '';
-                        if(cf.r2){
-                            sc[cf.r2] = cf.r;
-                        }
-                    }
+                    var cf = j[key][''];
                 }
-                if(cf.p1 || cf.r1){
-                    if(!cf.idx) cf.idx = idx;
-                    if(cf.idx < idx - 2) return 0;
-                    fn = 1;
-                } else if(cf.d){
-                    var res = prepareJsonTpls(j[key], sc, cf.nf, idx, cf.p + '.');
-                    if(!res)
-                        return 0;
-                    if(res == 1){
-                        fn = 1;
-                    }
-                    cf.nf = true;
+                
+                // cf :
+                // t->template string
+                // a arguments
+                // p path
+                // r reference
+                // b databind
+                if(key.charAt(0) == '!'){
+                    cf.b = true;
+                    var tmpKey = key.substr(1);
+                } else {
+                    tmpKey = key
+                }
+                // first, parse the key
+                var m = rgxTplName.exec(tmpKey);
+                cf.p = p + m[1];
+                cf.a = m[2];
+                cf.r = m[3];
+                if(cf.d){
+                    prepareJsonTpls(j[key], cf.p + '.');
                 }
             }
         // end of each key
         }
-        return fn;
     }
 
     function loadEachScript(j){
@@ -1127,20 +1291,72 @@
         var parent = getTplFunction(path, true);
         name = name.charAt(0).toUpperCase() + name.slice(1);
         if(!refto){
-            var tpl = getTplFunction(path);
-            tpl.fn = f;
             if(name in parent){
-                utils._log(new Date().toLocaleTimeString() + ' --------------- TPL OVERWRITTEN ------------- ' + path);
+                tpl = parent[name];
+                if(tpl.__path == path){
+                    // tpl replacing tpl
+                    tpl.fn = f;
+                    utils._log(new Date().toLocaleTimeString() + ' --------------- TPL OVERWRITTEN ------------- ' + path);
+                } else {
+                    // tpl replacing tpl ref
+                    delete parent[name].__refbys[path]; // removing refbys
+                    delete parent[name];
+                    delete tplsByPath[path];
+                    tpl=getTplFunction(path);
+                    tpl.fn = f;
+                    utils._log(new Date().toLocaleTimeString() + ' --------------- TPL REF OVERWRITTEN ------------- ' + path);
+                }
             } else {
+                // tpl replacing nothing
+                var tpl = getTplFunction(path);
+                tpl.fn = f;
                 utils._log(new Date().toLocaleTimeString() + ' --------------- NEW TPL CREATED ------------- ' + path);
             }
         } else {
+            if(name in parent){
+                var otpl = parent[name];
+                if(otpl.__path == path){
+                    // tpl ref replacing tpl
+                    for(var ref in otpl.__refbys){
+                        if(otpl.__refbys.hasOwnProperty(ref)){
+                            var reftpl = getTplFunction(ref, true);
+                            var refname = /[^\.]+$/.exec(ref)[0];
+                            reftpl[refname] = f;
+                            utils._log(new Date().toLocaleTimeString() + ' --------------- RENEWING REF ------------- ' + ref + ' --to--> ' + refto);
+                        }
+                    }
+                    clearSubTpls(otpl);
+                }
+            }
             tpl = f;
-            utils._log(new Date().toLocaleTimeString() + ' --------------- PARSING REF ------------- ' + path + ' --to--> ' + refto);
+            // setting refbys
+            f.__refbys[path] = 1;
+            utils._log(new Date().toLocaleTimeString() + ' --------------- CREATE REFERENCE ------------- ' + path + ' --to--> ' + refto);
         }
         parent[name] = tpl;
         parent.__tpls__[name] = 1;
 
+    }
+
+    function clearSubTpls(tpl){
+        for(var sub in tpl.__tpls__){
+            var subtpl = tpl[sub];
+            var path = tpl.__path? tpl.__path + '.' + sub : sub;
+            if(subtpl.__path == path){
+                var tmp = path;
+                utils._log(new Date().toLocaleTimeString() + ' --------------- CLEARING SUB TPL ------------- ' + path);
+                // it is not a template reference
+                subtpl.__parent = null;
+                subtpl.fn = function(){
+                    throw new Error(tmp + ' : Not implemented yet');
+                }
+                clearSubTpls(subtpl);
+                tpl[sub] = null;
+            }
+        // if it is a template reference, skip
+        }
+        tpl.__parent = null;
+        tpl.__tpls__ = {};
     }
 
 
@@ -1199,20 +1415,23 @@
     function initTplFunc(tpl, subtplconfig, tags, parent, path, name){
         tpl.__tpls__ = subtplconfig;
         tpl.tags = tags;
-        tpl._parent = parent;
-        tpl._name = name;
+        tpl.__parent = parent;
+        tpl.__name = name;
         tpl.__path = path;
+        tpl.__refbys = {};
         tpl.p = extra.getParentTpl;
         tpl.$ = extra.getJqueryObj;
+        tpl.bn = extra.getBeardNode;
+        tpl._bn = extra.getTopBeardNode;
     }
 
-    var UNDERSCORE = '_';
+    var UNDERSCORE = '_', rgxVarName = /^[a-zA-Z]\w+$/;
     function compileUtils(path, args){
         var code = ['/*\x1b*/\nif(u._edit>', utils._edit, '){return Beard._recompileTemplate(u._tplsStr["', path ,'"], "',
         path, '", "', args, '", ', args, ')}'];
 
         utils.loop(utils, function(val, name){
-            if(name.charAt(0) != UNDERSCORE){
+            if(rgxVarName.test(name)){
                 if(typeof val == 'function'){
                     code.push('\nfunction ', name, '(){return u.', name,'.apply(u, arguments)}')
                 } else {
@@ -1232,13 +1451,16 @@
         } else {
             args = 'd,_e_';
         }
-
-        var tmp = args.replace(/\s/g, '').split(',');
-        var argObj = [];
-        for(var i = 0, len = tmp.length; i < len; i++){
-            argObj.push(i?',"':'"', tmp[i], '":', tmp[i]);
+        
+        var argAry = args.replace(/\s/g, '').split(/,/);
+        if(databind){
+            var argObj = [];
+            for(var i = 0, len = argAry.length; i < len; i++){
+                argObj.push(i?',"':'_arg:"'+ argAry[i]+ '","'
+                    , argAry[i], '":', argAry[i]);
+            }
+            argObj = argObj.join('');
         }
-        argObj = argObj.join('');
 
         utils.loop(tplTags, function(val, key){
             pts = pts.split(key).join(val);
@@ -1275,16 +1497,15 @@
                             // the expression to be exported to output
                             code.push(EXPRE_1,
                                 pt,
-                                isDebug? ';log(new Date().toLocaleTimeString() + "  ----->   "+   (' + (locIndex++) + ")   +'" +
-                                pt.replace(/(\\|')/g, '\\$1').split(rgxNewLine).join('\\n') + " =>' + (" + pt +"));\n": ";\n"
+                                isDebug? ';\n__tmp__=' + pt + ';\nlog(new Date().toLocaleTimeString() + "  ----->   "+   (' + (locIndex++) + ")   +'" +
+                                pt.replace(/(\\|')/g, '\\$1').split(rgxNewLine).join('\\n') + " {non-escaped} => ' + __tmp__);\n": ";\n"
                                 );
                             break;
                         case 's': //eScape
                             // the content needs escaped
-                            code.push(ESC_1,
-                                pt,
-                                isDebug? ');log(new Date().toLocaleTimeString() + "  ----->   "+   (' + (locIndex++) + ")   +'" +
-                                pt.replace(/(\\|')/g, '\\$1').split(rgxNewLine).join('\\n') + "' + (" + pt +"));\n": ");\n"
+                            code.push('__tmp__=' + pt + ';\no[o.length]=esc(__tmp__);',
+                                isDebug? 'log(new Date().toLocaleTimeString() + "  ----->   "+   (' + (locIndex++) + ")   +'" +
+                                pt.replace(/(\\|')/g, '\\$1').split(rgxNewLine).join('\\n') + " {escaped} => ' + __tmp__);\n": "\n"
                                 );
                             break;
                         case 'h': // Html comment
@@ -1314,7 +1535,7 @@
         .replace(/try{}catch\(e\){.*?}\n/g, '');
 
         code = ['var e=typeof _e_=="undefined"?{}:_e_,u=Beard.utils,o=[],t=this,g=Btpls.g',
-        databind?',__aobj={'+argObj+',tpl:t,_name:t._name,__path:t.__path};u._objId(__aobj);':';',
+        databind?',__aobj={'+argObj+',tpl:t,__name:t.__name,__path:t.__path};u._objId(__aobj);':';',
         'if(typeof e=="object")e.def=u._defVal;function out(){o.push.apply(',
         'o, arguments);}',
         compileUtils(path, args),
@@ -1330,6 +1551,7 @@
 
         try{
             var F = new Function(args, code);
+            F._args = argAry;
             utils._log(new Date().toLocaleTimeString() + ' ---- SUCCESS: The compiled function for template <<' + path + '>> : ---- \n\n');
             utils._log(code);
             utils._tplsStr[path] = code;
@@ -1353,12 +1575,64 @@
             utils.__dataMode = prev;
             return Beard.parseHtml(h, true);
         },
+        _getBeardNode: function(){
+            var h = this.fn.apply(this, arguments);
+            var args = {
+                _e_: arguments[1],
+                _arg: this.fn._args[0]
+            };
+            args[this.fn._args[0]] = arguments[0];
+            var bn = new BeardNode(args);
+            if(utils.__dataMode){
+                bn.$ = Beard.parseHtml(h);
+            } else {
+                bn.$ = $($('<div>' + h + '</div>').contents());
+            }
+            bn.$s = bn.$.eq(0);
+            bn.$e = bn.$.eq(bn.$.length-1);
+            bn.$n = bn.$.filter('*').eq(0);
+            bn.$n.data('_bn', bn).attr('data-bn', this.__name);
+            bn._slots = {};
+            bn.tpl = this;
+            
+            return bn
+        },
+        getTopBeardNode: function(){
+            var bn = extra._getBeardNode.apply(this, arguments);
+
+            bn.$.filter('[data-bs]')
+            .union(bn.$.find('[data-bs]'))
+            .each(function(){
+                var slotName = this.getAttribute('data-bs');
+                bn._slots[slotName] = new BeardSlot(null, null, bn, $(this));
+            })
+
+            return bn;
+        },
+        getBeardNode: function(){
+            var bn = extra._getBeardNode.apply(this, arguments);
+
+            bn.$.filter('[data-bs]')
+            .union(bn.$.find('[data-bs]'))
+            .each(function(){
+                var slotName = this.getAttribute('data-bs');
+                var $t = $(this);
+                var path = this.getAttribute('data-bs-tpl'),
+                slotData = this.getAttribute('data-bs-raw'),
+                slot = bn._slots[slotName] = new BeardSlot(path, slotData, bn, $t);
+                this.removeAttribute('data-bs-tpl');
+                this.removeAttribute('data-bs-raw');
+                $t.data('_bs', slot);
+            })
+
+            return bn;
+        },
         getParentTpl: function(key){
-            if(!key) return this._parent;
+            if(!key) return this.__parent;
             var ret = this;
             if(typeof key == 'number'){
                 for(var i = key; i > 0; i--){
-                    ret = ret._parent;
+                    ret = ret.__parent;
                     utils.log(ret);
                     if(!ret) {
                         throw new Error(' No more parent template for t.p(' + key + ')');
@@ -1367,11 +1641,11 @@
                 return ret;
             } else {
                 while(true){
-                    ret = ret._parent;
+                    ret = ret.__parent;
                     if(!ret) {
                         throw new Error(' The template name could not be found for t.p(' + key + ')');
                     }
-                    if(ret._name == key){
+                    if(ret.__name == key){
                         return ret
                     }
                 }
@@ -1379,12 +1653,12 @@
         }
     }
 
-    var utils = Beard.utils = {
-        _edit: 0,
+
+    var utils_bak = {
         __level: 0,
         __dataMode: false,
         esc: function(str){
-            if(str !== null && str !== undefined){
+            if(str !== null && typeof str != 'undefined'){
                 return str.toString()
                 .split('&').join('&amp;')
                 .split('<').join('&lt;')
@@ -1415,15 +1689,15 @@
             }
         },
         _tplsStr: {},
-        loop: function(data, callback, mode, extra, undefined){
-            k = 0;
-            if(typeof callback != 'function' || data === null || data === undefined){
+        loop: function(data, callback, mode, extra){
+            var k = 0;
+            if(typeof callback != 'function' || typeof data === 'undefined' || data == null || typeof data != 'object'){
                 return false;
             }
             if(mode == ARRAY || data instanceof Array){
-                for(var k = 0, len = data.length; k < len; k ++){
+                for(len = data.length; k < len; k ++){
                     var ret = callback(data[k], k, data, extra);
-                    if(ret !== undefined && ret !== true) return {
+                    if(typeof ret != 'undefined' && ret !== true) return {
                         ret: ret,
                         num: k
                     };
@@ -1431,20 +1705,23 @@
             } else if(mode == OBJECT || data && typeof data == OBJECT){
                 if(data._seq){
                     var seq = data._seq;
-                    for(k = 0, len = seq.length; k < len; k++){
-                        var key = seq[k];
-                        ret = callback(data[key], key, data, extra);
-                        if(ret !== undefined && ret !== true) return {
-                            ret: ret,
-                            num: k,
-                            key: key
-                        };
+                    for(var j = 0, len = seq.length; j < len; j++){
+                        var key = seq[j];
+                        if(typeof data[key] != 'undefined'){
+                            k ++;
+                            ret = callback(data[key], key, data, extra);
+                            if(typeof ret != 'undefined' && ret !== true) return {
+                                ret: ret,
+                                num: k,
+                                key: key
+                            };
+                        }
                     }
                 } else {
                     for(var l in data){
-                        if(data.hasOwnProperty(l)){
+                        if(data.hasOwnProperty(l) && l.charAt(0) != '_'){
                             ret = callback(data[l], l, data, extra);
-                            if(ret !== undefined && ret !== true) return {
+                            if(typeof ret != 'undefined' && ret !== true) return {
                                 ret: ret,
                                 num: k,
                                 key: l
@@ -1453,10 +1730,7 @@
                         }
                     }
                 }
-            } else {
-                k = -1;
-                callback(data, null, data, extra);
-            }
+            } 
 
             return k;
         },
@@ -1521,7 +1795,7 @@
         },
         // data attribute
         _objId : function(obj, nocache){
-            if(obj !== null && obj !== undefined){
+            if(obj !== null && typeof obj != 'undefined'){
                 if(typeof obj == 'object' || typeof obj == 'function'){
                     if(obj.__objid_){
                         var id = obj.__objid_;
@@ -1543,6 +1817,23 @@
         field: function(name, obj){
             var id = utils._objId(obj);
             var attr = [' ',BEARD_DATA, '="', id, '"',' data-beard-field="', name, '" '];
+            return attr.join('');
+        },
+        slot: function(name, tpl, obj){
+            var attr = [' data-bs="', name, '"'];
+            if(tpl){
+                attr.push(' data-bs-tpl="', tpl.__path, '"');
+            }
+            if(obj){
+                if(!(obj[name] instanceof Array)){
+                    if(typeof obj[name] == 'undefined'){
+
+                }
+                }
+                var id = utils._objId(obj);
+                attr.push(' data-bs-raw="', id, '"');
+            }
+            attr.push(' ');
             return attr.join('');
         },
         clear: function(obj, keys){
@@ -1579,6 +1870,20 @@
                 this[key] = val;
             }
         },
+        //        _clone: function(vals){
+        //            var ret = {};
+        //            for(var key in this){
+        //                if(this.hasOwnProperty(key) && !(key in vals)){
+        //                    ret[key] = this[key];
+        //                }
+        //            }
+        //            for(key in vals){
+        //                if(vals.hasOwnProperty(key)){
+        //                    ret[key] = vals[key];
+        //                }
+        //            }
+        //            return ret;
+        //        },
         sort: function(data, func){
             if(!func || typeof func == 'string'){
                 func = utils._getSortFunc(func);
@@ -1649,6 +1954,23 @@
             }
         }
     }
+
+    var utils = Beard.utils = {
+        _edit: 0
+    };
+    function resetUtils(){
+        for(var i in utils){
+            if(utils.hasOwnProperty(i) && !(i in utils_bak) && i != '_edit'){
+                delete utils[i];
+            }
+        }
+        for(i in utils_bak){
+            if(utils_bak.hasOwnProperty(i)){
+                utils[i] = utils_bak[i];
+            }
+        }
+    }
+    resetUtils();
 
     g.Beard = Beard;
     var log = utils.log;

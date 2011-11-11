@@ -16,6 +16,9 @@ Simple tips:
 <li>t: handler of the current template
 <li>t.p(): get the parent template
 </ul>
+<p>
+Do not panic if you don't understand the code in this example, because it
+is merely a showcase.
 ***
 <div beard="PersonRecords" bargs="persons">
     <!--@

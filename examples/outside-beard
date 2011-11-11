@@ -1,0 +1,24 @@
+Beard's main object is <b>Beard</b>.
+<p>
+A very basic usage is call <b>init()</b> to configure the Beard,
+and call <b>load()</b> to load the templates into <b>Btpls</b>.
+You can refer to Beard APIs to get more information.
+***
+<div beard='Root'>
+    <!--@ @#d#@ will do nothing @-->
+    <div beard='Sub1'>
+        <!--@ @#d#@ will do nothing again @-->
+    </div>
+</div>
+***
+Beard.init({equalOpen: '@#', equalClose: '#@'}).load();
+
+***
+var data =  ''
+
+result = Btpls.Root('Root template');
+result += '\n\n';
+
+result += Btpls.Root.Sub1('Sub1 template');
+result += '\n\n';
+

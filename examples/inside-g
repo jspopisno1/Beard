@@ -1,0 +1,42 @@
+The magical g is a way for you to define global parameters.
+<p>
+Instead of polluting the <b>window</b> object, I believe that having the
+global variables defined under a namespace is better.
+<p>
+To use the magical g, you need to first assign the variable to <b>Btpls.g</b>
+
+***
+<div beard='Func'>
+    <!--@
+        <p>
+       Greeting, [`` g.formatUserName(d) `].
+        [## if(g.canUserSeeButtons){ #]
+           <a class='button' href='/a/secret/place'><span>Something very special just for you</span></a>
+        [## } else { out('There is nothing special here.') } #]
+        </p>
+    @-->
+</div>
+***
+Beard.load();
+
+***
+Btpls.g.canUserSeeButtons = false;
+$.extend(Btpls.g, {formatUserName: function(person){ return person.title + ' ' + person.name } });
+
+var data =  {
+    title: 'Mr',
+    name: 'James Bonds'
+};
+
+
+result = Btpls.Func(data);
+result += '\n\n';
+
+Btpls.g.canUserSeeButtons = true;
+data =  {
+    title: 'Ms',
+    name: 'Mary Sports'
+};
+
+result += Btpls.Func(data);
+result += '\n\n';

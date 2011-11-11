@@ -1,0 +1,23 @@
+Now we are going to talk about four magical vars inside a template. They
+are created to make your life much easier. <p>The very first one is <b>t</b>.
+***
+<div beard='Root'>
+    <!--@ inside Root -> [## out(t.Sub1()) #] @-->
+    <div beard='Sub1'>
+        <!--@ inside Sub1 -> [## out(t.p().Sub2.SubSub()) #] @-->
+    </div>
+    <div beard='Sub2'>
+        <!--@ inside Sub2. End @-->
+        <div beard='SubSub'>
+        <!--@ inside SubSub -> [## out(t.p('Root').Sub2()) #] @-->
+        </div>
+    </div>
+</div>
+***
+Beard.load();
+
+***
+var data =  ''
+
+result = Btpls.Root();
+result += '\n\n';

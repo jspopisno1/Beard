@@ -4,6 +4,7 @@ Actually it is true by default.
 The equal tag will catch any exception to ensure that the template can still
 work. Of course, no one loves to break their own code. But in certain cases,
 this can make it more safe to use 'dot' chain to get data from the input object.
+
 ***
 <div beard="SafeMode">
     <!--@
