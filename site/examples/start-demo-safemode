@@ -1,0 +1,24 @@
+The compiled template will be more safer, if you turn safeMode as true.
+Actually it is true by default.
+<p>
+The equal tag will catch any exception to ensure that the template can still
+work. Of course, no one loves to break their own code. But in certain cases,
+this can make it more safe to use 'dot' chain to get data from the input object.
+
+***
+<div beard="SafeMode">
+    <!--@
+    When refering to an undefined var, e.g.
+    style="[`` d.css.width `]"
+    @-->
+</div>
+***
+Beard.load();
+***
+var data =  {css:{width: 'width:550px;'}}
+result = Btpls.SafeMode(data);
+
+result += '\n\n';
+
+data =  {} // no css at all
+result += Btpls.SafeMode(data);

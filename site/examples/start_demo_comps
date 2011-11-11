@@ -1,0 +1,56 @@
+This demo illustrate how to take advantage of Beard to compose a complex template.
+<p>
+In this case, you can see that the templates are organised in a neat, nested way. Inside a template,
+you can always call its sub template or sub sub ... template via the magic variable t.
+<p>
+For instance, in this case, you can call Service via t.Service() from InvoiceTemplate, or
+even in a convenient way : t['Service'], which is used in this example.
+<p>
+This scenario originates from Dave Ward's
+<a target='_blank' href='http://encosia.com/composition-with-jquery-templates-why-and-how/'>Composition with jQuery Templates: Why and How</a>
+You can take a look at the example using jquery template.
+***
+<div beard="InvoiceTemplate" bargs="items">
+    <!--@
+    <table>
+        [## loop(items, function(item){
+            out(t[item.type](item));
+         }) #]
+    </table>
+    @-->
+    <div beard="Item">
+        <!--@
+        <tr>
+            <td>[`/ d.part `]</td>
+            <td>[`/ d.description `]</td>
+            <td>$[`/ d.price `] </td>
+            <td>[`/ d.qty `]</td>
+        </tr>
+        @-->
+    </div>
+    <div beard="Service">
+        <!--@
+        <tr>
+            <td colspan="2">[`/ d.service `]</td>
+            <td colspan="2">$[`/ d.price `]</td>
+        </tr>
+        @-->
+    </div>
+</div>
+***
+Beard.load();
+***
+data =  [
+    { type: 'Item',
+        part: '99Designs', description: '99 Designs Logo',
+        price: 450.00, qty: 1 },
+    { type: 'Service',
+        service: 'Web development and testing',
+        price: 25000.00 },
+    { type: 'Item',
+        part: 'LinodeMonthly', description: 'Monthly site hosting',
+        price: 40.00, qty: 12 }
+]
+
+result = Btpls.InvoiceTemplate(data);
+result += '\n\n\n\n' + Btpls.InvoiceTemplate.Item(data[2]);

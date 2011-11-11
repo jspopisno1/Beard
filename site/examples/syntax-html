@@ -1,0 +1,45 @@
+You must be annoyed by concatenating long string in javascript. Well, in Beard you
+will hardly do that.
+<p>
+In Beard, template can be placed into a div container with
+an attribute of 'beard'. The <b>value</b> of this attribute will be compiled
+as the <b>name</b> of the template.
+<p>
+The div containers can be nested, which will instruct Beard how to build the templates
+into a tree.
+<p>
+The template string should be enclosed into a special comment tag, which is<b>
+&lt;!--@ @--&gt;</b>.
+<p>
+After setting up all this, in $(document).ready(), you can simply call Beard.load()
+to load all templates into a global object called <b>Btpls</b>.
+<p>
+Now, you are ready to call the template! e.g., Btpls.MyTemplate(data);
+<p>
+<b> !! IMPORTANT !!</b> The first charactor of all of the templates' names will be uppercased, therefore
+you need to call Btpls.MyTemplate() instead of Btpls.myTemplate() 
+***
+<div beard='root'>
+    <!--@ this is a root template @-->
+    <div beard='sub1'>
+        <!--@ this is a sub template1 @-->
+    </div>
+    <div beard='sub2'>
+        <!--@ this is a sub template2 @-->
+    </div>
+</div>
+***
+Beard.load();
+
+***
+var data =  ''
+
+result = Btpls.Root();
+
+result += '\n\n';
+result += Btpls.Root.Sub1();
+
+// or you can assign a template to some variable, and use it
+var r = Btpls.Root; 
+result += '\n\n';
+result += r.Sub2();

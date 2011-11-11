@@ -1,0 +1,77 @@
+Another magical variable is <b>e</b>
+<p>
+Really, it is inconspicuous, but magical. It can enable a template to return
+not only the rendered html!
+<p>
+Say we call Btpls.Root(data), normally we will get the rendered html as the return
+of this function. However, if you call Btpls.Root(data, e), and set some return value
+to the object e inside the template function, you can get this value later after the template completes.
+<p>
+And the expression of func(data, sube={ ... }) is even useful for building some
+recursive scenario,
+which is fantastic for doing recursive stuff.
+***
+<div beard='Func'>
+    <!--@
+    [##
+    // in this template, we will try to get the maximum number from 
+    // a collection of numbers
+    e.max = null;
+    loop(d, function(line){
+        // the Sub template will go through a child line
+        out(t.Sub(line, sube = {max: null}));
+        if(e.max === null || e.max < sube.max){
+            e.max = sube.max;
+        }
+    }); #]
+    <hr/>
+    <span style='font-weight:bold;font-size:13pt'>
+        [## if( e.max !== null ) { // if there is a maximum number #]
+            The maximum number of all : [`` e.max `]
+        [## } else { // if there is no number at all
+            out('There is no number at all.') }
+        #]
+    </span>
+    @-->
+    <div beard='Sub'>
+        <!--@
+        [##
+        loop(d, function(num, idx){
+            // we also print out the numbers during finding the max number
+            out(idx > 0? ',': '', num);
+            if(e.max === null || e.max < num){
+                e.max = num;
+            }
+        });#]
+
+        <span style='font-weight:bold;font-size:11pt'>
+            [## if( e.max !== null ) { #]
+                The maximum number : [`` e.max `]
+            [## } else { out('There is no number in this line.') } #]
+        </span><br/>
+
+        @-->
+    </div>
+</div>
+***
+Beard.load();
+
+***
+var data = [
+[1, 2, 3],
+[3, 12, 33],
+[],
+[12, 43, 23, 1, 7]
+];
+
+result = Btpls.Func(data);
+result += '<p>\n\n';
+
+var data = [
+[],
+[],
+[]
+];
+
+result += Btpls.Func(data);
+result += '\n\n';

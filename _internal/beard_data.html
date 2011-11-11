@@ -3,94 +3,111 @@
     <head>
         <title>Beard.js Examples</title>
         <script type='text/javascript' src='../jquery-1.6.min.js'></script>
-        <script type='text/javascript' src='../beard.js'></script>
+        <script type='text/javascript' src='../site/js/beard.js'></script>
         <script type='text/javascript' src='../beardExt.js'></script>
         <script type="text/javascript">
             var l = Beard.utils.log;
 
+            
             $(document).ready(function(){
-                Beard.init({debug: true})
-                .loadScript({
-                    'a:sub2':{
-                        'sub3(imgsrc)':{
-                            '': 'asdfasdf'
-                        }
-                    },
-                    'UserTable#ut': {
-                        '': 'adsfasdfasd',
-                        'Row#a': 'wa haha',
-                        'EditRow': {
-                            '': 'new tpl',
-                            'inputs()->inputs':'',
-                            'Icon->Extra.Icon': ''
-                        }
-                    },
-                    'Inputs': {
-                        'editRow->ut:editRow': '',
-                        'text(val, name, id, class)': 'asdfasd',
-                        'check(checked, name, id, class)': 'adfasd',
-                        'radio': 'adfawefa adfas',
-                        'ut:EditRow': 'inside inputs'
-                    }
-                })
-                .loadScript({
-                    'UserTable#ut': {
-                        '': 'adsfasdfasd',
-                        'Row#a': 'wa haha',
-                        'EditRow': {
-                            '': 'new tpl',
-                            'inputs()->inputs':''
-                        }
-                    },
-                    'Inputs': {
-                        'editRow->ut:editRow': '',
-                        'text(val, name, id, class)': '[## log(newUtil.test) #]',
-                        'check(checked, name, id, class)': 'adfasd',
-                        'radio': 'adfawefa adfas',
-                        'ut:EditRow': 'inside inputs'
-                    }
-                })
+                Beard
+                .init({debug: false})
+                .load();
 
-                Beard.extendUtils({'newUtil': {'test': 3}});
-                Btpls.Inputs.Text();
-                l(Btpls.Inputs.Text);
+                q = [];
+                for(var i = 0; i < 200; i ++){
+                    q.push({'w': i, 'b': i, 'name': 'James' + i, '_seq':['b', 'w']});
+                }
+                q.name = 'The name';
+                a = Btpls.Flat.bn(q);
+                $('#test').append(a.$);
+
+                
+                q = [];
+                for(var i = 0; i < 1000; i ++){
+                    q.push({'w': i, 'b': i, 'name': 'James' + i, '_seq':['b', 'w']});
+                }
+                q.name = 'The name';
+                a = Btpls.Flat.bn(q);
+                $('#test').append(a.$);
+                
+                q = [];
+                for(var i = 0; i < 20000; i ++){
+                    q.push({'w': i, 'b': i, 'name': 'James' + i, '_seq':['b', 'w']});
+                }
+                q.name = 'The name';
+                a = Btpls.Flat.bn(q);
+                $('#test').append(a.$);
+
+
+                n = $('#test').nodeDown();
+                l(n);
+               n.d.text = 'test test ';
+
+                $('body').initEvents({
+                    'input.i2@keypress': function(e){
+                        if(e.keyCode == 13){
+                            var s = $(this).nodeUp().__slot;
+                            Beard.utils.loop(s.nodes, function(node){
+                                node.d = node.$.filter('input.i2').val();
+                            })
+                            s.refresh(0, {mode: 'Load'})
+                        }
+                    },
+                    'div.i2': function(){
+                        var s = $(this).nodeUp().__slot;
+                        s.refresh(0, {mode: 'Edit'});
+                    },
+                    'div.i1': function(){
+                        var n = $(this).nodeUp();
+                        n.refresh(true, {mode:'Edit'});
+                    },
+                    'input.i1@keypress': function(e){
+                        if(e.keyCode == 13){
+                            var n = $(this).nodeUp();
+                            n.refresh(true, {mode:'Load'});
+                        }
+                    }
+                })
             })
         </script>
     </head>
     <body>
-        <div beard="test#b" bargs="data">
+        <div id="test"/>
+        <div beard="Flat" bdatabind>
             <!--@
-                [##  sort(data.names, 'name desc');
-                loop(data.names, function(item){
-                    out(item.name + '<br/>')
-                })  #]
-            <hr>
-            <div><h1 class='header'>[`` data.header`]</h1>
-            <h2 class='header2'>[`` data.header2`]</h2>
-            <h3 class='header3'>[`` data.header3`]</h3>
-            <h4 class='header4'>[`` data.header4`]</h4>
-            <h5 class='header5'>[`` data.header5`]</h5>
-            <h6 class='header6'>[`` data.header6`]</h6>
-            <ul class='list'>
-                [## loop(data.list, function(l){ #]
-                <li class='item'>[`` l `]</li>
-                [## }) #]
-            </ul></div>
-            @-->
-            <div beard="SubFunc#a" bargs="name, age, hobbies">
-                <!--@
-                   <p> Hi, my name is [`/ name `].
-                   <p> I'm [`` age `] year[`` age > 1?'s':'' `] old.
-                   <p> My hobbies are :
-                   <p><ul>[## loop(hobbies, function(hb){
-                            out('<li>' + hb);
-                           }) #] </ul>
-                   </p>
-                @-->
+            [`` d.name `]
+            <div [`` slot('what', t.FlatItem1, d)`]>
             </div>
-            <div beard="SubRef" bref="a:"></div>
-            <div beard="SubRef2" bref="a:"></div>
-            <div beard="SubRefTop" bref="b:"></div>
+            @-->
+            <div beard="FlatItem1" bdatabind>
+                <!--@ <div
+                style='border:1px #444 solid;padding:12px;width:400px;margin:8px;'>
+                [`` t.Name(d, e) `] <div [`` slot('this', t.p().FlatItem2, d) `] />
+                </div> @-->
+                <div beard="Name">
+                    <!--@
+                    [## if(e.mode == 'Edit'){ #]
+                        <input class='i1' value='[`/d.name`]' />
+                    [## } else { #]
+                        <div class='i1'>[`/d.name`]</div>
+                    [## } #]
+                    @-->
+                </div>
+            </div>
+            <div beard="FlatItem2" bdatabind>
+                <!--@
+                    [## out(t[e.mode == 'Edit'?'Edit':'Load'](d)) #]
+                @-->
+                <div beard="Load">
+                    <div class="i2">[`` d `]</div>
+                </div>
+                <div beard="Edit">
+                    <!--@
+                    <input class='i2' value=[`/ d `] />
+                    @-->
+                </div>
+            </div>
         </div>
     </body>
 </html>

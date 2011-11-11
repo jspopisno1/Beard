@@ -1,0 +1,34 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+    <head>
+        <title>Beard.js Examples</title>
+        <script type='text/javascript' src='../js/jquery-1.6.min.js'></script>
+        <script type='text/javascript' src='../../beard.js'></script>
+        <script type="text/javascript">
+            var l = Beard.utils.log;
+            
+            
+
+            $(document).ready(function(){
+                Beard.init({debug: true}).load();
+
+                var data =  {css:{width: 'width:550px;'}}
+                result = Btpls.SafeMode(data);
+
+                data =  {} // no css at all
+                result += Btpls.SafeMode(data);
+
+                l(result);
+            })
+        </script>
+    </head>
+    <body>
+        <div beard="SafeMode">
+            <!--@
+            When refering to an undefined var, e.g.
+            [`` d.css.width `]
+            @-->
+        </div>
+
+    </body>
+</html>

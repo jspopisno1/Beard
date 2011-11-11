@@ -1,0 +1,34 @@
+There is another var called d. By default, all of the template will take d as
+its input argument, as the prototype of a default compiled template function
+is function(d, _e_){ ... }.
+<p>
+Of course you may want to customise the argument list, then you must be interested
+in <a href='#exmp_syntax-arguments'>Customise the Arguments</a>.
+***
+<div beard='Root'>
+    <div beard='Sub1'>
+        <!--@ The 'color' of input is : [`` d.color `] @-->
+    </div>
+    <div beard='Sub2'>
+        <!--@ The input is : [`` d `] @-->
+    </div>
+</div>
+***
+Beard.load();
+
+***
+var data =  ''
+
+// color = red
+result = Btpls.Root.Sub1({color: 'Red'});
+result += '\n\n';
+
+// The input can be something else other than an object
+result += Btpls.Root.Sub2(2);
+result += '\n\n';
+
+// Apparently, 2.color is illegal here.
+// In safe mode, Beard can skip the error for equal tags.
+result += Btpls.Root.Sub1(2);
+result += '\n\n';
+

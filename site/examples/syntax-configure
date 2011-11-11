@@ -1,0 +1,53 @@
+Beard allows you to have your own syntax. You can either call <b>.init()</b> to configure the detail,
+or you can directly change
+the <b>defOpts</b> in the source code.
+<p>
+The elements that you can customise are the template tags and the html attributes.
+<p>For instance, you want to have 'data-beard-path' instead of 'bpath', you can call
+Beard.init({nodePath: 'data-beard-path'});
+***
+<div data-beard='Root' data-beard-args='str'>
+    <!--@ raw string : <%= str %>.
+          escaped string : <%! str %>.
+    @-->
+    <div data-beard='RefSub1' data-beard-ref='Root.Sub1'/>
+</div>
+<div data-beard='Sub1' data-beard-path='Root'>
+    <!--@
+        <% if(d == 1) { %>
+            d equals to 1
+        <% } else { %>
+            d is not equals to 1
+        <% } %>
+
+        <%// template comment %>
+        <%/ html comment %>
+     @-->
+</div>
+
+***
+Beard.init({
+    codeOpen: '<%',
+    equalOpen: '<%=',
+    escapeOpen: '<%!',
+    htmlCommentOpen: '<%/',
+    commentOpen: '<%//',
+    commentClose: '%>',
+    codeClose: '%>',
+    equalClose: '%>',
+
+    nodeDef: 'data-beard',
+    nodePath: 'data-beard-path',
+    nodeArgs: 'data-beard-args',
+    nodeRef: 'data-beard-ref'
+}).load()
+
+***
+var data =  ''
+
+result = Btpls.Root('<b>bold text</b>');
+result += '\n\n';
+result += Btpls.Root.Sub1(1);
+result += '\n\n';
+result += Btpls.Root.RefSub1(2);
+result += '\n\n';

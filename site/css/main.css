@@ -1,0 +1,339 @@
+/* 
+    Document   : main.css
+    Created on : 4/11/2011, 23:32:02
+    Author     : user
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/* 
+   TODO customize this sample style
+   Syntax recommendation http://www.w3.org/TR/REC-CSS2/
+*/
+
+
+body{
+    font-size: 10pt;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    font-family: "Verdana", "Verdana", "Lucida Sans Unicode", "Lucida Grande";
+}
+
+body a{
+    outline: 0;
+}
+
+#body{
+    margin: 12px auto 50px;
+    width: 990px;
+}
+
+.editor {
+    border: 1px #ddd solid;
+    width: 620px;
+    max-width: 620px;
+    overflow: auto;
+    height: 220px;
+    margin: 4px;
+    text-align: left;
+}
+
+.editor.result{
+    border: 1px #ed5 solid;
+    background: #fffef9;
+}
+.editor.result-html{
+    height: 330px;
+    overflow: auto;
+    width: 598px;
+    padding: 8px 12px;
+    font-family: "Verdana", "Verdana", "Lucida Sans Unicode", "Lucida Grande";
+}
+
+.title {
+}
+
+.editor-container{
+    margin-bottom: 80px;
+}
+
+.editor-title {
+    font-weight: bold;
+    width: 620px;
+    height: 20px;
+    margin: 0px 5px;
+    text-align: center;
+}
+.light {
+    color: #aaa;
+}
+.dark {
+    color: #888;
+    font-size: 10.5pt;
+}
+.editor-header{
+    font-size: 11pt;
+    color: #555;
+    cursor: pointer;
+}
+span.editor-header:hover {
+    color: #3696b3;
+}
+
+div.top{
+    float:right;
+    font-size: 9.5px;
+    color: #333;
+    margin-right: 10px;
+}
+div.top .top-text{
+    color: #bbb;
+    cursor: pointer;
+}
+
+#banner{
+    width:100%;
+/*    background: #f0f8ff;*/
+    height:30px;
+    padding-top:90px;
+    border-bottom: #bbb 3px solid;
+    text-align: center;
+}
+
+#banner .content{
+    height: 100%;
+    width: 700px;
+    text-align: left;
+    padding-left: 40px;
+    margin-top: -20px;
+    margin-left: auto;
+    margin-right: auto;
+}
+#banner .content .beard-title{
+    _display: inline;
+    font-family: Impact;
+    background: #f0f8ff;
+    background-color: white;
+    color: #56C6D3;
+    text-decoration: none;
+    word-spacing: normal;
+    text-align: left;
+    letter-spacing: 0;
+    font-size: 50px;
+    display: inline-block;
+    padding: 8px 12px 0px 14px;
+    margin-top: -30px;
+}
+#banner .content .beard-js{
+    font-family: 'Times New Roman';
+    color: #666;
+    text-decoration: none;
+    word-spacing: normal;
+    text-align: left;
+    letter-spacing: 0;
+    font-size: 50px;
+    margin-left: -8px;
+    display: inline-block;
+}
+#banner .descr{
+    float: right;
+    margin-top: 30px;
+    color: #555;
+    font-style: italic;
+    font-family: "Verdana", "Verdana", "Lucida Sans Unicode", "Lucida Grande";
+}
+
+#body #navigate{
+    width: 250px;
+    min-height: 50px;
+    float: left;
+    /*background: #f3f8ff;*/
+    border: #ddd 1px solid;
+    border-right: #ddd 1px dashed;
+    border-left: #ddd 1px dashed;
+    vertical-align: top;
+    margin-top: 15px;
+    margin-right: 8px;
+    text-align: left;
+}
+#body #navigate ul{
+    list-style-type: none;
+    list-style: none;
+    font-size:18px;
+    padding-top: 0;
+    margin: 20px 0px 20px;
+    padding-left: 25px;
+    color: #666;
+    letter-spacing: 0.8px;
+}
+
+#body #navigate ul ul{
+    color: #999;
+    margin: 0px 0px;
+}
+
+#body #navigate ul li li{
+    text-indent: -10px;
+    padding-left: 10px;
+    /*    margin-left: -8px;
+        padding-left: 8px;*/
+}
+
+#body #navigate ul li a{
+    cursor:pointer;
+    font-family: Impact;
+    width: 100%;
+    z-index:1000;
+    display:block;
+    color: #666;
+    text-decoration: none;
+}
+
+#body #navigate ul li ul li a{
+    cursor:pointer;
+    z-index:1000;
+    display:block;
+    color: #999;
+    text-decoration: none;
+}
+
+#body #navigate ul li a:hover {
+    color:#fff;
+    background:#56c6d3;
+    padding: 10px 5px 10px;
+    margin: -10px -5px -10px;
+    z-index: 1;
+    text-decoration: underline;
+}
+
+#body #navigate ul li ul li a:hover{
+    color:#fff;
+    z-index: 1;
+    /*    border-left: 8px solid #76e6f3;*/
+    padding-left: 20px;
+    margin-left: -20px;
+    background:#76e6f3;
+}
+
+#body #content{
+    min-height: 50px;
+    display:inline-block;
+    vertical-align: top;
+    width: 620px;
+}
+
+#body #content .description{
+    text-align: left;
+    margin: 18px 8px 5px;
+    padding: 20px 12px;
+    background: #FbFae5;
+    color: #6E6D33;
+    border-left: 25px #FdFcE8 solid;
+    border-right: 25px #FdFcE8 solid;
+    border-top: 1px #8F8F4a solid;
+    border-bottom: 1px #8E8F4a solid;
+    line-height: 12pt;
+    font-size: 10.5pt;
+    overflow: hidden;
+    font-family: "Verdana", "Verdana", "Lucida Sans Unicode",
+        "Lucida Grande";
+}
+#body #content .description a{
+    color: #555;
+    font-weight: bold;
+    text-decoration: none;
+}
+#body #content .description a:hover{
+    color: #888;
+}
+
+#body #content .link-zone {
+    margin-bottom: 12px;
+    text-align: right;
+    margin-right: 25px;
+    color: #777;
+}
+
+#body #content span.link-text {
+    color: #aaa;
+    font-size: 10pt;
+    font-weight: normal;
+    cursor: pointer;
+}
+#body #content span.link-text:hover {
+    color: #666;
+}
+
+.clear {
+    clear:both;
+}
+
+#body #content .tabs ul {
+    list-style: none;
+    text-align: left;
+    border-top: 2px #aaa solid;
+    border-bottom: 2px #aaa solid;
+    padding:4px 14px;
+    color: #484848;
+    background: #f2f2f2;
+    overflow: visible;
+    /*    list-style-type: none;*/
+}
+#body #content .tabs ul li{
+    display: table-cell; display: inline-table; display: inline-block;
+}
+#body #content .tabs ul li { _display: inline; }
+#body #content .tabs ul li a{
+    display: inline-block;
+    color: #484848;
+    text-decoration: none;
+    font-family: impact;
+    font-size: 12pt;
+    padding: 1px 8px;
+    letter-spacing: 0.8px;
+    border-right: 1px #999 solid;
+    cursor: pointer;
+    margin: 0;
+}
+#body #content .tabs ul li a:hover,
+#body #content .tabs ul li.last a:hover,
+#body #content .tabs ul li.hidden a:hover  {
+    background-color: #5dacBf;
+    border-right: 4px #999 solid;
+    margin-right: -3px;
+    color: #fff;
+}
+#body #content .tabs ul li.last a{
+    border-right: none;
+}
+#body #content .tabs ul li.hidden a{
+    color: #bbb;
+}
+
+/* footer */
+
+#footer {
+    clear: both;
+    width: 100%;
+    margin-top: 15px;
+    margin-bottom: 0px;
+/*    background: #f0f8ff;*/
+    text-align: right;
+    border-top: #bbb 1px solid;
+    color: #555;
+}
+#footer .content{
+    padding: 12px 0 40px 0;
+    margin-right: 50px;
+}
+
+/* global css */
+a {
+    font-family: "Verdana", "Verdana", "Lucida Sans Unicode", "Lucida Grande";
+    color: #333;
+}
+
+a:hover{
+    text-decoration: none;
+}

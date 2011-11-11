@@ -1,0 +1,33 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+    <head>
+        <title>Beard.js Examples</title>
+        <script type='text/javascript' src='../js/jquery-1.6.min.js'></script>
+        <script type='text/javascript' src='../../beard.js'></script>
+        <script type="text/javascript">
+            var l = Beard.utils.log;
+            
+            
+
+            $(document).ready(function(){
+                Beard.init({debug: true}).load();
+
+                var data =  ''
+
+                result = Btpls.TestTags();
+
+                l(result);
+            })
+        </script>
+    </head>
+    <body>
+        <div beard="TestTags">
+            <!--@
+            [// Here is some comment tag. It won't appear in the generated string. /]
+            [/// Here's an html comment tag.
+            It will appear. /]
+            @-->
+        </div>
+
+    </body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+    <head>
+        <title>Beard.js Examples</title>
+        <script type='text/javascript' src='../js/jquery-1.6.min.js'></script>
+        <script type='text/javascript' src='../../beard.js'></script>
+        <script type="text/javascript">
+            var l = Beard.utils.log;
+            
+            
+
+            $(document).ready(function(){
+                Beard.init({debug: true})
+                .load();
+
+                var data =  [
+                    { type: 'Item',
+                        part: '99Designs', description: '99 Designs Logo',
+                        price: 450.00, qty: 1 },
+                    { type: 'Service',
+                        service: 'Web development and testing',
+                        price: 25000.00 },
+                    { type: 'Item',
+                        part: 'LinodeMonthly', description: 'Monthly site hosting',
+                        price: 40.00, qty: 12 }
+                ]
+
+                result = Btpls.InvoiceTemplate(data);
+            })
+        </script>
+    </head>
+    <body>
+        <div beard="InvoiceTemplate" bargs="items">
+            <!--@<table>
+                [## loop(items, function(item){
+                    out(t[item.type](item));
+                 }) #]
+            </table>@-->
+            <div beard="Item">
+                <!--@<tr>
+                    <td>[`/ d.part `]</td>
+                    <td>[`/ d.description `]</td>
+                    <td>$[`/ d.price `] </td>
+                    <td>[`/ d.qty `]</td>
+                </tr>@-->
+            </div>
+            <div beard="Service">
+                <!--@<tr>
+                    <td colspan="2">[`/ d.service `]</td>
+                    <td colspan="2">$[`/ d.price `]</td>
+                </tr>@-->
+            </div>
+        </div>
+
+    </body>
+</html>

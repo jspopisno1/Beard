@@ -1,0 +1,62 @@
+One of the cool features is that Beard can compile some frequently used functions into your
+templates. You can call these util functions directly without specifying any
+name space.
+<p>
+Note that Beard does not use <b>with</b> statement to achieve this, so the
+performance will not be affected!
+<p>
+Currently there are some pre-defined util functions. You can have a look at
+the following section <b>Beard Utils</b>.
+<p>
+If you want to define other util function, you can simply call <b>Beard.extendUtils()</b>
+to extend the util functions. Once you extend the utils, all template can be re-compiled
+accordingly. Don't worry, this process is done lazily. Only at the first time you call
+a template, Beard will check if there is a re-compilation required.
+<p>All utils function will be organised under Beard.utils,
+however, DO NOT add function directly to Beard.utils, use extendUtils() instead!
+<p>
+Note that:
+<ul><li> If the name starts with an underscore <b>_</b>, Beard will skip it.
+<li> Beard will make sure that the name of a util function is legal. For example,
+Beard.utils['123'] = function(){}, 123 will not be compiled, because it is not a legal
+function name.
+<li> If the target is not a function, Beard will declare it as a variable.
+</ul>
+***
+<div beard='Root'>
+    <div beard='Legal'>
+    <!--@ func will return : [`` func() `] @-->
+    </div>
+    <div beard='Underscore'>
+    <!--@ func will return : [`` _func() `] @-->
+    </div>
+    <div beard='Var'>
+    <!--@ someVal equals to : [`` someVal `] @-->
+    </div>
+</div>
+***
+Beard.load();
+
+***
+var data =  ''
+
+Beard.extendUtils({func: function(){ return '{{ from func }}' } });
+result = Btpls.Root.Legal();
+result += '\n\n';
+
+Beard.extendUtils({func: function(){ return '{{ new from func }}' } });
+result += Btpls.Root.Legal();
+result += '\n\n';
+
+Beard.extendUtils({_func: function(){ return '{{ new from func }}' } });
+try{
+result += Btpls.Root.Underscore();
+} catch(e){
+result += e.message;
+}
+result += '\n\n';
+
+Beard.extendUtils({someVal: 'some Val' });
+result += Btpls.Root.Var();
+result += '\n\n';
+

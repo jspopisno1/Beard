@@ -47,76 +47,7 @@
 
     Beard.extendUtils({
         // utils to be extended
-
-        sort: function(data, func){
-            if(!func || typeof func == 'string'){
-                func = utils._getSortFunc(func);
-            }
-            if(data instanceof Array){
-                data.sort(func);
-            } else {
-                var tmp = [];
-                utils.loop(data, function(d, k){
-                    tmp.push(d);
-                    if(d._key){
-                        d.__tmp_key__ = d.key
-                    }
-                    d._key = k;
-                })
-                tmp.sort(func);
-
-                var seq = data._seq = [];
-                utils.loop(tmp, function(d){
-                    seq.push(d._key);
-                    if(d.__tmp_key__){
-                        d._key = d.__tmp_key__
-                    }
-                })
-            }
-            return data;
-        },
-        _getSortFunc:function(funcStr){
-            if(!funcStr) funcStr = 'asc';
-            if(funcStr in utils._sortFuncs){
-                return utils._sortFuncs[funcStr];
-            }
-            var cols = funcStr.split(',');
-            for(var i = 0, len = cols.length; i < len; i++){
-                cols[i] = $.trim(cols[i]).split(/\s+/);
-            }
-            var body = utils._generateSortFunc(cols, 0, cols.length - 1);
-            try{
-                return utils._sortFuncs[funcStr] = new Function('a,b', body);
-            } catch(e){
-                utils.log(body);
-                return utils._sortFuncs[funcStr] = emptyFunc;
-            }
-        },
-        _generateSortFunc: function(cols, index, len){
-            var o = [];
-            var col = cols[index];
-            if(col[1] == 'desc'){
-                var cmp1 = '>', cmp2 = '<'
-            } else {
-                cmp1 = '<', cmp2 = '>';
-            }
-            var colStr = col[0];
-            o.push('try{if(a.', colStr, cmp1, 'b.', colStr, ')return -1;else if(a.', colStr, cmp2, 'b.', colStr, ')return 1;',
-            'else{', index == len? 'return 0' : utils._generateSortFunc(cols, index + 1, len), '}}catch(e){return 0}');
-            return o.join('');
-        },
-        _sortFuncs: {
-            asc: function(a, b){
-                if(a > b) return 1;
-                else if (a == b) return 0;
-                else return -1;
-            },
-            desc: function(a, b){
-                if(a < b) return 1;
-                else if (a == b) return 0;
-                else return -1;
-            }
-        }
+        
     });
 
     // use your own setting

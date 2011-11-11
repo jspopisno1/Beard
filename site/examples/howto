@@ -1,0 +1,35 @@
+Some good tips for your to exploit this demo site :)
+<ul>
+
+<li>
+If the variable result is assigned as a string, it will be copied to the result
+section and the content will be parsed in the result-html section as well.
+<li>
+If the result is not assigned anything, or it is assigned, but it is not a string,
+it will not be copied to the result section then.
+<li>
+$result is the jquery object of 'result-html', if you have a console, you can learn
+that $result equals to $('.result-html'). So you can manually append something to
+$result or bind some events to it.
+
+</ul>
+
+***
+<div beard='HowTo'>
+    <!--@ Hi, here is a button <input value='click me' type='button'/>. @-->
+</div>
+***
+Beard.load();
+***
+data = '';
+
+// assign result as false in order to manipulate the $result object
+// you can try assign result as a string to see the difference.
+result = false;
+
+text = Btpls.HowTo(data);
+
+$result.html(text).find('input').click(function(){
+    alert('well done');
+})
+

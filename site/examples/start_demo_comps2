@@ -1,0 +1,76 @@
+In Beard, the templates are well organised, and the scope is clearer and easier to maintain.
+Additionally, not only the sub templates can be easily reached, but also the parent templates.
+<p>
+In this demo, you can see that in the template Item(), its parent template can be called
+via t.p(). Isn't that cool?
+***
+<div beard="Menu" bargs="items">
+    <!--@
+    <ul>
+    [##
+    loop(items, function(item){
+        out(t.Item(item));
+    }) #]
+    </ul>
+    @-->
+    <div beard="Item" bargs="item">
+        <!--@
+        <li id='[`` item.id `]'>
+            [`/ item.text `]
+        </li>
+        [## if(has(item.subItems)){
+            out(t.p()(item.subItems));
+        } #]
+        @-->
+    </div>
+</div>
+***
+Beard.load();
+***
+
+var data =  [
+    {id: 'item1', text: 'Top Item #1', subItems: [
+            {id: 'item1', text: 'Level 2 Item #1', subItems: [
+                    {id: 'item1', text: 'Level 3 Item #1', subItems: [
+                            {id: 'item1', text: 'Level 4 Item #1'},
+                            {id: 'item1', text: 'Level 4 Item #2'},
+                            {id: 'item1', text: 'Level 4 Item #3'}
+                        ]},
+                    {id: 'item1', text: 'Level 3 Item #2', subItems: [
+                            {id: 'item1', text: 'Level 4 Item #4'},
+                        ]},
+                    {id: 'item1', text: 'Level 3 Item #3', subItems: []}
+                ]},
+            {id: 'item1', text: 'Level 2 Item #2', subItems: []} ,
+            {id: 'item1', text: 'Level 2 Item #3'} ,
+            {id: 'item1', text: 'Level 2 Item #4', subItems: [
+                    {id: 'item1', text: 'Level 3 Item #4', subItems: []} ,
+                    {id: 'item1', text: 'Level 3 Item #5', subItems: []}
+                ]}
+        ]},
+    {id: 'item1', text: 'Top Item #2', subItems: [
+            {id: 'item1', text: 'Level 2 Item #5', subItems: [
+                    {id: 'item1', text: 'Level 3 Item #6', subItems: [
+                            {id: 'item1', text: 'Level 4 Item #5'}
+                        ]},
+                    {id: 'item1', text: 'Level 3 Item #7', subItems: [
+                            {id: 'item1', text: 'Level 4 Item #6'},
+                        ]},
+                    {id: 'item1', text: 'Level 3 Item #8', subItems: []}
+                ]},
+            {id: 'item1', text: 'Level 2 Item #6', subItems: []} ,
+            {id: 'item1', text: 'Level 2 Item #7'}
+        ]},
+    {id: 'item1', text: 'Top Item #3', subItems: [
+            {id: 'item1', text: 'Level 2 Item #8', subItems: [
+                    {id: 'item1', text: 'Level 3 Item #9', subItems: [
+                            {id: 'item1', text: 'Level 4 Item #7'},
+                            {id: 'item1', text: 'Level 4 Item #8'},
+                            {id: 'item1', text: 'Level 4 Item #9'}
+                        ]}
+                ]},
+            {id: 'item1', text: 'Level 2 Item #9', subItems: []}
+        ]}
+]
+
+result = Btpls.Menu(data);

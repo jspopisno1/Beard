@@ -1,0 +1,155 @@
+This is a more complex example, yet it seems more like a real life example.
+<p>
+It is hard to show all the sweet features by just a couple of examples. This
+example is just for demonstrating that Beard has the abilities of creating a template
+reference, binding data to template, simplifying jQuery's delegate() & bind()
+and defining the input params of a template, etc.
+<p>
+Simple tips:
+<ul>
+<li>bref: create this template referring to another template
+<li>bargs: the input params of the template
+<br/><br/>
+<li>out(): print the result to the output stream
+<li>loop(): loop over a collection of data
+<br/><br/>
+<li>t: handler of the current template
+<li>t.p(): get the parent template
+</ul>
+<p>
+Do not panic if you don't understand the code in this example, because it
+is merely a showcase.
+***
+<div beard="PersonRecords" bargs="persons">
+    <!--@
+        <div id='allPersons'>
+        [##
+            loop(persons, function(person, idx){
+                if(person._removed) {
+                    return true;
+                }
+                out( t.Record(person), '<hr/>');
+            });
+  	#]
+  	  <p>Creating a new person : <br></p>
+  	[##
+            out(t.Record({id:-1}, 'edit'));
+        #]
+        </div>
+    @-->
+    <div beard="Record" bref="PersonRecord"></div>
+</div>
+
+<div beard="PersonRecord" bargs="person, type" bdatabind>
+    <!--@
+        [##
+            type = type == 'edit'?'Edit':'Load';
+            out(t[type](person));
+        #]
+    @-->
+    <div beard="Edit">
+        <!--@
+        <div>
+            [##
+            var inputs = t.p().Inputs;
+            out(
+                inputs.Check('isMember', '', 'is member', d.isMember),
+                inputs.Radio('gender', 'm', 'Male', d.gender),
+                inputs.Radio('gender', 'f', 'Female', d.gender),
+                inputs.Text('first', d.first, 'First name'),
+                inputs.Text('last', d.last, 'Last name')
+            );
+            #]
+            <div>
+                [## out(
+                        inputs.Button('Save', 'btnSave'),
+                        inputs.Button('Cancel', 'btnCancel')
+                    );
+                 #]
+            </div>
+        </div>
+        @-->
+    </div>
+    <div beard="Load">
+        <!--@
+        <div>
+            <div> [`` d.first `] [`` d.last `] ([`` d.gender=='m'? 'Male':'Female' `])
+                is [`` d.isMember?'': 'not' `] a member. </div>
+            <div>
+                [## var inputs = t.p().Inputs;
+                    out(
+                        inputs.Button('Edit', 'btnEdit'),
+                        inputs.Button('Remove', 'btnRemove')
+                    );
+                 #]
+            </div>
+        </div>
+        @-->
+    </div>
+    <div beard="Inputs" bref="Inputs"></div>
+</div>
+
+<div beard="Inputs">
+    <div beard="Check" bargs="name, value, label, checked">
+        <!--@ <input type='checkbox' name='[`/ name `]' value='[`/ value `]' [`` checked?'checked':'' `] /> [`` label `] <br/> @-->
+    </div>
+    <div beard="Text" bargs="name, value, label">
+        <!--@ [`` label `]: <input  type='text' name='[`/ name `]' value='[`/ value `]' /> <br/> @-->
+    </div>
+    <div beard="Radio" bargs="name, value, label, selected">
+        <!--@ <input type='radio' name='[`/ name `]' value='[`/ value `]' [`` selected == value?'checked':'' `] /> [`` label `] <br/> @-->
+    </div>
+    <div beard="Button" bargs="name, cls, id">
+        <!--@ <input type='button' value='[`/ name `]' class='[`` cls `]' [`` id? 'id="' + id + '"': '' `]/> @-->
+    </div>
+</div>
+***
+Beard.init({debug: true}).load();
+
+$result.initEvents({
+    '.btnEdit': function(){
+        var n = $(this).nodeUp('PersonRecord');
+        n.hide().before(n.tpl.$(n.person, 'edit'));
+    },
+    '.btnCancel': function(){
+        refreshPage();
+    },
+    '.btnSave': function(){
+        // or you can ommit the name of the template
+        // if you are sure it is the next node you are looking for
+        var n = $(this).nodeUp();
+        p = n.wrapData();
+        if(!p.first || !p.last || !p.gender ){
+            alert('sorry, you need to complete the person\'s infomation before saving.');
+            return;
+        }
+        $.extend(n.person, p);
+        if(n.person.id == -1){
+            n.person.id = personId ++;
+            data.push(n.person);
+        }
+        refreshPage();
+    },
+    '.btnRemove': function(){
+        var n = $(this).nodeUp();
+        n.person._removed = true;
+        refreshPage();
+    }
+})
+
+***
+
+var data =  [
+    {id: 1, isMember:true, gender: 'm', first:'Liangliang', last:'Zheng'},
+    {id: 2, isMember:true, gender: 'f', first:'Annie', last:'Green'},
+    {id: 3, isMember: false, gender: 'm', first:'James', last:'Bonds'},
+    {id: 4, isMember:false, gender: 'f', first:'Foo', last:'Bar'},
+    {id: 5, isMember:true, gender: 'f', first:'Noname', last:'Who'}
+]
+var personId = 6;
+
+function refreshPage(){
+    result = Btpls.PersonRecords.$(data);
+    $result.html(result);
+}
+refreshPage();

@@ -44,13 +44,15 @@
                     },
                     'Inputs': {
                         'editRow->ut:editRow': '',
-                        'text(val, name, id, class)': '[## log(newUtil.test) #]',
+                        '!text(val, name, id, class)': '[## if(typeof newUtil != "undefined")log(newUtil.test); #] <input name="foo"/>',
                         'check(checked, name, id, class)': 'adfasd',
                         'radio': 'adfawefa adfas',
                         'ut:EditRow': 'inside inputs'
                     }
                 })
 
+                l(Btpls.Inputs.Text());
+                l(Btpls.Inputs.Text.$());
                 Beard.extendUtils({'newUtil': {'test': 3}});
                 Btpls.Inputs.Text();
                 l(Btpls.Inputs.Text);
