@@ -54,6 +54,23 @@
                 ]
             };
 
+            function generateData(level){
+                if(!level) level = 0;
+                if(level > 4) return;
+
+                var folders = [];
+                for(var i = 0; i < 9; i++){
+                    var data = {name: 'test @' + level + ' # ' + i}
+                    data.folders = generateData(level + 1);
+                    folders.push(data);
+                }
+                return folders;
+            }
+            var rootFolder = {
+                name: 'test root',
+                folders: generateData(0)
+            }
+
 
             /* Declare the functions for getting the items and subfolders, etc. */
             $.views.registerTags({

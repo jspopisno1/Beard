@@ -242,10 +242,11 @@ div.top .top-text{
 #body #content .description a{
     color: #555;
     font-weight: bold;
-    text-decoration: none;
+    text-decoration: underline;
 }
 #body #content .description a:hover{
     color: #888;
+    text-decoration: none;
 }
 
 #body #content .link-zone {
@@ -331,9 +332,71 @@ div.top .top-text{
 /* global css */
 a {
     font-family: "Verdana", "Verdana", "Lucida Sans Unicode", "Lucida Grande";
+    text-decoration: underline;
     color: #333;
 }
 
 a:hover{
     text-decoration: none;
+}
+
+/* buttons */
+a.button {
+	-moz-box-shadow:inset 0px 0px 0px 0px #ffffff;
+	-webkit-box-shadow:inset 0px 0px 0px 0px #ffffff;
+	box-shadow:inset 0px 0px 0px 0px #ffffff;
+	background-color:#fafafa;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	border:1px solid #dcdcdc;
+	display:inline-block;
+	color:#999;
+	font-family:Arial;
+	font-size:18px;
+	font-weight:normal;
+	padding:4px 20px;
+	text-decoration:none;
+	text-shadow:1px 1px 0px #ffffff
+}
+a.button:hover {
+	background-color:#e5e5e5;
+	color:#555;
+}
+a.button:active {
+	position:relative;
+	top:1px;
+}
+
+#allPersons{
+    color: #333;
+}
+
+#allPersons .descr {
+    margin: 8px 8px;
+    font-size: 16px;
+}
+
+#allPersons .odd {
+    border: 1px #ddd dotted;
+    padding: 8px 8px;
+    margin: 6px 0;
+}
+#allPersons .even {
+    border: 1px #ddd none;
+    padding: 8px 8px;
+    margin: 6px 0;
+}
+#allPersons .newPerson{
+    margin:24px 0;
+    font-size: 15px;
+}
+#allPersons .newPerson p{
+    text-transform: uppercase;
+    font-size: 18px;
+}
+
+#allPersons .control{
+    margin:5px 0;
+    font-size: 15px;
 }

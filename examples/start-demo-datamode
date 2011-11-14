@@ -28,19 +28,22 @@ is merely a showcase.
                 if(person._removed) {
                     return true;
                 }
-                out( t.Record(person), '<hr/>');
+                person.isOdd = idx % 2;
+                out( t.Record(person, 'load'));
             });
   	#]
-  	  <p>Creating a new person : <br></p>
-  	[##
-            out(t.Record({id:-1}, 'edit'));
-        #]
+            <div class='newPerson'>
+              <p>Creating a new person : <br></p>
+            [##
+                out( t.Record({id:-1}, 'edit') );
+            #]
+            </div>
         </div>
     @-->
     <div beard="Record" bref="PersonRecord"></div>
 </div>
 
-<div beard="PersonRecord" bargs="person, type" bdatabind>
+<div beard="PersonRecord" bargs="person, type">
     <!--@
         [##
             type = type == 'edit'?'Edit':'Load';
@@ -49,7 +52,7 @@ is merely a showcase.
     @-->
     <div beard="Edit">
         <!--@
-        <div>
+        <div class='person [`` d.isOdd?'odd':'even' `]' [`` bind(d) `]>
             [##
             var inputs = t.p().Inputs;
             out(
@@ -72,8 +75,8 @@ is merely a showcase.
     </div>
     <div beard="Load">
         <!--@
-        <div>
-            <div> [`` d.first `] [`` d.last `] ([`` d.gender=='m'? 'Male':'Female' `])
+        <div class='person [`` d.isOdd?'odd':'even' `]' [`` bind(d) `]>
+            <div class='descr'> [`` d.first `] [`` d.last `] ([`` d.gender=='m'? 'Male':'Female' `])
                 is [`` d.isMember?'': 'not' `] a member. </div>
             <div>
                 [## var inputs = t.p().Inputs;
@@ -91,25 +94,34 @@ is merely a showcase.
 
 <div beard="Inputs">
     <div beard="Check" bargs="name, value, label, checked">
-        <!--@ <input type='checkbox' name='[`/ name `]' value='[`/ value `]' [`` checked?'checked':'' `] /> [`` label `] <br/> @-->
+        <!--@ <div class='control'>
+        <input type='checkbox' name='[`/ name `]' value='[`/ value `]' [`` checked?'checked':'' `] />
+        [`` label `]
+        </div> @-->
     </div>
     <div beard="Text" bargs="name, value, label">
-        <!--@ [`` label `]: <input  type='text' name='[`/ name `]' value='[`/ value `]' /> <br/> @-->
+        <!--@
+        <div class='control'>
+        [`` label `]: <input  type='text' name='[`/ name `]' value='[`/ value `]' />
+        </div> @-->
     </div>
     <div beard="Radio" bargs="name, value, label, selected">
-        <!--@ <input type='radio' name='[`/ name `]' value='[`/ value `]' [`` selected == value?'checked':'' `] /> [`` label `] <br/> @-->
+        <!--@<div class='control'>
+         <input type='radio' name='[`/ name `]' value='[`/ value `]' [`` selected == value?'checked':'' `] /> [`` label `]
+        </div> @-->
     </div>
     <div beard="Button" bargs="name, cls, id">
-        <!--@ <input type='button' value='[`/ name `]' class='[`` cls `]' [`` id? 'id="' + id + '"': '' `]/> @-->
+        <!--@ <a class='button [`` cls `]' href='javascript:void(0)' [`` id? 'id="' + id + '"': '' `]>[`/ name `]</a>@-->
     </div>
 </div>
 ***
 Beard.init({debug: true}).load();
 
+tplPerson = Btpls.PersonRecord;
 $result.initEvents({
     '.btnEdit': function(){
-        var n = $(this).nodeUp('PersonRecord');
-        n.hide().before(n.tpl.$(n.person, 'edit'));
+        var n = $(this).dataUp('.person');
+        n.$.before(tplPerson.Edit.$(n.val)).remove();
     },
     '.btnCancel': function(){
         refreshPage();
@@ -117,22 +129,22 @@ $result.initEvents({
     '.btnSave': function(){
         // or you can ommit the name of the template
         // if you are sure it is the next node you are looking for
-        var n = $(this).nodeUp();
-        p = n.wrapData();
+        var n = $(this).dataUp('.person');
+        p = n.$.wrapData();
         if(!p.first || !p.last || !p.gender ){
             alert('sorry, you need to complete the person\'s infomation before saving.');
             return;
         }
-        $.extend(n.person, p);
-        if(n.person.id == -1){
-            n.person.id = personId ++;
-            data.push(n.person);
+        $.extend(n.val, p);
+        if(n.val.id == -1){
+            n.val.id = personId ++;
+            data.push(n.val);
         }
         refreshPage();
     },
     '.btnRemove': function(){
-        var n = $(this).nodeUp();
-        n.person._removed = true;
+        var n = $(this).dataUp('.person');
+        n.val._removed = true;
         refreshPage();
     }
 })

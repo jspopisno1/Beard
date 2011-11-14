@@ -54,6 +54,7 @@
             try{
                 var $result = jqr.resHtml
                 $result.undelegate();
+                $result.html('');
                 var result = '<<< You should assign the result to the variable : result >>>';
                 eval(jsEd.getValue());
                 eval(dataEd.getValue());

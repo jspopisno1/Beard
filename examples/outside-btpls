@@ -5,8 +5,12 @@ called 'Tmpl'. You can call it like this <b>Btpls.Tmpl(data)</b>, and this will 
 you the rendered html text.
 <p>
 Another useful usage is that <b>Btpls.Tmpl.$(data)</b> will return you a
-jQuery object. It is an extreme useful thing, if you would like to utilise the advanced
-usage of Beard, say, bind data & template with the dom tree.
+jQuery object. It is quite useful, if you want to bind data to the html, or you
+can append the html to the page, and call Beard.bindData( [the selector] ) to bind
+data to dom elements.
+<p>
+Finally, <b>Btpls.Tmpl.bn(data)</b> will render the template into a BeardNode Object.
+This part requires beard-advanced.js. You can learn more in the Advanced section.
 <p>
 If you call <b>Btpls.Tmpl.p()</b>, you will get the parent template of <b>Tmpl</b>.
 Previously we talked about the magical variable <b>t</b>. It is in fact the current
@@ -14,39 +18,42 @@ template object.
 
 ***
 <div beard='Root'>
-    <div beard='Legal'>
-    <!--@ func will return : [`` func() `] @-->
-    </div>
-    <div beard='Underscore'>
-    <!--@ func will return : [`` _func() `] @-->
-    </div>
-    <div beard='Var'>
-    <!--@ someVal equals to : [`` someVal `] @-->
+    <!--@ <div class='root' [`` bind(d) `]>This is a div in template Root.
+        <input type='button' value='click me' onclick='itemClicked(this)'/>
+    </div> @-->
+    <div beard='Sub'>
+        <!--@ <div class='sub' [`` bind(d) `]'>This is a div in template Sub
+            <input type='button' value='click me' onclick='itemClicked(this)'/>
+        </div> @-->
     </div>
 </div>
 ***
 Beard.load();
 
+window.itemClicked = function(btn){
+    var data = $(btn).dataUp('div');
+    data.$.after('<div> Clicked~ the data bound is : ' + data.val + '</div>');
+}
+
 ***
 var data =  ''
+result = false;
 
-Beard.extendUtils({func: function(){ return '{{ from func }}' } });
-result = Btpls.Root.Legal();
-result += '\n\n';
+html = Btpls.Root('root object');
+html += '\n\n';
 
-Beard.extendUtils({func: function(){ return '{{ new from func }}' } });
-result += Btpls.Root.Legal();
-result += '\n\n';
+html += Btpls.Root.Sub('sub object');
+html += '\n\n';
 
-Beard.extendUtils({_func: function(){ return '{{ new from func }}' } });
-try{
-result += Btpls.Root.Underscore();
-} catch(e){
-result += e.message;
-}
-result += '\n\n';
+html += Btpls.Root.Sub.p()('sub object');
+html += '\n\n';
 
-Beard.extendUtils({someVal: 'some Val' });
-result += Btpls.Root.Var();
-result += '\n\n';
+// The funny attributes inside the div are for binding data
+// But note that the html here is plain text, so no data was bound to it.
+$result.append($('<pre></pre>').text(html));
+$result.append('<br/><br/>');
 
+// now we generate jQuery object with data bound
+Btpls.Root.$('root object').appendTo($result)
+Btpls.Root.Sub.$('sub object').appendTo($result)
+Btpls.Root.Sub.p().$('root object').appendTo($result)
