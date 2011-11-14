@@ -18,7 +18,8 @@ Or if you want to know the performance of rendering pure html text plus renderin
 
 Using the example 'Todos', rendering 2000 records.
 
-<a href="http://jspopisno1.github.com/Beard/compare/jsView-todos.html" target="_blank">jsView</a>
+<a href="http://jspopisno1.github.com/Beard/compare/jsView-todos.html" target="_blank">jsView</a> If you cannot open it, you can try
+<a href="http://jspopisno1.github.com/Beard/compare/jsView-todos_500.html" target="_blank">jsView (500 records)</a>
 
 <a href="http://jspopisno1.github.com/Beard/compare/beard-todos_advanced_huge.html" target="_blank">Beard rendering into Beard Nodes</a>
 
