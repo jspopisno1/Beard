@@ -224,7 +224,7 @@
         Beard.initEvents(c);
     }
 
-    var caseTimer, caseVer = 1;
+    var caseTimer, caseVer = g.location.host.indexOf('localhost') == 0? new Date().getTime() : 1;
     function loadCase(){
         // html | data | js | description
         clearTimeout(caseTimer);
