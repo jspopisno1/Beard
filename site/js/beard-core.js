@@ -1,7 +1,7 @@
 /*
     beard.js
 
-    !!! REQUIRE jQuery 1.5 or above !!!
+    !!! REQUIRE jQuery 1.4.2 or above !!! (for the .delegate() function @ initEvent())
 
     The MIT License
 
@@ -30,7 +30,7 @@
     *
     * Updates:
     *
-    * Liang:    111019 -    beard template compiler, remote loading, ready function, object cache
+    * Liang:    111019 -    beard template compiler, remote _loading, ready function, object cache
     *                       configuration tag, prefix to compiled functions, configurable tag attributes
     *                       configurable template syntax
     *                  -    update the configurations, show : remove display: none, log the code anyway...
@@ -150,10 +150,38 @@
     *                       global var as g
     *                       enable level for each tpl rendering
     *           111107 -    refined event binding
+    *           111110 -    BeardSlot
+    *                       BeardNodt.refresh(), BeardSlot.refresh()
+    *           111111 -    BeardSlot -> thread refresh!
+    *           111112 -    dividing into core & data
+    *                       1. core
+    *                           load, loadRemote... utils... => expose utils, extra
+    *                           jquery extension -> field up, field down
+    *                       2. data
+    *                           BeardNode, BeardSlot, thread, jquery extenstion
+    *
+    *
     *
     *
     * TODO:                 *** START
+    *                       ***
     *                       *** examples for testing
+    *                       *** requirements
+    *                           data bound template can only have one input
+    *                           the extra param is an shared object across nodes under a same slot
+    *                       *** BeardSlot -> the container of BeardNodes
+    *                           slot tag
+    *                           BeardNode.slot('name').remove(BeardNode)
+    *                           .insert(idx, beardNode) or .insert(idx, argument list)
+    *                           .append
+    *                           .prepend
+    *                           .refresh()
+    *                           .index( BeardNode or BeardNode.__objid_ )
+    *                       *** BeardNode
+    *                           .slotUp()
+    *                           .refresh() -> '', 'slot name 1', 'slot name 2' ...
+    *                           .onRefresh({'':func, 'slot name 1': func ... }
+    *                               func($old, $new, BeardNode)
     *                       *** comment tag
     *                       *** t.$()
     *                       *** parseBeard() -> inject the $node to data
@@ -202,20 +230,90 @@
         var e = new Error('jQuery must be loaded before Beard.js');
         throw e;
     }
-    var VERSION = '0.1';
 
-    var $beard, $hidden = $('<div></div>');
+    // ------ var definitions ------
+    var $beard, VERSION = 'pre-beta',
+    BEARD_NODE, BEARD_PATH, BEARD_REF,
+    BEARD_ZONE = 'beards', BEARD_ARGS,
+    ARRAY = 'array', OBJECT = 'object',
+
+
+    // selected engine. If it is undefined, the Beard has not been inited
+    _options = {}, defOpts = {
+        // template config
+        codeOpen : '[##',
+        codeClose : '#]',
+        equalOpen : '[``',
+        escapeOpen : '[`/',
+        commentOpen : '[//',
+        htmlCommentOpen : '[///',
+        commentClose : '/]',
+        equalClose : '`]',
+
+        // html config
+        nodeDef: 'beard',
+        nodePath: 'bpath',
+        nodeArgs: 'bargs',
+        nodeRef: 'bref',
+        beardZone: 'beards',
+        withinZone: false,
+
+        // compile config
+        debug: false,
+        safeMode: true,
+        dataMode: false,
+        engine: 'beard'
+    },
+
+    isDebug = false, 
+    safeMode = true, // if set to true (default), the assignment tags will be enclosed with try statement
+    $debug,
+    locIndex = 0, // for showing the location id in compiled templates
+
+    // this is to make sure that it is safe to log to console
+    canLog = typeof console != 'undefined' && typeof console.log == 'function',
+
+    // the name of template. e.g., Tpl(some, arg, here)->OtherTpl
+    rgxTplName = /^\s*([\w\.]+)\s*(?:\(([^\)]*)\))?(?:\->\s*([\w\.]+))?\s*$/,
+
+    // in IE, \r should also be considered
+    rgxNewLine = /\n|\r\n|\n\r|\r/,
+
+    // containing the tags, this will be used in compilation phase
+    tplTags,
+    ec,
+    cmpLength = function(a, b){
+        if(a.length > b.length) return -1;
+        else if(a.length == b.length) return 0;
+        else return 1;
+    },
+
+    // special char that is heavily used to embed some special anchor in template string
+    E = '\x1b', 
+
+    // for the tpls
+    Btpls = g.Btpls = {
+        __tpls__: [],
+        g: {}
+    },
+
+    emptyFunc = function(){
+        return ''
+    },
+
+    firstRun = true, readyFuncs = [], operationQueue = [],
+    withinZone,
+
+    objSeq = 1, hasDataCached = false;
+
+    // ------ end of var definitions ------
 
     ;
     (function(){
         function extendJQueryMethod(){
             $.fn.extend({
-                bVal: function(val){
-                    return this.data('beard-value', val);
-                },
-                bindBeard: function(){
-                    Beard.bindData(this);
-                    return this;
+                beardData: function(val){
+                    return this.data('beard-field-val', val);
                 },
                 wrapData: function(){
                     var data = {};
@@ -239,31 +337,14 @@
                         }
                     });
 
-                    this.find('[data-beard-field]')
-                    .union(this.filter('[data-beard-field]'))
-                    .each(function(){
-                        var $t = $(this);
-                        var name = $t.attr('data-beard-field');
-                        if(!name){
-                            return true;
-                        }
-                        if(name in data && !(data[name] instanceof Array)){
-                            data[name] = [data[name]];
-                        }
-                        if(name in data){
-                            data[name].push($t.bVal());
-                        } else {
-                            data[name] = $t.bVal();
-                        }
-                    })
                     return data;
                 },
                 lookUp: function(sel){
-                    var ret;
+                    var ret, empty = $();
 
                     ret = this.filter(sel).eq(0);
                     if(ret.size()) return ret;
-                    
+
                     ret = this.prevAll(sel).eq(0);
                     if(ret.size()) return ret;
 
@@ -273,29 +354,16 @@
                         if(ret.size()) return false;
                         ret = $t.prevAll(sel).eq(0);
                         if(ret.size()) return false;
+                        ret = empty;
                     })
                     return ret;
                 },
-                parentField: function(name){
-                    var sel = _dsel(name);
-                    var $t = this.lookUp(sel);
+                dataUp: function(sel){
+                    var $n = this.lookUp(sel);
                     return {
-                        $: $t,
-                        d: $t.bVal()
-                    }
-                },
-                nodeUp: function(name){
-                    name = name||'';
-                    var sel = _sel(name);
-                    return this.lookUp(sel).data('bn-'+name);
-                },
-                nodeDown:function(name){
-                    name = name||'';
-                    var sel = _sel(name);
-                    var t;
-                    t = this.filter(sel).eq(0);
-                    if(t.size()) return t.data('bn-'+name);
-                    else return this.find(sel).eq(0).data('bn-'+name);
+                        $: $n,
+                        val: $n.beardData()
+                        }
                 },
                 union: function($o){
                     var a = this.toArray();
@@ -304,6 +372,11 @@
                 },
                 initEvents: function(events){
                     Beard.initEvents(events, '', this);
+                    return this;
+                },
+                bindData: function(){
+                    Beard.bindData(this);
+                    return this;
                 }
             })
         }
@@ -311,231 +384,10 @@
         extendJQueryMethod();
     })()
 
-    var BeardNode = function(obj){
-        for(var i in obj){
-            if(obj.hasOwnProperty(i)){
-                this[i] = obj[i];
-            }
-        }
-    }
-
-    function _sel(name){
-        return name?'[data-bn-' + name + ']':'[data-bn]';
-    }
-    function _dsel(name){
-        return name?'[data-beard-field="' + name + '"]':'[data-beard-field]';
-    }
-    function _data(data){
-        if(data instanceof BeardNode){
-            return data.$;
-        } else if(!(data instanceof jQuery)){
-            return $(data);
-        }
-        return data;
-    }
-    BeardNode.prototype = {
-        _start: function(n){
-            this.$s = $(n);
-            this.$ = [];
-            this.$_ = [];
-        },
-        _push: function(n){
-            if(n.nodeType == d.ELEMENT_NODE){
-                if(!this.$n ){
-                    var q = this.$n = $(n)
-                    .attr('data-bn', '1')
-                    .attr('data-bn-' + this._name, '1')
-                    .data('bn-'+this._name, this);
-                    if(!q.attr('bn-'))q.data('bn-', this);
-                }
-                this.$_.push(n);
-            }
-            this.$.push(n);
-        },
-        _end: function(n){
-            this.$e = $(n);
-            this.$_ = $(this.$_);
-            this.$ = $(this.$);
-        },
-        prev: function(name){
-            name = name || '';
-            return this.$s.prevAll(_sel(name)).eq(0).data('bn-'+name);
-        },
-        prevAll: function(name){
-            name = name || '';
-            var sel = 'bn-' + name;
-            return $.map(this.$s.prevAll(_sel(name)), function(i){
-                return $(i).data(sel);
-            })
-        },
-        next: function(name){
-            name = name || '';
-            return this.$e.nextAll(_sel(name)).eq(0).data('bn-'+name);
-        },
-        nextAll: function(name){
-            name = name || '';
-            var sel = 'bn-' + name;
-            return $.map(this.$e.nextAll(_sel(name)),function(i){
-                return $(i).data(sel);
-            })
-        },
-        siblings: function(name){
-            name = name || '';
-            var sel = 'bn-' + name;
-            return $.map(this.$n.siblings(_sel(name)), function(i){
-                return $(i).data(sel);
-            })
-        },
-        nodeUp: function(name){
-            name = name || '';
-            return this.$n.lookUp(_sel(name)).eq(0).data('bn-'+name);
-        },
-        nodeDown: function(name){
-            name = name || '';
-            var d = this.$_.filter(_sel(name)).not(this.$n).eq(0);
-            if(d.size())return d.data('bn-'+name);
-            return this.$_.find(_sel(name)).eq(0).data('bn-'+name);
-        },
-        nodeDownAll: function(name){
-            name = name || '';
-            var sel = 'bn-' + name;
-            return $.map(this.$_.filter(_sel(name)).not(this.$n).union(this.$_.find(_sel(name))), function(i){
-                return $(i).data(sel);
-            })
-        },
-        before:function(data){
-            this.$s.before(_data(data));
-            return this;
-        },
-        after: function(data){
-            this.$e.after(_data(data));
-            return this;
-        },
-        hide: function(){
-            this.$.hide();
-            this.$.each(function(){
-                if(this.nodeType == d.TEXT_NODE){
-                    if(!('hiddenVal' in this)) this.hiddenVal = this.nodeValue;
-                    this.nodeValue = '';
-                }
-            })
-            return this;
-        },
-        show: function(){
-            this.$.show();
-            this.$.each(function(){
-                if(this.hiddenVal){
-                    this.nodeValue = this.hiddenVal;
-                }
-            })
-            return this;
-        },
-        remove: function(isTemp){
-            if(isTemp)this.$.appendTo($hidden);
-            else this.$.remove();
-            return this;
-        },
-        appendTo: function(target){
-            this.$.appendTo($(target));
-            return this;
-        },
-        prependTo: function(target){
-            this.$.prependTo($(target));
-            return this;
-        },
-        insertAfter: function(target){
-            if(target instanceof BeardNode){
-                this.$.insertAfter(target.$e);
-            } else {
-                this.$.insertAfter($(target));
-            }
-            return this;
-        },
-        insertBefore: function(target){
-            if(target instanceof BeardNode){
-                this.$.insertBefore(target.$s);
-            } else {
-                this.$.insertBefore($(target));
-            }
-            return this;
-        },
-        wrapData: function(){
-            return this.$.wrapData();
-        }
-    }
-
-    // ------ var definitions ------
-    var BEARD_NODE, BEARD_PATH, BEARD_DATABIND, BEARD_REF,
-    BEARD_ZONE = 'beards', BEARD_DATA, BEARD_ARGS,
-    ARRAY = 'array', OBJECT = 'object',
-
-
-    // selected engine. If it is undefined, the Beard has not been inited
-    engineName,
-
-    _options = {}, defOpts = {
-        // template config
-        codeOpen : '[##',
-        codeClose : '#]',
-        equaOpen : '[``',
-        escapeOpen : '[`/',
-        commentOpen : '[//',
-        htmlCommentOpen : '[///',
-        commentClose : '/]',
-        equaClose : '`]',
-
-        // html config
-        nodeDef: 'beard',
-        nodePath: 'bpath',
-        nodeRemote: 'bremote',
-        nodeData: 'bdata',
-        nodeDatabind: 'bdatabind',
-        nodeArgs: 'bargs',
-        nodeRef: 'bref',
-        beardZone: 'beards',
-        withinZone: false,
-
-        // compile config
-        debug: false,
-        safeMode: true,
-        dataMode: false,
-        engine: 'beard'
-    },
-
-    isDebug = false, safeMode = true, $debug, locIndex = 0,
-    canLog = typeof console != 'undefined' && typeof console.log == 'function',
-    rgxKey = /^\s*(?:([^\:]+)\:)?([^#\(]*)(?:#([^\(]+))?(?:\(([^\)]*)\))?\s*/,
-    rgxNewLine = /\n|\r\n|\n\r|\r/,
-
-    tplTags, ec,
-    cmpLength = function(a, b){
-        if(a.length > b.length) return -1;
-        else if(a.length == b.length) return 0;
-        else return 1;
-    },
-    E = '\x1b', EE = E+E, EEE = EE + E, EEEE = EEE + E,
-    rgxTagName = /^[^\(]+/, //, rgxTagArgs = /\s*\(\s*\)\s*/;
-
-
-    // for the tpls
-    Btpls = g.Btpls = {
-        __tpls__: [],
-        g: {}
-    },
-
-    emptyFunc = function(){
-        return ''
-    },
-    STRING = 'string', FUNCTION = 'function',
-    firstRun = true, readyFuncs = [], operationQueue = [],
-    withinZone,
-
-    objCache = {}, objSeq = 1, hasDataCached = false;
-
-    // ------ end of var definitions ------
-
     var Beard = {
         version: VERSION,
+        _objCache: {},
+        _getTplFunction: getTplFunction,
         // Load all the templates
         // a template shall locate in #beard_templates and with an attribute data-beard
         // data-beard = { the name of the template }
@@ -652,11 +504,11 @@
                 } else {
                     if(typeof path == 'string'){
                         var cf = {};
-                        var tmp = path.split('->');
-                        parseJsonPathStr(tmp[0], cf, 'p', sc, '');
-                        if(1 in tmp){
-                            parseJsonPathStr(tmp[0], cf, 'r', sc, '');
-                        }
+                        var m = rgxTplName.exec(path);
+                        if(!m) throw new Error('The path is not a valid path string : ' + path);
+                        cf.p = m[1];
+                        cf.a = m[2];
+                        cf.r = m[3];
                     } else {
                         cf = path;
                     }
@@ -665,21 +517,14 @@
                     } else {
                         f = getTplFunction(cf.r);
                     }
-                    tmp = cf.p.split('.');
-                    pushFunction(cf.p, tmp[tmp.length - 1], f, cf.r);
+                    var tmp = cf.p.split('.'), l = tmp.length;
+                    while(l--){
+                        tmp[l] = tmp[l].charAt(0).toUpperCase() + tmp[l].substr(1);
+                    }
+                    pushFunction(tmp.join('.'), tmp[tmp.length - 1], f, cf.r);
                 }
             } else if(typeof content == 'object' && content != null){
-                var sc = {};
-                var idx = 0;
-                while(true){
-                    var res = prepareJsonTpls(content, sc, idx, idx, '');
-                    if(!res){
-                        throw 'There is cross-ref keys in the tpls path shortcut.';
-                    } else if(res == 2){
-                        break;
-                    }
-                    idx ++
-                }
+                prepareTplsForCompilation(content, '');
                 loadEachScript(content);
             }
             if(_run == 1) nextOp();
@@ -693,6 +538,9 @@
             if(!$debug) Beard.init();
             return $debug;
         },
+        $hidden: function(){
+            return $hidden;
+        },
         isDebug: function(){
             return isDebug;
         },
@@ -700,7 +548,6 @@
             _options = $.extend({}, defOpts, _options, option);
             isDebug = _options.debug;
 
-            engineName = _options.engine;
 
             if(!$beard || !$beard.size()){
                 // first we need to get the beard template zone and hide it
@@ -723,23 +570,21 @@
 
             BEARD_NODE = _options.nodeDef;
             BEARD_PATH = _options.nodePath;
-            BEARD_DATA = _options.nodeData;
-            BEARD_DATABIND = _options.nodeDatabind;
             BEARD_ARGS = _options.nodeArgs;
             BEARD_REF = _options.nodeRef;
 
-            ec = _options.equaClose;
+            ec = _options.equalClose;
 
             tplTags = {};
             tplTags[_options.codeOpen] = ec + 'o' + E;
-            tplTags[_options.equaOpen] = ec + 'q' + E;
+            tplTags[_options.equalOpen] = ec + 'q' + E;
             tplTags[_options.escapeOpen] = ec + 's' + E;
             tplTags[_options.commentOpen] = ec + 'c' + E;
             tplTags[_options.htmlCommentOpen] = ec + 'h' + E;
             tplTags[_options.commentClose] = ec;
             tplTags[_options.codeClose] = ec;
             tplTags['_seq'] = [_options.htmlCommentOpen,_options.commentOpen,_options.codeOpen,
-            _options.equaOpen, _options.escapeOpen,
+            _options.equalOpen, _options.escapeOpen,
             _options.codeClose, _options.commentClose];
 
             tplTags._seq.sort(cmpLength);
@@ -765,41 +610,6 @@
             }
             return Beard;
         },
-        bindData: function($scope){
-            return Beard.bindDataOnly($scope).clearData();
-        },
-        parseHtml: function(h){
-            if(!(h instanceof jQuery)){
-                h = $($(d.createElement('div')).html(h).contents());
-            }
-            Beard.bindData(h);
-            return h;
-        },
-        bindDataOnly: function($scope){
-            if(hasDataCached){
-                if(!$scope){
-                    $scope = $('body');
-                }
-                // get the bound data
-                var sel = '[' + BEARD_DATA + ']';
-                $scope.find(sel).union($scope.filter(sel))
-                .each(function(){
-                    var $t = $(this);
-                    $t.bVal(objCache[$t.attr(BEARD_DATA)])
-                    .removeAttr(BEARD_DATA);
-                })
-
-                bindBeardNodes($scope.map(function(){
-                    return this;
-                }));
-            }
-            return Beard;
-        },
-        clearData: function(){
-            objCache = {};
-            hasDataCached = false;
-            return Beard;
-        },
         _recompileTemplate: function(funcStr, path, args){
             var pts = funcStr.split('/*\x1b*/');
             var F = new Function(args, [pts[0], compileUtils(path, args), pts[2]].join(''));
@@ -809,19 +619,21 @@
                 pushFunction(path, tmp[tmp.length-1], F);
             }
 
-            utils._log(new Date().toLocaleTimeString() + ' Recompiling : ' + path);
+            utils.__log(new Date().toLocaleTimeString() + ' Recompiling : ' + path);
             var fArgs = [];
             for(var i = 3, len = arguments.length; i < len; i ++){
                 fArgs.push(arguments[i]);
             }
             return F.apply(this, fArgs);
         },
-        clearAll: function(){
+        reset: function(){
             operationQueue = [];
             running = false;
             firstRun = true;
             tplsByPath = {};
-            objCache = {};
+            Beard._objCache = {};
+            _options = $.extend({}, defOpts);
+            resetUtils();
             // for the tpls
             Btpls = g.Btpls = {
                 __tpls__: [],
@@ -835,7 +647,7 @@
             if(!$context){
                 $context = $(d);
             } else if( !$context.size()){
-                utils._log(new Date().toLocaleTimeString() + 'The context is empty. Stop binding events');
+                utils.__log(new Date().toLocaleTimeString() + 'The context is empty. Stop binding events');
                 return Beard;
             }
             if(typeof events == 'function' || type){
@@ -885,44 +697,30 @@
                 }
             }
             return Beard;
+        // end of init events
+        },
+        bindData: function($scope){
+            if(!($scope instanceof $)){
+                $scope = $($scope);
+            }
+            var objCache = Beard._objCache;
+            $scope.find('[data-beard-mark]')
+            .union($scope.filter('[data-beard-mark]'))
+            .each(function(){
+                if(this.getAttribute("data-beard-data")){
+                    $(this).beardData(objCache[this.getAttribute("data-beard-data")])
+                }
+                this.removeAttribute("data-beard-data");
+                this.removeAttribute('data-beard-mark');
+            })
+            objCache = {};
+            return Beard;
         }
     } // end of Beard object
 
-    var rgxNodeStart = /\#\#(\d+)\#\#/,rgxNodeEnd = /\/\/(\d+)\/\//;
-    function bindBeardNodes(a){
-        var m, bn, stk = [];
-        for(var i = 0, len = a.length; i < len; i ++ ){
-            var n = a[i];
-            if(n.nodeType == d.COMMENT_NODE){
-                if(n.nodeValue){
-                    if(m = rgxNodeStart.exec(n.nodeValue)){
-                        if(bn){
-                            stk.push(bn);
-                        }
-                        bn = new BeardNode(objCache[m[1]]);
-                        n.nodeValue = '';
-                        bn._start(n);
-                    } else if(m = rgxNodeEnd.exec(n.nodeValue)){
-                        n.nodeValue = '';
-                        bn._end(n);
-                        bn._push(n);
-                        bn = stk.pop();
-                    } 
-                }
-            } 
-            if(bn){
-                bn._push(n);
-                for(var j = 0, jlen = stk.length; j < jlen; j++){
-                    stk[j]._push(n);
-                }
-            }
-            if(n.nodeType == d.ELEMENT_NODE){
-                bindBeardNodes(n.childNodes);
-            }
-        }
-    }
-
-
+    // This is to chain the operation into a queue
+    // For ensure that the ready function will be called after all templates
+    // are loaded
     var running = false;
     function pushOp(fn){
         operationQueue.push(fn);
@@ -952,103 +750,47 @@
         }
     }
 
-    function parseJsonPathStr(str, obj, t, sc, p){
-        var m = rgxKey.exec(str), t1= t+'1', t2=t+'2';
-        if(m){
-            if(m[1] && (m[1] in sc)){
-                obj[t] = sc[m[1]] + (m[2]? '.' + m[2]: '');
-            } else {
-                if(m[1]){
-                    obj[t1] = m[1];
-                    obj[t] = m[2];
-                } else{
-                    obj[t] = p + m[2];
-                }
-            }
-            if(!obj[t1] && m[3]){
-                sc[m[3]] = obj[t];
-            } else {
-                obj[t2] = m[3];
-            }
-            if(t == 'p'){
-                obj.a = m[4];
-            }
-        } else {
-            throw new Error('Cannot parse the json as a set of templates. failed @ ' + str);
-        }
-    }
-    function prepareJsonTpls(j, sc, notFirst, idx, p){ // sc : shortcuts
-        var fn = 2;
+    // Go through the object and prepare it for the next step : compilation
+    function prepareTplsForCompilation(j, p){ // sc : shortcuts
         for(var key in j){
             if(key && j.hasOwnProperty(key)){
-                if(!notFirst){
-                    if(typeof j[key] == 'object'){
-                        cf = j[key][''] = { // cf : config
-                            t: j[key][''],
-                            d: true
-                        }
-                    } else {
-                        j[key] = { // cf : config
-                            '':{
-                                t: j[key],
-                                d: false
-                            }
-                        }
-                        var cf = j[key][''];
-                    }
-                    // cf : 
-                    // t->template string, d->go down
-                    // p1 path prefix, p path, p2 path assignment
-                    // r1 reference prefix, r reference, r2 reference assignment
-                    // b databind
-                    if(key.charAt(0) == '!'){
-                        cf.b = true;
-                        var tmpKey = key.substr(1);
-                    } else {
-                        tmpKey = key
-                    }
-                    // first, parse the key
-                    var tmp = tmpKey.split('->');
-                    parseJsonPathStr(tmp[0], cf, 'p', sc, p);
-                    if(1 in tmp){
-                        parseJsonPathStr(tmp[1], cf, 'r', sc, '');
+                if(typeof j[key] == 'object'){
+                    cf = j[key][''] = { 
+                        t: j[key][''],
+                        d: true
                     }
                 } else {
-                    cf = j[key][''];
-                    if(cf.p1 && (cf.p1 in sc)){
-                        cf.p = sc[cf.p1] + '.' + cf.p;
-                        cf.p1 = '';
-                        if(cf.p2){
-                            sc[cf.p2] = cf.p;
+                    j[key] = { // cf : config
+                        '':{
+                            t: j[key],
+                            d: false
                         }
                     }
-                    if(cf.r1 && (cf.r1 in sc)){
-                        cf.r = sc[cf.r1] + (cf.r?'.' + cf.r:'');
-                        cf.r1 = '';
-                        if(cf.r2){
-                            sc[cf.r2] = cf.r;
-                        }
-                    }
+                    var cf = j[key][''];
                 }
-                if(cf.p1 || cf.r1){
-                    if(!cf.idx) cf.idx = idx;
-                    if(cf.idx < idx - 2) return 0;
-                    fn = 1;
-                } else if(cf.d){
-                    var res = prepareJsonTpls(j[key], sc, cf.nf, idx, cf.p + '.');
-                    if(!res)
-                        return 0;
-                    if(res == 1){
-                        fn = 1;
-                    }
-                    cf.nf = true;
+                
+                // cf :
+                // t->template string
+                // a arguments
+                // p path
+                // r reference
+                // b databind
+                // first, parse the key
+                var m = rgxTplName.exec(key);
+                if(!m) throw new Error('The path "' + key + '" is not a valid path string under "'+p+'"');
+                cf.p = p + m[1];
+                cf.a = m[2];
+                cf.r = m[3];
+                if(cf.d){
+                    prepareTplsForCompilation(j[key], cf.p + '.');
                 }
             }
         // end of each key
         }
-        return fn;
     }
 
+    // For each single template inside a nested template object, compile it
+    // and push it to Btpls. This should be called after prepareTplsForCompilation
     function loadEachScript(j){
         for(var i in j){
             if(i && j.hasOwnProperty(i)){
@@ -1059,6 +801,8 @@
         }
     }
 
+    // For loading templates from html into a nested template object
+    // This template object will be passed to loadScript()
     function _load(){
         var beards = firstRun && !withinZone? $('div[' + BEARD_NODE + ']') : $beard.find('div['+ BEARD_NODE + ']');
 
@@ -1078,10 +822,6 @@
             if(!ref) ref = '';
             else ref = '->' + ref;
 
-            var databind = $t.attr(BEARD_DATABIND);
-            if(typeof databind == 'undefined') databind = '';
-            else databind = '!';
-
             var args = $t.attr(BEARD_ARGS);
             if(!args) args = '';
             else args = '(' + args + ')';
@@ -1093,7 +833,7 @@
                 parent = script
             }
 
-            var t = parent[databind + path + name + args + ref] = {
+            var t = parent[path + name + args + ref] = {
                 '': $t
             };
             $t.data('beard-node', t);
@@ -1132,7 +872,7 @@
                 if(tpl.__path == path){
                     // tpl replacing tpl
                     tpl.fn = f;
-                    utils._log(new Date().toLocaleTimeString() + ' --------------- TPL OVERWRITTEN ------------- ' + path);
+                    utils.__log(new Date().toLocaleTimeString() + ' --------------- TPL OVERWRITTEN ------------- ' + path);
                 } else {
                     // tpl replacing tpl ref
                     delete parent[name].__refbys[path]; // removing refbys
@@ -1140,13 +880,13 @@
                     delete tplsByPath[path];
                     tpl=getTplFunction(path);
                     tpl.fn = f;
-                    utils._log(new Date().toLocaleTimeString() + ' --------------- TPL REF OVERWRITTEN ------------- ' + path);
+                    utils.__log(new Date().toLocaleTimeString() + ' --------------- TPL REF OVERWRITTEN ------------- ' + path);
                 }
             } else {
                 // tpl replacing nothing
                 var tpl = getTplFunction(path);
                 tpl.fn = f;
-                utils._log(new Date().toLocaleTimeString() + ' --------------- NEW TPL CREATED ------------- ' + path);
+                utils.__log(new Date().toLocaleTimeString() + ' --------------- NEW TPL CREATED ------------- ' + path);
             }
         } else {
             if(name in parent){
@@ -1156,9 +896,9 @@
                     for(var ref in otpl.__refbys){
                         if(otpl.__refbys.hasOwnProperty(ref)){
                             var reftpl = getTplFunction(ref, true);
-                            var refname = /[^\.]+$/.exec(reftpl)[0];
+                            var refname = /[^\.]+$/.exec(ref)[0];
                             reftpl[refname] = f;
-                            utils._log(new Date().toLocaleTimeString() + ' --------------- RENEWING REF ------------- ' + ref + ' --to--> ' + refto);
+                            utils.__log(new Date().toLocaleTimeString() + ' --------------- RENEWING REF ------------- ' + ref + ' --to--> ' + refto);
                         }
                     }
                     clearSubTpls(otpl);
@@ -1167,7 +907,7 @@
             tpl = f;
             // setting refbys
             f.__refbys[path] = 1;
-            utils._log(new Date().toLocaleTimeString() + ' --------------- CREATE REFERENCE ------------- ' + path + ' --to--> ' + refto);
+            utils.__log(new Date().toLocaleTimeString() + ' --------------- CREATE REFERENCE ------------- ' + path + ' --to--> ' + refto);
         }
         parent[name] = tpl;
         parent.__tpls__[name] = 1;
@@ -1179,11 +919,12 @@
             var subtpl = tpl[sub];
             var path = tpl.__path? tpl.__path + '.' + sub : sub;
             if(subtpl.__path == path){
-                utils._log(new Date().toLocaleTimeString() + ' --------------- CLEARING SUB TPL ------------- ' + path);
+                var tmp = path;
+                utils.__log(new Date().toLocaleTimeString() + ' --------------- CLEARING SUB TPL ------------- ' + path);
                 // it is not a template reference
                 subtpl.__parent = null;
                 subtpl.fn = function(){
-                    throw new Error(path + ' : Not implemented yet');
+                    throw new Error(tmp + ' : Not implemented yet');
                 }
                 clearSubTpls(subtpl);
                 tpl[sub] = null;
@@ -1251,20 +992,23 @@
         tpl.__tpls__ = subtplconfig;
         tpl.tags = tags;
         tpl.__parent = parent;
-        tpl._name = name;
+        tpl.__name = name;
         tpl.__path = path;
         tpl.__refbys = {};
         tpl.p = extra.getParentTpl;
         tpl.$ = extra.getJqueryObj;
+        if(extra.initTplFunc){
+            extra.initTplFunc(tpl);
+        }
     }
 
-    var UNDERSCORE = '_';
+    var rgxVarName = /^[a-zA-Z]\w+$/;
     function compileUtils(path, args){
-        var code = ['/*\x1b*/\nif(u._edit>', utils._edit, '){return Beard._recompileTemplate(u._tplsStr["', path ,'"], "',
+        var code = ['/*\x1b*/\nif(u._edit>', utils._edit, '){return Beard._recompileTemplate(u.__tplsStr["', path ,'"], "',
         path, '", "', args, '", ', args, ')}'];
 
         utils.loop(utils, function(val, name){
-            if(name.charAt(0) != UNDERSCORE){
+            if(rgxVarName.test(name)){
                 if(typeof val == 'function'){
                     code.push('\nfunction ', name, '(){return u.', name,'.apply(u, arguments)}')
                 } else {
@@ -1277,20 +1021,13 @@
         return code.join('');
     }
 
-    function compileTemplate(template, path, args, databind){
+    function compileTemplate(template, path, args){
         var pts = template;
         if(args){
             args += ',_e_';
         } else {
             args = 'd,_e_';
         }
-
-        var tmp = args.replace(/\s/g, '').split(',');
-        var argObj = [];
-        for(var i = 0, len = tmp.length; i < len; i++){
-            argObj.push(i?',"':'"', tmp[i], '":', tmp[i]);
-        }
-        argObj = argObj.join('');
 
         utils.loop(tplTags, function(val, key){
             pts = pts.split(key).join(val);
@@ -1301,10 +1038,10 @@
         var PLAIN_HTML_1 = "o[o.length]='";
         var ESC_1 = "o[o.length]=esc(";
         var EXPRE_1 = "o[o.length]=";
-        var THROW_1 = "u._log(e.message + ' @ ";
+        var THROW_1 = "u.__log(e.message + ' @ ";
 
         var code = [];
-        for(i = 0, len = pts.length; i < len; i ++){
+        for(var i = 0, len = pts.length; i < len; i ++){
             var pt = pts[i];
             if(pt.charAt(1) !== E){
                 // it is a plain html text
@@ -1327,16 +1064,15 @@
                             // the expression to be exported to output
                             code.push(EXPRE_1,
                                 pt,
-                                isDebug? ';log(new Date().toLocaleTimeString() + "  ----->   "+   (' + (locIndex++) + ")   +'" +
-                                pt.replace(/(\\|')/g, '\\$1').split(rgxNewLine).join('\\n') + " =>' + (" + pt +"));\n": ";\n"
+                                isDebug? ';\n__tmp__=' + pt + ';\nlog(new Date().toLocaleTimeString() + "  ----->   "+   (' + (locIndex++) + ")   +'" +
+                                pt.replace(/(\\|')/g, '\\$1').split(rgxNewLine).join('\\n') + " {non-escaped} => ' + __tmp__);\n": ";\n"
                                 );
                             break;
                         case 's': //eScape
                             // the content needs escaped
-                            code.push(ESC_1,
-                                pt,
-                                isDebug? ');log(new Date().toLocaleTimeString() + "  ----->   "+   (' + (locIndex++) + ")   +'" +
-                                pt.replace(/(\\|')/g, '\\$1').split(rgxNewLine).join('\\n') + "' + (" + pt +"));\n": ");\n"
+                            code.push('__tmp__=' + pt + ';\no[o.length]=esc(__tmp__);',
+                                isDebug? 'log(new Date().toLocaleTimeString() + "  ----->   "+   (' + (locIndex++) + ")   +'" +
+                                pt.replace(/(\\|')/g, '\\$1').split(rgxNewLine).join('\\n') + " {escaped} => ' + __tmp__);\n": "\n"
                                 );
                             break;
                         case 'h': // Html comment
@@ -1365,26 +1101,23 @@
         .split(["o[o.length]='';\n"].join('')).join('')
         .replace(/try{}catch\(e\){.*?}\n/g, '');
 
-        code = ['var e=typeof _e_=="undefined"?{}:_e_,u=Beard.utils,o=[],t=this,g=Btpls.g',
-        databind?',__aobj={'+argObj+',tpl:t,_name:t._name,__path:t.__path};u._objId(__aobj);':';',
-        'if(typeof e=="object")e.def=u._defVal;function out(){o.push.apply(',
-        'o, arguments);}',
+        code = ['var e=typeof _e_=="undefined"?{}:_e_,u=Beard.utils,o=[],t=this,g=Btpls.g;if(typeof e=="object")e.def=u.__defVal;function out(){o.push.apply(o, arguments);}',
+        '_d_=arguments[0];function slot(name, tpl){return u.__slot(name, tpl, _d_)}',
         compileUtils(path, args),
         'try{',
-        databind?'if(u.__dataMode)o.push("<!--##",__aobj.__objid_,"##-->");':'',
         isDebug?'u.log(new Date().toLocaleTimeString() + " Level @" + (u.__level++) + "  ------ START : <<   ' + path + '   >> ------");':'',
         code,
         isDebug?';u.log(new Date().toLocaleTimeString() + " Level @" + (--u.__level) + "  ###### END : <<   ' + path + '   >> ######");':'',
-        databind?';if(u.__dataMode)o.push("<!--//",__aobj.__objid_,"//-->");':';',
         'return o.join("");',
         '}catch(e){u.log(arguments.callee.toString());log(e);throw e;}'
         ].join('');
 
         try{
             var F = new Function(args, code);
-            utils._log(new Date().toLocaleTimeString() + ' ---- SUCCESS: The compiled function for template <<' + path + '>> : ---- \n\n');
-            utils._log(code);
-            utils._tplsStr[path] = code;
+            F._args = args.replace(/\s/, '').split(',');
+            utils.__log(new Date().toLocaleTimeString() + ' ---- SUCCESS: The compiled function for template <<' + path + '>> : ---- \n\n');
+            utils.__log(code);
+            utils.__tplsStr[path] = code;
             return F;
         } catch(e) {
             if(e.message.indexOf('reserved_word') != -1){
@@ -1399,11 +1132,10 @@
 
     var extra = {
         getJqueryObj:function(){
-            var prev = utils.__dataMode;
-            utils.__dataMode = true;
             var h = this.fn.apply(this, arguments);
-            utils.__dataMode = prev;
-            return Beard.parseHtml(h, true);
+            h = $('<div>' + h + '</div>');
+            h.bindData();
+            return $(h.contents());
         },
         getParentTpl: function(key){
             if(!key) return this.__parent;
@@ -1423,20 +1155,21 @@
                     if(!ret) {
                         throw new Error(' The template name could not be found for t.p(' + key + ')');
                     }
-                    if(ret._name == key){
+                    if(ret.__name == key){
                         return ret
                     }
                 }
             }
         }
     }
+    Beard._extra = extra;
 
-    var utils = Beard.utils = {
-        _edit: 0,
+
+    var utils_bak = {
         __level: 0,
         __dataMode: false,
         esc: function(str){
-            if(str !== null && str !== undefined){
+            if(str !== null && typeof str != 'undefined'){
                 return str.toString()
                 .split('&').join('&amp;')
                 .split('<').join('&lt;')
@@ -1447,7 +1180,7 @@
                 return '';
             }
         },
-        _log: function(msg){
+        __log: function(msg){
             if(isDebug){
                 utils.log.apply(this, arguments);
             }
@@ -1466,16 +1199,16 @@
                 }
             }
         },
-        _tplsStr: {},
-        loop: function(data, callback, mode, extra, undefined){
-            k = 0;
-            if(typeof callback != 'function' || data === null || data === undefined){
+        __tplsStr: {},
+        loop: function(data, callback, mode, extra){
+            var k = 0;
+            if(typeof callback != 'function' || typeof data === 'undefined' || data == null || typeof data != 'object'){
                 return false;
             }
             if(mode == ARRAY || data instanceof Array){
-                for(var k = 0, len = data.length; k < len; k ++){
+                for(len = data.length; k < len; k ++){
                     var ret = callback(data[k], k, data, extra);
-                    if(ret !== undefined && ret !== true) return {
+                    if(typeof ret != 'undefined' && ret !== true) return {
                         ret: ret,
                         num: k
                     };
@@ -1483,20 +1216,23 @@
             } else if(mode == OBJECT || data && typeof data == OBJECT){
                 if(data._seq){
                     var seq = data._seq;
-                    for(k = 0, len = seq.length; k < len; k++){
-                        var key = seq[k];
-                        ret = callback(data[key], key, data, extra);
-                        if(ret !== undefined && ret !== true) return {
-                            ret: ret,
-                            num: k,
-                            key: key
-                        };
+                    for(var j = 0, len = seq.length; j < len; j++){
+                        var key = seq[j];
+                        if(typeof data[key] != 'undefined'){
+                            k ++;
+                            ret = callback(data[key], key, data, extra);
+                            if(typeof ret != 'undefined' && ret !== true) return {
+                                ret: ret,
+                                num: k,
+                                key: key
+                            };
+                        }
                     }
                 } else {
                     for(var l in data){
-                        if(data.hasOwnProperty(l)){
+                        if(data.hasOwnProperty(l) && l.charAt(0) != '_'){
                             ret = callback(data[l], l, data, extra);
-                            if(ret !== undefined && ret !== true) return {
+                            if(typeof ret != 'undefined' && ret !== true) return {
                                 ret: ret,
                                 num: k,
                                 key: l
@@ -1505,10 +1241,7 @@
                         }
                     }
                 }
-            } else {
-                k = -1;
-                callback(data, null, data, extra);
-            }
+            } 
 
             return k;
         },
@@ -1572,8 +1305,8 @@
             return o.join('');
         },
         // data attribute
-        _objId : function(obj, nocache){
-            if(obj !== null && obj !== undefined){
+        __objId : function(obj, nocache){
+            if(obj !== null && typeof obj != 'undefined'){
                 if(typeof obj == 'object' || typeof obj == 'function'){
                     if(obj.__objid_){
                         var id = obj.__objid_;
@@ -1583,6 +1316,7 @@
                 } else {
                     id = objSeq ++;
                 }
+                objCache = Beard._objCache;
                 if(!(id in objCache) && !nocache){
                     objCache[id] = obj;
                     hasDataCached = true;
@@ -1592,48 +1326,52 @@
                 return '';
             }
         },
-        field: function(name, obj){
-            var id = utils._objId(obj);
-            var attr = [' ',BEARD_DATA, '="', id, '"',' data-beard-field="', name, '" '];
+        bind: function(obj){
+            var id = utils.__objId(obj);
+            // data-beard-mark is for marking all the elements that need to be parse later
+            // For instance, slot, field will all be marked
+            // and we only need to call .find('[data-beard-mark]') once instead of .find('[adta-beard-field]') & .find('[data-beard-slot]')
+            var attr = [' data-beard-data="', id, '" data-beard-mark="1"'];
             return attr.join('');
         },
-        clear: function(obj, keys){
+
+        // *** this method might be organised in beard-advanced
+        __slot: function(name, tpl, obj){
+            // bs = beard slot
+            var attr = [' data-bs="', name, '" data-beard-mark="1"'];
+            if(tpl){
+                attr.push(' data-bs-tpl="', tpl.__path, '"');
+            }
+            if(obj){
+                var id = utils.__objId(obj[name]);
+                attr.push(' data-bs-raw="', id, '"');
+            }
+            attr.push(' ');
+            return attr.join('');
+        },
+        clear: function(obj, keys, val){
             keys = keys.split(/,/);
             for(var i = 0, len = keys.length; i < len; i++){
-                delete obj[keys[i]];
+                if(typeof defval == 'undefined') delete obj[keys[i]];
+                else obj[keys[i]] = val;
             }
         },
-        //        clone: function(obj, vals){
-        //            var ret = {};
-        //            for(var i in obj){
-        //                if(obj.hasOwnProperty(i) && !(i in vals)){
-        //                    ret[i] = obj[i];
-        //                }
-        //            }
-        //            for(i in vals){
-        //                if(vals.hasOwnProperty(i)){
-        //                    ret[i] = vals[i];
-        //                }
-        //            }
-        //            return ret;
-        //        },
-        _defVal: function(key, val){
+        __defVal: function(key, val){
             if(typeof key == "object"){
                 for(var i in key){
                     if(key.hasOwnProperty(i)){
-                        if(!(i in this)){
+                        if(!(i in this) || typeof this[i] == 'undefined'){
                             this[i] = key[i];
                         }
                     }
                 }
-            }
-            if(!(key in this)){
+            } else if(!(key in this) || typeof this[i] == 'undefined'){
                 this[key] = val;
             }
         },
         sort: function(data, func){
             if(!func || typeof func == 'string'){
-                func = utils._getSortFunc(func);
+                func = utils.__getSortFunc(func);
             }
             if(data instanceof Array){
                 data.sort(func);
@@ -1658,24 +1396,24 @@
             }
             return data;
         },
-        _getSortFunc:function(funcStr){
+        __getSortFunc:function(funcStr){
             if(!funcStr) funcStr = 'asc';
-            if(funcStr in utils._sortFuncs){
-                return utils._sortFuncs[funcStr];
+            if(funcStr in utils.__sortFuncs){
+                return utils.__sortFuncs[funcStr];
             }
             var cols = funcStr.split(',');
             for(var i = 0, len = cols.length; i < len; i++){
                 cols[i] = $.trim(cols[i]).split(/\s+/);
             }
-            var body = utils._generateSortFunc(cols, 0, cols.length - 1);
+            var body = utils.__generateSortFunc(cols, 0, cols.length - 1);
             try{
-                return utils._sortFuncs[funcStr] = new Function('a,b', body);
+                return utils.__sortFuncs[funcStr] = new Function('a,b', body);
             } catch(e){
                 utils.log(body);
-                return utils._sortFuncs[funcStr] = emptyFunc;
+                return utils.__sortFuncs[funcStr] = emptyFunc;
             }
         },
-        _generateSortFunc: function(cols, index, len){
+        __generateSortFunc: function(cols, index, len){
             var o = [];
             var col = cols[index];
             if(col[1] == 'desc'){
@@ -1685,10 +1423,10 @@
             }
             var colStr = col[0];
             o.push('try{if(a.', colStr, cmp1, 'b.', colStr, ')return -1;else if(a.', colStr, cmp2, 'b.', colStr, ')return 1;',
-                'else{', index == len? 'return 0' : utils._generateSortFunc(cols, index + 1, len), '}}catch(e){return 0}');
+                'else{', index == len? 'return 0' : utils.__generateSortFunc(cols, index + 1, len), '}}catch(e){return 0}');
             return o.join('');
         },
-        _sortFuncs: {
+        __sortFuncs: {
             asc: function(a, b){
                 if(a > b) return 1;
                 else if (a == b) return 0;
@@ -1701,6 +1439,23 @@
             }
         }
     }
+
+    var utils = Beard.utils = {
+        _edit: 0
+    };
+    function resetUtils(){
+        for(var i in utils){
+            if(utils.hasOwnProperty(i) && !(i in utils_bak) && i != '_edit'){
+                delete utils[i];
+            }
+        }
+        for(i in utils_bak){
+            if(utils_bak.hasOwnProperty(i)){
+                utils[i] = utils_bak[i];
+            }
+        }
+    }
+    resetUtils();
 
     g.Beard = Beard;
     var log = utils.log;

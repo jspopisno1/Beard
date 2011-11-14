@@ -1,0 +1,102 @@
+Sub templates are supported by Beard.js, so it is really easy to break down
+a big html into small templates, and compose them to build a complex
+template.
+<p>
+Beard.js also allow you to have template reference. Template references make
+it possible and simple to re-use a template snippet again and again.
+<p>
+Imagine that you have two different section, each section consists of header,
+content. Instead of having names like 'userSection', 'userSecHeader',
+'bookSection', 'bookSecHeader..., Beard helps you establish the templates into 
+a tree.
+<p>
+Another requirement is about managing frequently-used template snippets, which
+are also known as helpers. Say, there are a lot of different inputs across the template.
+The better way is to make them reusable.
+<p>
+Here is the example.
+***
+<div beard="UserSection" bargs='userSec'>
+    <!--@
+    <div id='user'>
+        [``
+            t.Header(userSec) +
+            t.Content(userSec) +
+            t.Footer(userSec) 
+        `]
+    </div>
+    @-->
+    <div beard='Header'>
+        <!--@ [## var l = d.length; #]
+        <p> Hihi, this is the User Section. There are [`` l?l:'no' `] user[`` l>1?'s':'' `] at the moment.
+        @-->
+    </div>
+    <div beard='Content'>
+        <!--@ [## var inputs = t.p().Inputs #]
+        <p>
+        [`` inputs.Button('a button') +
+            inputs.Text('aText', 'some random text')
+        `]
+        @-->
+    </div>
+    <div beard='Footer'>
+        <!--@
+        <p>
+        Footer of the user section.
+        @-->
+    </div>
+    <div beard='Inputs' bref='Inputs'/>
+</div>
+
+<div beard="BookSection"  bargs='bookSec'>
+    <!--@
+    <div id='user'>
+        [``
+            t.Header(bookSec) +
+            t.Content(bookSec) +
+            t.Footer(bookSec)
+        `]
+    </div>
+    @-->
+    <div beard='Header'>
+        <!--@ [## var l = d.length; #]<p>
+        Hihi, this is the User Section. There are [`` l?l:'no' `] book[`` l>1?'s':'' `] at the moment.
+        @-->
+    </div>
+    <div beard='Content'>
+        <!--@ [## var inputs = t.p().Inputs #]<p>
+        [`` inputs.Text('aText', 'some random text') +
+            inputs.Button('a button')
+        `]
+        @-->
+    </div>
+    <div beard='Footer'>
+        <!--@<p> 
+        Footer of the book section.
+        @-->
+    </div>
+    <div beard='Inputs' bref='Inputs'/>
+</div>
+
+<div beard='Inputs'>
+    <div beard='Button' bargs='text'>
+        <!--@
+        <input type='button' value='[`/ text `]' />
+        @-->
+    </div>
+    <div beard='Text' bargs='name, text'>
+        <!--@
+        <input name='[`/name`]' value='[`/ text `]' />
+        @-->
+    </div>
+</div>
+
+***
+Beard.load();
+***
+var users = [1, 2, 3];
+var books = [];
+
+result = Btpls.UserSection(users)
+result += '\n\n';
+result +=  Btpls.BookSection(books);

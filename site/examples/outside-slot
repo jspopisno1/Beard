@@ -1,0 +1,67 @@
+BeardNode is not enough, as we need something to contain the nodes. <b>BeardSlot</b> is then
+here to serve as a container of beard nodes.
+<p>
+Defining a slot is easy, you just need to decide an element as the container, and have
+<b>[`` slot('theName', A.Tmpl.Here) `]</b> embedded in the tag definition.
+<p>
+The cool thing is: the slot will queue all the data, and
+load or refresh them lazily, so that the page can be always responsive. This part will
+probably re-written after Web Worker is mature developed and widely adopted.
+<p>
+Once you have the slot, please use the slot to manipulate the beard nodes.
+You can see the difference between slot & <a target='_blank' href='https://github.com/BorisMoore/jsviews'>jsViews</a> (BorisMoore)
+***
+<div beard='Root'>
+    <!--@
+        <h2> Persons : </h2>
+        <div [`` slot('persons', t.Person) `] />
+        <h2> Cats : </h2>
+        <div [`` slot('cats', t.Cat) `] />
+    @-->
+    <div beard='Person'>
+        <!--@ <div> I am a person. My name is [`` d.name `]. I can [`` d.action `]. 
+            <input type='button' value='click me'/>
+        </div> @-->
+    </div>
+    <div beard='Cat'>
+        <!--@ <div> I am a cat. My name is [`` d.name `]. I can [`` d.action `]. 
+            <input type='button' value='click me'/>
+        </div> @-->
+    </div>
+</div>
+***
+Beard.load();
+
+$result.initEvents({
+    'input': function(){
+        var n = $(this).nodeUp();
+        if(n.tplName() == 'Cat'){
+            name = 'Cat Noname';
+        } else {
+            name = 'Person Noname';
+        }
+        n.parentSlot().insertAfter(n, {name: name, action:'do nothing'});
+        Beard.utils.log(n.parentSlot().nodes(), n.parentSlot().data());
+        window.s = n.parentSlot();
+    }
+});
+
+***
+var data = {
+    'persons' : [
+        {name: 'James', action: 'work'},
+        {name: 'Anna', action: 'swim'},
+        {name: 'Peter', action: 'dance'},
+        {name: 'Meria', action: 'walk'},
+        {name: 'Tino', action: 'read'}
+    ],
+    'cats': [
+        {name: 'Mimi', action: 'miao'},
+        {name: 'Ketti', action: 'miao'},
+        {name: 'Kiddy', action: 'miao'},
+        {name: 'Tommy', action: 'miao'}
+    ]
+};
+result = false;
+$result.html('');
+Btpls.Root.bn(data).appendTo($result);
