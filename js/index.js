@@ -224,7 +224,7 @@
         Beard.initEvents(c);
     }
 
-    var caseTimer, caseVer = new Date().getTime();
+    var caseTimer, caseVer = 1;
     function loadCase(){
         // html | data | js | description
         clearTimeout(caseTimer);
