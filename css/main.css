@@ -362,6 +362,9 @@ a.button {
 a.button:hover {
 	background-color:#e5e5e5;
 	color:#555;
+        background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #fff), color-stop(1, #eee) );
+	background:-moz-linear-gradient( center top, #fff 5%, #eee 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff', endColorstr='#eee');
 }
 a.button:active {
 	position:relative;
