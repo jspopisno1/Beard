@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<!--Sample inspired by Backbone Todos sample: http://documentcloud.github.com/backbone/examples/todos/index.html -->
+<html>
+    <head>
+        <title>JsViews Demo: Todos</title>
+        <script src="http://code.jquery.com/jquery.js" type="text/javascript"></script>
+        <script src="../js/beard-core.js" type="text/javascript"></script>
+        <script src="../js/beard-advanced.js" type="text/javascript"></script>
+        <link href="http://borismoore.github.com/jsviews/demos/resources/todos.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+
+        <div id="todoapp">
+            <h1>Todos - Beard, Plain Objects</h1>
+
+            <input id="new-todo" placeholder="What needs to be done?"/>
+
+            <div id="todo-stats"></div>
+        </div>
+        <div beard="TodoList">
+            <!--@
+            <ul id="todo-list" [`` slot('todos', t.TodoItem) `]/>
+            @-->
+            <div beard="TodoItem" bdatabind bargs="item">
+                <!--@
+                   [`` t[item._mode == 'Edit'?'Edit':'Load'](item); `]
+                @-->
+                <div beard="Edit">
+                    <!--@
+                    <li class="editing">
+                        <input value='[`/ d.content `]' class="todo-input"/>
+                    </li>
+                    @-->
+                </div>
+                <div beard="Load">
+                    <!--@
+                    <li>
+                        <input [`` d.done? 'checked': '' `] class="check" type="checkbox" />
+                        <div style="[`` d.done? 'text-decoration:line-through': '' `]" class="todo-content">
+                            [`/ d.content? d.content : 'empty todo item' `]
+                        </div>
+                        <span class="todo-destroy"></span>
+                    </li>
+                    @-->
+                </div>
+            </div>
+            <div beard="Stats" bargs="remaining, completed">
+                <!--@
+		<span>[`` remaining ? ( remaining + " item" + ( remaining > 1 ? "s" : "" ) + " left" ) : "" `]</span>
+                [## if(completed) { #]
+		<a href="javascript:void(0)" class="todo-clear">
+                   [`` completed ? ( "Clear " + completed + " completed item" + ( completed > 1 ? "s" : "" )) : ""; `]
+                </a>
+                [## } #]
+                @-->
+            </div>
+        </div>
+        <ul id="instructions">
+            <li>Todos: enter to add, double-click to edit...</li>
+        </ul>
+
+
+        <script>
+            (function(){
+                Beard.init({debug: false}).load();
+
+                var todos = {todos: []};
+                for(var i = 0; i < 100; i ++){
+                    todos.todos.push({done: i % 3?false:true, content : ' todo task ' + i});
+                }
+
+                Todos = {
+                    items: todos,
+                    clearList: function() {
+                        var slot = Todos.slotList, nodes = Todos.slotList.nodes(), l = nodes.length;
+                        while ( l-- ) {
+                            var item = nodes[l].data();
+                            if ( item && item.done ) {
+                                nodes[l].remove();
+                                continue;
+                            }
+                        }
+                        if(slot.isLoading()){
+                            var queue = slot.queues()[0];
+                            l = queue.length;
+                            while( l-- ){
+                                if(queue[l].done){
+                                    queue.spliceQueue(l, 1);
+                                }
+                            }
+                        }
+                        Todos.size = slot.size();
+                        Todos.completed = 0;
+                        Todos.num().refreshStats();
+                        return this;
+                    },
+                    save: function(){
+                        localStorage.setItem( "JsViewsTodos", JSON.stringify( this.items ));
+                        return this;
+                    },
+                    num: function(numChanged, completedChange){
+                        if(completedChange)
+                            this.completed += completedChange;
+                        if(numChanged)
+                            this.size += numChanged;
+                        this.remaining = this.size - this.completed;
+                        this.refreshStats();
+                        return this;
+                    },
+                    refreshStats: function(){
+                        this.$stats.html(this.tpl.Stats(this.remaining, this.completed));
+                        return this;
+                    },
+                    init: function(){
+                        var list = Todos.tpl.bn(todos);
+                        $('#new-todo').after(list.$);
+
+                        var items = Todos.items.todos, l = items.length;
+                        Todos.size = l;
+                        Todos.completed = 0;
+                        while(l--){
+                            if(items[l].done){
+                                Todos.completed ++;
+                            }
+                        }
+                        Todos.remaining = Todos.size - Todos.completed;
+                        Todos.slotList = $('#todo-list').nodeUp().slot('todos');
+                        return this;
+                    },
+                    slotList: null,
+                    $stats : $('#todo-stats'),
+                    tpl: Btpls.TodoList
+                }
+                Todos.init().refreshStats(true);
+
+//                setTimeout(function(){
+//                    Todos.clearList();
+//                    s = Todos.slotList;
+//                }, 1000);
+
+                Todos.events = {
+                    ':#todoapp': {
+                        '#new-todo': {
+                            '@keypress:bind': function(ev){
+                                // create new todo
+                                if ( ev.keyCode === 13 ){
+                                    Todos.slotList.prepend({done: false, content:this.value})
+                                    this.value = '';
+                                    Todos.num(1);
+                                }
+                            }
+                        },
+                        '.todo-clear@click':function() {
+                            // clear all completed
+                            Todos.clearList();
+                        },
+                        ':#todo-list': {
+                            '.todo-destroy@click': function() {
+                                // destroy a todo
+                                var node = $(this).nodeUp();
+                                node.remove();
+                                Todos.num(-1, node.data().done?-1:0);
+                            },
+                            'li@dblclick': function( ) {
+                                // edit a todo
+                                var node = $(this).nodeUp();
+                                node.data()._mode = 'Edit';
+                                node.refresh();
+                            },
+                            'input@keypress':function( ev ) {
+                                if (ev.keyCode === 13){
+                                    // save an edit
+                                    var node = $(this).nodeUp();
+                                    node.data().content = this.value;
+                                    node.data()._mode = 'Load';
+                                    node.refresh();
+                                }
+                            },
+                            '.check': function(){
+                                // done or un-done a todo
+                                var node = $(this).nodeUp();
+                                node.data().done = this.checked;
+                                Todos.num(0, node.data().done?1:-1);
+                                node.refresh();
+                            }
+                        }
+                    }
+                    // end of Todo events
+                }
+                
+                Beard.initEvents(Todos.events);
+                window.Todos = Todos;
+
+            })();
+        </script>
+    </body>
+</html>

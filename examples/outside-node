@@ -1,0 +1,40 @@
+A BeardNode is a combination of dom elements and data. For instance, a Template called
+Tmpl is defined. If <b>Tmpl.bn( data )</b> is called, a BeardNode will be returned and
+let's assign it to the variable <b>bn</b>. If you print bn out in console, you can learn that:
+<ul>
+<li><b>bn.$</b> : All the dom nodes (in the form of jQuery) rendered by Tmpl.
+<li><b>bn.$n</b> : The first element (jQuery) in the elements, the BeardNode object will also be bound to this element.
+<li><b>bn.$s</b> : The first node (jQuery) in the elements.
+<li><b>bn.$e</b> : The last node (jQuery) in the elements.
+<li><b>bn.tpl</b> : You can get the template used to render this beard node
+<li><b>bn.data()</b> : You can get the data by calling data().
+</ul>
+***
+<div beard='Root'>
+    <div beard='Person'>
+        <!--@ <div> I am a person. My name is [`` d.name `]. I can [`` d.action `]. <input type='button' value='click me'/></div> @-->
+    </div>
+    <div beard='Cat'>
+        <!--@ <div> I am a cat. My name is [`` d.name `]. I can [`` d.action `]. <input type='button' value='click me'/></div> @-->
+    </div>
+</div>
+***
+Beard.load();
+
+$result.initEvents({
+    'input': function(){
+        var n = $(this).nodeUp();
+        var newNode = n.tpl.bn(n.data());
+        newNode.insertAfter(n.$e);
+    }
+});
+
+***
+result = false;
+
+$result.html('');
+var data =  {name: 'Jack', action: 'program'}
+Btpls.Root.Person.bn(data).appendTo($result);
+
+data =  {name: 'Mini', action: 'miao'}
+Btpls.Root.Cat.bn(data).appendTo($result);
