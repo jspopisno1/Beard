@@ -3,8 +3,8 @@
     <head>
         <title>Beard.js Examples</title>
         <script type='text/javascript' src='../jquery-1.6.min.js'></script>
-        <script type='text/javascript' src='../site/js/beard.js'></script>
-        <script type='text/javascript' src='../beardExt.js'></script>
+        <script type='text/javascript' src='../site/js/beard-core.js'></script>
+        <script type='text/javascript' src='../site/js/beard-advanced.js'></script>
         <script type="text/javascript">
             var l = Beard.utils.log;
 
@@ -13,43 +13,27 @@
                 Beard
                 .init({debug: false})
                 .load();
-
-                q = [];
-                for(var i = 0; i < 200; i ++){
-                    q.push({'w': i, 'b': i, 'name': 'James' + i, '_seq':['b', 'w']});
-                }
-                q.name = 'The name';
-                a = Btpls.Flat.bn(q);
-                $('#test').append(a.$);
-
                 
-                q = [];
+                q = {Items1:[]};
                 for(var i = 0; i < 1000; i ++){
-                    q.push({'w': i, 'b': i, 'name': 'James' + i, '_seq':['b', 'w']});
+                    q.Items1.push({Items2:["bar " + i, "foo " + i], 'name': 'James' + i});
                 }
                 q.name = 'The name';
                 a = Btpls.Flat.bn(q);
                 $('#test').append(a.$);
                 
-                q = [];
-                for(var i = 0; i < 20000; i ++){
-                    q.push({'w': i, 'b': i, 'name': 'James' + i, '_seq':['b', 'w']});
-                }
-                q.name = 'The name';
-                a = Btpls.Flat.bn(q);
-                $('#test').append(a.$);
 
 
                 n = $('#test').nodeDown();
                 l(n);
-               n.d.text = 'test test ';
+                n._data.name = 'test test ';
 
                 $('body').initEvents({
                     'input.i2@keypress': function(e){
                         if(e.keyCode == 13){
                             var s = $(this).nodeUp().__slot;
-                            Beard.utils.loop(s.nodes, function(node){
-                                node.d = node.$.filter('input.i2').val();
+                            Beard.utils.loop(s.nodes(), function(node){
+                                node._data = node.$.filter('input.i2').val();
                             })
                             s.refresh(0, {mode: 'Load'})
                         }
@@ -74,16 +58,17 @@
     </head>
     <body>
         <div id="test"/>
-        <div beard="Flat" bdatabind>
+        <div beard="Flat">
             <!--@
             [`` d.name `]
-            <div [`` slot('what', t.FlatItem1, d)`]>
+            <div [`` slot('Items1', t.FlatItem1)`]>
             </div>
             @-->
-            <div beard="FlatItem1" bdatabind>
+            <div beard="FlatItem1">
                 <!--@ <div
                 style='border:1px #444 solid;padding:12px;width:400px;margin:8px;'>
-                [`` t.Name(d, e) `] <div [`` slot('this', t.p().FlatItem2, d) `] />
+                [`` t.Name(d, e) `]
+                <div [`` slot('Items2', t.p().FlatItem2) `] />
                 </div> @-->
                 <div beard="Name">
                     <!--@
@@ -95,7 +80,7 @@
                     @-->
                 </div>
             </div>
-            <div beard="FlatItem2" bdatabind>
+            <div beard="FlatItem2">
                 <!--@
                     [## out(t[e.mode == 'Edit'?'Edit':'Load'](d)) #]
                 @-->
