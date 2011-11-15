@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+    <head>
+        <title>Beard.js Examples</title>
+        <script type='text/javascript' src='../jquery-1.6.min.js'></script>
+        <script type='text/javascript' src='../beard.js'></script>
+        <script type='text/javascript' src='../beardExt.js'></script>
+        <script type="text/javascript">
+            var l = Beard.utils.log;
+
+            $(document).ready(function(){
+                Beard.init({debug: true})
+                .loadRemote('remote_html.html',{
+                    callback: function(){l('ready 1')}
+                })
+                .ready(function(){
+                    l('ready 2');
+                })
+                .loadHtml('<div beard="Test2">[## log("test 2 load html") #]<div beard="Test3" bref="test.SubRefTop.SubRef"></div></div>', 'top')
+                .ready(function(){
+                    l('ready 3');
+                })
+                .loadRemote('remote_text',{
+                    type: 'text',
+                    callback: function(){l('ready 4')},
+                    path: 'Test1.Test_text'
+                })
+                .loadRemote('remote_text',{
+                    type: 'text',
+                    path: 'WhatsUp'
+                })
+                .ready(function(){
+                    l('ready 5');
+                })
+                .loadRemote('remote_json.php', {
+                    type: 'json',
+                    callback: function(){l('ready 6')},
+                    path: 'TestRemotePath'
+                })
+                .ready(function(){
+                    l(Btpls.Test.SubFunc('Liang', 27, ['coding', 'wanwan', 'tv show']))
+                    Beard.extendUtils({'what': 'haha'});
+                    l(Btpls.Test.SubFunc('Liang', 27, ['coding', 'wanwan', 'tv show']))
+                })
+
+                l('outside ready');
+            })
+        </script>
+    </head>
+    <body>
+        <div beard="test#b" bargs="data">
+            <!--@
+                [##  sort(data.names, 'name desc');
+                loop(data.names, function(item){
+                    out(item.name + '<br/>')
+                })  #]
+            <hr>
+            <div><h1 class='header'>[`` data.header`]</h1>
+            <h2 class='header2'>[`` data.header2`]</h2>
+            <h3 class='header3'>[`` data.header3`]</h3>
+            <h4 class='header4'>[`` data.header4`]</h4>
+            <h5 class='header5'>[`` data.header5`]</h5>
+            <h6 class='header6'>[`` data.header6`]</h6>
+            <ul class='list'>
+                [## loop(data.list, function(l){ #]
+                <li class='item'>[`` l `]</li>
+                [## }) #]
+            </ul></div>
+            @-->
+            <div beard="SubFunc#a" bargs="name, age, hobbies">
+                <!--@
+                   <p> Hi, my name is [`/ name `].
+                   <p> I'm [`` age `] year[`` age > 1?'s':'' `] old.
+                   <p> My hobbies are :
+                   <p><ul>[## loop(hobbies, function(hb){
+                            out('<li>' + hb);
+                           }) #] </ul>
+                   </p>
+                @-->
+            </div>
+            <div beard="SubRef" bref="a:"></div>
+            <div beard="SubRef2" bref="a:"></div>
+            <div beard="SubRefTop" bref="b:"></div>
+        </div>
+    </body>
+</html>

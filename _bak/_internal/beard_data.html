@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+    <head>
+        <title>Beard.js Examples</title>
+        <script type='text/javascript' src='../jquery-1.6.min.js'></script>
+        <script type='text/javascript' src='../site/js/beard-core.js'></script>
+        <script type='text/javascript' src='../site/js/beard-advanced.js'></script>
+        <script type="text/javascript">
+            var l = Beard.utils.log;
+
+            
+            $(document).ready(function(){
+                Beard
+                .init({debug: false})
+                .load();
+                
+                q = {Items1:[]};
+                for(var i = 0; i < 1000; i ++){
+                    q.Items1.push({Items2:["bar " + i, "foo " + i], 'name': 'James' + i});
+                }
+                q.name = 'The name';
+                a = Btpls.Flat.bn(q);
+                $('#test').append(a.$);
+                
+
+
+                n = $('#test').nodeDown();
+                l(n);
+                n._data.name = 'test test ';
+
+                $('body').initEvents({
+                    'input.i2@keypress': function(e){
+                        if(e.keyCode == 13){
+                            var s = $(this).nodeUp().__slot;
+                            Beard.utils.loop(s.nodes(), function(node){
+                                node._data = node.$.filter('input.i2').val();
+                            })
+                            s.refresh(0, {mode: 'Load'})
+                        }
+                    },
+                    'div.i2': function(){
+                        var s = $(this).nodeUp().__slot;
+                        s.refresh(0, {mode: 'Edit'});
+                    },
+                    'div.i1': function(){
+                        var n = $(this).nodeUp();
+                        n.refresh(true, {mode:'Edit'});
+                    },
+                    'input.i1@keypress': function(e){
+                        if(e.keyCode == 13){
+                            var n = $(this).nodeUp();
+                            n.refresh(true, {mode:'Load'});
+                        }
+                    }
+                })
+            })
+        </script>
+    </head>
+    <body>
+        <div id="test"/>
+        <div beard="Flat">
+            <!--@
+            [`` d.name `]
+            <div [`` slot('Items1', t.FlatItem1)`]>
+            </div>
+            @-->
+            <div beard="FlatItem1">
+                <!--@ <div
+                style='border:1px #444 solid;padding:12px;width:400px;margin:8px;'>
+                [`` t.Name(d, e) `]
+                <div [`` slot('Items2', t.p().FlatItem2) `] />
+                </div> @-->
+                <div beard="Name">
+                    <!--@
+                    [## if(e.mode == 'Edit'){ #]
+                        <input class='i1' value='[`/d.name`]' />
+                    [## } else { #]
+                        <div class='i1'>[`/d.name`]</div>
+                    [## } #]
+                    @-->
+                </div>
+            </div>
+            <div beard="FlatItem2">
+                <!--@
+                    [## out(t[e.mode == 'Edit'?'Edit':'Load'](d)) #]
+                @-->
+                <div beard="Load">
+                    <div class="i2">[`` d `]</div>
+                </div>
+                <div beard="Edit">
+                    <!--@
+                    <input class='i2' value=[`/ d `] />
+                    @-->
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

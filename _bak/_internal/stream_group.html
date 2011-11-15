@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+<html>
+    <head>
+        <title>Beard.js Examples</title>
+        <script type='text/javascript' src='../jquery-1.6.min.js'></script>
+        <script type='text/javascript' src='../beard.js'></script>
+        <script type='text/javascript' src='../beardExt.js'></script>
+        <script type="text/javascript">
+            var l = Beard.utils.log;
+
+            $(document).ready(function(){
+                Beard.init({debug: true}).load()
+
+                $b = $('body');
+
+                $b.append(Btpls.ListHead(listData));
+                $b.append(Btpls.ListBody(listData, {type: 'group'}));
+                $b.append(Btpls.GroupProfile(group));
+            })
+
+            listData = {"headers":[{"title":"Name","index":"name","width":250,"sortable":true},
+                    {"title":"Descriptioin","index":"description","width":550,"sortable":true}],
+                "rows":[{"id":"1","name":"group A","description":"group A is for testing"},
+                    {"id":"2","name":"group B","description":"group B is also for testing"},
+                    {"id":"3","name":"group C","description":"group C is a group without member"}]}
+
+            group = {"id":"2","name":"group B","description":"group B is also for testing","logo":null,"count":2,"thumbnail_url":null,"Main":{"name":"group B","description":"group B is also for testing","logo":null,"thumbnail_url":null},"Users":[{"id":"2","first_name":"Jeffrey","last_name":"Cai","email_address":"jeffreycaizhenyuan@gmail.com","username":"jeffreycai"},{"id":"3","first_name":"Liangliang","last_name":"Zheng","email_address":"jspop@orris.com.au","username":"liangliang"}]}
+        </script>
+    </head>
+    <body>
+        <div beard="ListHead" bunwrap>
+            <!--@ <table><tr>
+
+            [## u.loop(d.headers, function(header){ #]
+            <td data-index='[`` header.index `]'
+            class='[`` header.sortable `] [`` header.sorted`] [`` header.sortOrder`]'
+            style="min-width:[`` header.width`]px;max-width:[`` header.width`]px">
+                <a>[`/ header.title`]</a>
+            </td>
+            [## }); // end of headers #]
+
+            </tr></table>@-->
+        </div>
+        <div beard="ListBody" bunwrap>
+            <!--@<table class="root [`` d.tableClass `]">
+             [## u.loop(d.rows, function(row, ridx){ #]
+                     <tr data-id='[`` row.id `]' data-seq='[`` ridx `]'>
+                     [## u.loop(d.headers, function(col, hidx){ #]
+                     <td class='[`` !hidx?'first':(hidx % 2?'even':'odd') `][`` ridx % 2 `]'
+                        style="min-width:[`` col.width `]px;max-width:[`` col.width `]px">
+                         <div  class="[`` e.type `]" style="min-width:[`` col.width - 30 `]px;max-width:[`` col.width - 30`]px">
+                             <span>[`` row[col.index] `]</span>
+                         </div></td>
+                     [## }); // end of each cell #]
+                     </tr>
+             [##  }); // end of each row #]
+             </table>@-->
+        </div>
+        <div beard="GroupProfile" bunwrap>
+            <!--@
+        <form method="POST" id="edit_groupProfile_form" class="streamDetails" data-id="[`` d.id `]">
+            <div class="personal">
+                <div class="content">
+                    <div class="avatarColumn">
+                        <div class="buttons avatar large" style="background: url([`/ d.thumbnail_url `])">
+                            <input type="file" name="logo" id="logo" rel="[`/ d.logo `]"/>
+                            <a>Change Image</a>
+                        </div>
+                    </div>
+                    <ul class="userDetails">
+                        <li class="names">
+                            <ul>
+                                <li>
+                                    <p class="detailType">Name</p>
+                                    <input type="text" name="name" class="group_name" value="[`/ d.name `]"/>
+                                </li>
+                                <li>
+                                    <p class="detailType">Description</p>
+                                    <input type="text" class="description group_desc" name="description"  value="[`/ d.description `]"/>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <ul class="footer buttons">
+                    <li class="delete"><a href="javascript:void(0);">Delete Group</a></li>
+                    <li class="save"><a href="javascript:void(0);">Save Changes</a></li>
+                </ul>
+            </div>
+        </form>
+            @-->
+        </div>
+        <div beard="GroupMemberItem" bunwrap>
+            <!--@
+            <li data-id='[`` d.id `]'><a href="javascript:void(0);">
+                    <img class="avatar" src='[`/ d.thumbnail_url `]' />
+                    <p>[`/ d.first_name `] [`/ d.last_name `]</p>
+                </a>
+            </li>
+            @-->
+        </div> 
+    </body>
+</html>

@@ -626,8 +626,13 @@
         _pending_beard_node: 0, // for avoiding the data cache to be emptied too soon
         _getBeardNode: function(data, e, isTop){
             var h = this.fn(data, e);
+            if(h.indexOf('<') != -1){
+                h = $(h);
+            } else {
+                return $(d.createTextNode(h));
+            }
             var bn = new BeardNode(data, e);
-            bn.$ = $($('<div>' + h + '</div>').contents());
+            bn.$ = h;
             bn.$s = bn.$.eq(0);
             bn.$e = bn.$.eq(bn.$.length-1);
             bn.$n = bn.$.filter('*').eq(0);
