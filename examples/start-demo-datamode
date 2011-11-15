@@ -24,11 +24,12 @@ is merely a showcase.
     <!--@
         <div id='allPersons'>
         [##
-            loop(persons, function(person, idx){
+            var idx = 0;
+            loop(persons, function(person){
                 if(person._removed) {
                     return true;
                 }
-                person.isOdd = idx % 2;
+                person.isOdd = idx++ % 2;
                 out( t.Record(person, 'load'));
             });
   	#]

@@ -159,6 +159,8 @@
     *                           jquery extension -> field up, field down
     *                       2. data
     *                           BeardNode, BeardSlot, thread, jquery extenstion
+    *           111115 -    really need Beard's own creating new fragments
+    *                       quick fix to support <tr> ...
     *
     *
     *
@@ -1133,9 +1135,13 @@
     var extra = {
         getJqueryObj:function(){
             var h = this.fn.apply(this, arguments);
-            h = $('<div>' + h + '</div>');
+            if(h.indexOf('<') != -1){
+                h = $(h);
+            } else {
+                return $($('<div>' + h + '</div>').contents());
+            }
             h.bindData();
-            return $(h.contents());
+            return h;
         },
         getParentTpl: function(key){
             if(!key) return this.__parent;
