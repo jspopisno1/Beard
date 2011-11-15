@@ -184,7 +184,6 @@ Using the example 'Todos', rendering 2000 records.
 
 <a href="http://jspopisno1.github.com/Beard/compare/beard-todos_core.html" target="_blank">Beard rendering as plain html</a>
 
-## Some real life example implemented by Beard
 
 
 
