@@ -1,11 +1,10 @@
 # Beard.js -- A Javascript Template Engine (current version requires jQuery)
 
 > Currently beard has its own template engine
-
-!!!!!!!!!!!!!!!!!!!!! Though the demo site is not yet complete, you can go to see the
-<a href="http://jspopisno1.github.com/Beard" target="_blank">existing examples</a> !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
 > NOTE that beard is not yet in beta. The API of it, especially the advanced part has not been finalised yet.
+
+## Though the demo site is not yet complete, you can go to see the
+<a href="http://jspopisno1.github.com/Beard" target="_blank">Examples & Documentation</a>
 
 # Reason of developing it
 
