@@ -26,208 +26,148 @@
     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-    * VERSION 0.1 Beta
-    *
-    * Updates:
-    *
-    * Liang:    111019 -    beard template compiler, remote _loading, ready function, object cache
-    *                       configuration tag, prefix to compiled functions, configurable tag attributes
-    *                       configurable template syntax
-    *                  -    update the configurations, show : remove display: none, log the code anyway...
-    *                       make it compatible with 1.4.4,
-    *                       using NONE instead of $ as the default.. good for php coding,
-    *                       use <@@ @> <@/ @> <@: @>  and  <## #> instead,
-    *                       funcPre set as '' by default, capitalise the first char for the func name
-    *           111020 -    change <@@ @> <@/ @> <@: @> to [`` `] [`: `] [`/ `], and <## #> to [## #] for readability
-    *                       utils : tagFunc() => tag(), search() only for string now
-    *                       bug: getting tag when there are some leading spaces
-    *                       add .undef for d, if it is undefined
-    *                       change !d as d === undefined
-    *                       push defineTag() into queue! and clear the tag after re-aisgn
-    *                       partial array for js
-    *           111021 -    set with(u){}, set out function
-    *                       support _seq in object for looping obj in Chrome!!!
-    *                       set loop(data, callback, mode, extra)
-    *                       print out path, function body in debug mode
-    *                       extendUtils()
-    *                       fixed potential bug that template tags might overwrite each other
-    *                       .clearTagCache( [ keys ] )
-    *                       another with(window) for the compiled function
-    *                       tag(tag, data), tagFunc(tag) for compiled function
-    *                       sort(data, str|func)
-    *                       enable support to doT
-    *                       log only if canLog || (!canLog && isDebug)
-    *           111022 -    remove with for better performance! use another method call dynamic compilation
-    *                       refine the lib for future minifying
-    *                       enabling loadScript() to just return the compiled function
-    *                       moving sort() to beardExt.js
-    *                       enable safe mode
-    *                       partial -> hmmm it should be // to : from or <<numeric>>:from&to //
-    *           111024 -    removing <!--@\s*, --!>\s*
-    *                       ------ context for defined tags ??? re-think the value of context, user defined tag
-    *           111025 -    !IMPORTANT the ability to debug
-    *                       ------ bTie | bRefresh -> will use BeardNode instead
-    *                       replace spaces into single blank space before open-tag & after close-tag
-    *                       ------ undefined for loop -> no data
-    *           111026 -    ------ Function.length ( will not use context
-    *                       ------ var args = Array.prototype.slice.call(arguments);
-    *                       enable extra object at the bottom
-    *                       narrow down the bind data scope
-    *                       ------ $.fn b - Html, Append, Prepend, After, Before, Replace
-    *                       --- further test require for $.fns
-    *                       str() for string concatenation
-    *                       enable loop to return break info & how many time it runs
-    *                       --- better design of data binding !! ~
-    *                           1. bind() => beard-node='1' beard-name='Tr' beard-path='UserTable'
-    *                           2. beardfunc.__pre
-    *                           3. beardfunc.__post
-    *                           4. wrap data into BeardNode and bind it to $node
-    *                               BeardNode:
-    *                               .refresh( d, e [or the user-defined arg list] ) .pre( [func] ) .post( [func] ) .beard( [path] )
-    *                               .refresh -> this.pre()( this.$(), oldData, newData ), html = this.beard()( new d, e, ... ),
-    *                                   var $new = $(html), this.$().after($new), this.rebind($new),
-    *                                   this.post()( this.$(), oldData, newData ) -> finished
-    *                               .$() .rebind() .data() .remove()
-    *                           5. $.fn.remove -> check if has beardNode bound remove it or remove itself
-    *                           6. $.fn.loopup( beard name, beard path )
-    *                               <!--#UserTable.Tr(4)--> ==> the Beard Node
-    *                               some thing
-    *                               elem 2
-    *                               elem 1
-    *                               lalala
-    *                               <!--/UserTable.Tr(4)--> ==> the Beard open comment
-    *                           7. $.fn.prevComment(), $.fn.findAll()
-    *                           ------ 8. $(<!-- -->) can contains data as well -> will not use <!-- to determin the node -->
-    *                           9. div.innerHTML = html, $( div.childNodes )
-    *                           10. BeardNode .children .parent .removeChild() .after() .before() .clone()
-    *                       --- compiled beard func => f.pre = ext.pre, f.post = ext.post
-    *                       --- * /UserTr/Img BeardNode .children()
-    *                       ooo text node cannot bind event
-    *           111030 -    is() & !is()
-    *                       rewrite the compileTemplate() with another logic
-    *                       should restrict to div[beard] instead of allowing any kind of element
-    *                       ensure that ready() will only be called after the dom is ready
-    *                       refine debug mode
-    *                       user-defined args list for the compiled function
-    *                       ref -> Btpls function, data, string '=content'; t.r.{ref name}
-    *                           ../button | ./tr1/button | user/form/table/button
-    *                           -> SomeFunc()
-    *                       *** delegate -> 'delegate key' '>delegate'; t.d.{delegate name}()
-    *                           -> _someFunc()
-    *           111031 -    --- path -> from . to /
-    *                       short cut for path
-    *                       support json for loadScript()
-    *                           { 'funcname(args)->c:NewFunc.Sub#b' : {
-    *                              'yep.subFunc#a(args)' : {
-    *                                  '': ' ---- CODE ---- ',
-    *                                  'subSubFunc' : ' ---- CODE ---- ',
-    *                                  }
-    *                               },
-    *
-    *                             'refFunc->a:' : {
-    *                             }
-    *                           }
-    *
-    *                           ==> '': {t: p: a: r:}
-    *                       compileUtils -> support obj & other types
-    *                       fixed _recompileFunction to work with the new push function
-    *           111101 -    .p() for going up to the parent tpl
-    *                       remove support to other engines
-    *                       disable the anonymous template function to be pushed to the template tree when re-compiling
-    *           111102 -    refining the operation queue
-    *                       further refining debuging
-    *                       create parseHtml() for parsing the html into jquery object with data bound
-    *                       correct the order of operation queue
-    *                       set bind as ('name', object)
-    *                       wrap data (input,select,hidden,textarea,checkbox,radio, elems with beard-nodename & data.value)
-    *                       use loadScript as Core function to compile the template TREE
-    *                       t.p() -> getting the parent level tpl, p(1), p(2), p(), p('afftable')
-    *                       error of unknown message reserved_word
-    *                       refined the structure of templates, use template.fn instead of re-refering
-    *           111103 -    remove tag features, re-add beards to body & Beard
-    *           111104 -    easy data binding (field) & advanced data binding (node)
-    *           111106 -    comment tags
-    *                       global var as g
-    *                       enable level for each tpl rendering
-    *           111107 -    refined event binding
-    *           111110 -    BeardSlot
-    *                       BeardNodt.refresh(), BeardSlot.refresh()
-    *           111111 -    BeardSlot -> thread refresh!
-    *           111112 -    dividing into core & data
-    *                       1. core
-    *                           load, loadRemote... utils... => expose utils, extra
-    *                           jquery extension -> field up, field down
-    *                       2. data
-    *                           BeardNode, BeardSlot, thread, jquery extenstion
-    *           111115 -    really need Beard's own creating new fragments
-    *                       quick fix to support <tr> ...
-    *
-    *
-    *
-    *
-    * TODO:                 *** START
-    *                       ***
-    *                       *** examples for testing
-    *                       *** requirements
-    *                           data bound template can only have one input
-    *                           the extra param is an shared object across nodes under a same slot
-    *                       *** BeardSlot -> the container of BeardNodes
-    *                           slot tag
-    *                           BeardNode.slot('name').remove(BeardNode)
-    *                           .insert(idx, beardNode) or .insert(idx, argument list)
-    *                           .append
-    *                           .prepend
-    *                           .refresh()
-    *                           .index( BeardNode or BeardNode.__objid_ )
-    *                       *** BeardNode
-    *                           .slotUp()
-    *                           .refresh() -> '', 'slot name 1', 'slot name 2' ...
-    *                           .onRefresh({'':func, 'slot name 1': func ... }
-    *                               func($old, $new, BeardNode)
-    *                       *** comment tag
-    *                       *** t.$()
-    *                       *** parseBeard() -> inject the $node to data
-    *                       *** the Compiled Template func -> function(){ call t.fn() }
-    *                           fn() is the current compiled func! @1103
-    *                           so that simplify the refering
-    *                       --- DO I REALLY NEED SOMETHING SO COMPLICATED ???
-    *                           data binding !! -> bind all the args, unless there is explicit declaration
-    *                           nodes, fields (use for wraping data)
-    *                           static elem
-    *                       --- refreshing logic
-    *                           1. loop -> data._k, data._i
-    *                           2. bind -> data._dirty(), data._remove(), data._type
-    *                           3. $.fn.refresh
-    *                           4. refreshing
-    *                               *.  1. try filter('[beard-node]'), else try children('[beard-node]')
-    *                               *.  if( _dirtied_self )
-    *                                       $new = fn.$()
-    *                                       process static elements
-    *                                   else $new = $old
-    *                               *.  call fn._pre($old, $new, d, e)
-    *                               *.  if( _dirtied )
-    *                               *.  $old.getSlots() -> [], $new.getSlots() -> []
-    *                                       each slot:
-    *                                           old slot contents -> $hidden
-    *                                           if( d.slot is object )
-    *                                               if( !d.slot._removed )
-    *                                               $sub = d.slot.$.refresh()
-    *                                               $sub.appendTo( slot.$ )
-    *                               *.  call fn._post($old, $new, d, e)
-    *
-    *
-    *
-    *
-    *
-    * CANCEL:               --- START
-    *                       --- http://stackoverflow.com/questions/4578424/javascript-extend-a-function
-    *
-    *
-    *
-    */
+ * VERSION 0.1 Beta
+ *
+ * Updates:
+ *
+ * Liang:    111019 -    beard template compiler, remote _loading, ready function, object cache
+ *                       configuration tag, prefix to compiled functions, configurable tag attributes
+ *                       configurable template syntax
+ *                  -    update the configurations, show : remove display: none, log the code anyway...
+ *                       make it compatible with 1.4.4,
+ *                       using NONE instead of $ as the default.. good for php coding,
+ *                       use <@@ @> <@/ @> <@: @>  and  <## #> instead,
+ *                       funcPre set as '' by default, capitalise the first char for the func name
+ *           111020 -    change <@@ @> <@/ @> <@: @> to [`` `] [`: `] [`/ `], and <## #> to [## #] for readability
+ *                       utils : tagFunc() => tag(), search() only for string now
+ *                       bug: getting tag when there are some leading spaces
+ *                       add .undef for d, if it is undefined
+ *                       change !d as d === undefined
+ *                       push defineTag() into queue! and clear the tag after re-aisgn
+ *                       partial array for js
+ *           111021 -    set with(u){}, set out function
+ *                       support _seq in object for looping obj in Chrome!!!
+ *                       set loop(data, callback, mode, extra)
+ *                       print out path, function body in debug mode
+ *                       extendUtils()
+ *                       fixed potential bug that template tags might overwrite each other
+ *                       .clearTagCache( [ keys ] )
+ *                       another with(window) for the compiled function
+ *                       tag(tag, data), tagFunc(tag) for compiled function
+ *                       sort(data, str|func)
+ *                       enable support to doT
+ *                       log only if canLog || (!canLog && isDebug)
+ *           111022 -    remove with for better performance! use another method call dynamic compilation
+ *                       refine the lib for future minifying
+ *                       enabling loadScript() to just return the compiled function
+ *                       moving sort() to beardExt.js
+ *                       enable safe mode
+ *                       partial -> hmmm it should be // to : from or <<numeric>>:from&to //
+ *           111024 -    removing <!--@\s*, --!>\s*
+ *                       ------ context for defined tags ??? re-think the value of context, user defined tag
+ *           111025 -    !IMPORTANT the ability to debug
+ *                       ------ bTie | bRefresh -> will use BeardNode instead
+ *                       replace spaces into single blank space before open-tag & after close-tag
+ *                       ------ undefined for loop -> no data
+ *           111026 -    ------ Function.length ( will not use context
+ *                       ------ var args = Array.prototype.slice.call(arguments);
+ *                       enable extra object at the bottom
+ *                       narrow down the bind data scope
+ *                       ------ $.fn b - Html, Append, Prepend, After, Before, Replace
+ *                       --- further test require for $.fns
+ *                       str() for string concatenation
+ *                       enable loop to return break info & how many time it runs
+ *                       --- better design of data binding !! ~
+ *                           1. bind() => beard-node='1' beard-name='Tr' beard-path='UserTable'
+ *                           2. beardfunc.__pre
+ *                           3. beardfunc.__post
+ *                           4. wrap data into BeardNode and bind it to $node
+ *                               BeardNode:
+ *                               .refresh( d, e [or the user-defined arg list] ) .pre( [func] ) .post( [func] ) .beard( [path] )
+ *                               .refresh -> this.pre()( this.$(), oldData, newData ), html = this.beard()( new d, e, ... ),
+ *                                   var $new = $(html), this.$().after($new), this.rebind($new),
+ *                                   this.post()( this.$(), oldData, newData ) -> finished
+ *                               .$() .rebind() .data() .remove()
+ *                           5. $.fn.remove -> check if has beardNode bound remove it or remove itself
+ *                           6. $.fn.loopup( beard name, beard path )
+ *                               <!--#UserTable.Tr(4)--> ==> the Beard Node
+ *                               some thing
+ *                               elem 2
+ *                               elem 1
+ *                               lalala
+ *                               <!--/UserTable.Tr(4)--> ==> the Beard open comment
+ *                           7. $.fn.prevComment(), $.fn.findAll()
+ *                           ------ 8. $(<!-- -->) can contains data as well -> will not use <!-- to determin the node -->
+ *                           9. div.innerHTML = html, $( div.childNodes )
+ *                           10. BeardNode .children .parent .removeChild() .after() .before() .clone()
+ *                       --- compiled beard func => f.pre = ext.pre, f.post = ext.post
+ *                       --- * /UserTr/Img BeardNode .children()
+ *                       ooo text node cannot bind event
+ *           111030 -    is() & !is()
+ *                       rewrite the compileTemplate() with another logic
+ *                       should restrict to div[beard] instead of allowing any kind of element
+ *                       ensure that ready() will only be called after the dom is ready
+ *                       refine debug mode
+ *                       user-defined args list for the compiled function
+ *                       ref -> Btpls function, data, string '=content'; t.r.{ref name}
+ *                           ../button | ./tr1/button | user/form/table/button
+ *                           -> SomeFunc()
+ *                       *** delegate -> 'delegate key' '>delegate'; t.d.{delegate name}()
+ *                           -> _someFunc()
+ *           111031 -    --- path -> from . to /
+ *                       short cut for path
+ *                       support json for loadScript()
+ *                           { 'funcname(args)->c:NewFunc.Sub#b' : {
+ *                              'yep.subFunc#a(args)' : {
+ *                                  '': ' ---- CODE ---- ',
+ *                                  'subSubFunc' : ' ---- CODE ---- ',
+ *                                  }
+ *                               },
+ *
+ *                             'refFunc->a:' : {
+ *                             }
+ *                           }
+ *
+ *                           ==> '': {t: p: a: r:}
+ *                       compileUtils -> support obj & other types
+ *                       fixed _recompileFunction to work with the new push function
+ *           111101 -    .p() for going up to the parent tpl
+ *                       remove support to other engines
+ *                       disable the anonymous template function to be pushed to the template tree when re-compiling
+ *           111102 -    refining the operation queue
+ *                       further refining debuging
+ *                       create parseHtml() for parsing the html into jquery object with data bound
+ *                       correct the order of operation queue
+ *                       set bind as ('name', object)
+ *                       wrap data (input,select,hidden,textarea,checkbox,radio, elems with beard-nodename & data.value)
+ *                       use loadScript as Core function to compile the template TREE
+ *                       t.p() -> getting the parent level tpl, p(1), p(2), p(), p('afftable')
+ *                       error of unknown message reserved_word
+ *                       refined the structure of templates, use template.fn instead of re-refering
+ *           111103 -    remove tag features, re-add beards to body & Beard
+ *           111104 -    easy data binding (field) & advanced data binding (node)
+ *           111106 -    comment tags
+ *                       global var as g
+ *                       enable level for each tpl rendering
+ *           111107 -    refined event binding
+ *           111110 -    BeardSlot
+ *                       BeardNodt.refresh(), BeardSlot.refresh()
+ *           111111 -    BeardSlot -> thread refresh!
+ *           111112 -    dividing into core & data
+ *                       1. core
+ *                           load, loadRemote... utils... => expose utils, extra
+ *                           jquery extension -> field up, field down
+ *                       2. data
+ *                           BeardNode, BeardSlot, thread, jquery extenstion
+ *           111115 -    really need Beard's own creating new fragments
+ *                       quick fix to support <tr> ...
+ *
+ *
+ *
+ */
 
 ;
-(function(g, d, undefined){
+(function(g, d){
     if(!g.$){
         var e = new Error('jQuery must be loaded before Beard.js');
         throw e;
@@ -239,6 +179,12 @@
     BEARD_ZONE = 'beards', BEARD_ARGS,
     ARRAY = 'array', OBJECT = 'object',
 
+    // important urls
+    loc = g.location,
+    root = loc.protocol + '//' + loc.host + '/',
+    app = loc.pathname.split('/')[1] + '/',
+    templateRoot = root,
+    loadedUrls= {},
 
     // selected engine. If it is undefined, the Beard has not been inited
     _options = {}, defOpts = {
@@ -263,8 +209,7 @@
         // compile config
         debug: false,
         safeMode: true,
-        dataMode: false,
-        engine: 'beard'
+        dataMode: false
     },
 
     isDebug = false, 
@@ -303,7 +248,7 @@
         return ''
     },
 
-    firstRun = true, readyFuncs = [], operationQueue = [],
+    firstRun = true, readyFuncs = [], loading = 0,
     withinZone,
 
     objSeq = 1, hasDataCached = false;
@@ -316,6 +261,16 @@
             $.fn.extend({
                 beardData: function(val){
                     return this.data('beard-field-val', val);
+                },
+                beardArray: function(){
+                    var ret = [];
+                    this.each(function(){
+                        var d = $(this).data('beard-field-val');
+                        if(typeof d != 'undefined'){
+                            ret.push(d);
+                        }
+                    })
+                    return ret;
                 },
                 wrapData: function(){
                     var data = {};
@@ -365,7 +320,7 @@
                     return {
                         $: $n,
                         val: $n.beardData()
-                        }
+                    }
                 },
                 union: function($o){
                     var a = this.toArray();
@@ -398,81 +353,95 @@
         // Finally the templates will be loaded into Beard.tpls in a neat hierarchical structure
         // The structure will be based on the structure of tempaltes
         // but data-beard-path can be also be used to set the parent template node explictly
-        load: function(callback){
+        load: function(config){
             if(!$beard || !$beard.size()){
                 Beard.init();
             }
 
-            if(callback) Beard.ready(callback);
-            _load();
+            if(firstRun || !config) _load();
+
+            if(config) {
+                this.loadScript(config);
+            }
 
             firstRun = false;
             withinZone = false;
+            
             return Beard;
         } // end of load ()
         ,
-        loadRemote: function(url, options, _run){
-
-            if(!_run){
-                if(options && options.callback){
-                    var callback = options.callback;
-                    delete options.callback;
+        remote: function(config, force){
+            if(firstRun){
+                Beard.load();
+            }
+            if(typeof config == 'string'){
+                var cfg = {
+                    '': arguments
                 }
-                pushOp(function(){
-                    Beard.loadRemote(url, options, 1);
-                })
-                // options : path, type[ json|html|text ], data, callback
-                if(callback) Beard.ready(callback);
-                return Beard;
+                var f = false;
+            } else if(config instanceof Array){
+                cfg = {
+                    '': config
+                }
+                f = force;
+            } else {
+                cfg = config;
+                f = force;
             }
-
-            if(options){
-                var type = options.type;
-                var path = options.path;
-                var data = options.data;
-            }
-
-            switch(type){
-                case 'json':
-                    $.ajax({
-                        url: url,
-                        data: data,
-                        success: function(rsp){
-                            Beard.loadScript(rsp, path, 2);
-                        },
-                        dataType: 'json',
-                        complete: function(){
-                            nextOp();
-                        }
-                    })
-                    break;
-                default:
-                    $.ajax({
-                        url: url,
-                        data: data,
-                        success: function(rsp){
-                            if(type == 'text'){
-                                Beard.loadScript(rsp, path, 2);
-                            } else {
-                                Beard.loadHtml(rsp, path, 2);
-                            }
-                        },
-                        dataType: 'text',
-                        complete: function(r, s){
-                            nextOp();
-                        }
-                    })
-                    break;
+            for(var path in cfg){
+                if(cfg.hasOwnProperty(path)){
+                    var paths = cfg[path];
+                    for(var i = 0, len = paths.length; i < len; i++){
+                        Beard.loadRemote(paths[i], path, f);
+                    }
+                }
             }
             return Beard;
         },
-        loadHtml: function(content, path, _run){
-            if(!_run){
-                pushOp(function(){
-                    Beard.loadHtml(content, path, 1);
-                })
-                return Beard;
+        url: function(url){
+            if(!url){
+                url = root;
+            } else {
+                if(url.charAt(0) == '/'){
+                    url = root + url.substr(1) + '/';
+                } else {
+                    url = root + app + url + '/';
+                }
             }
+            // setting the root url of templates
+            templateRoot = url;
+        },
+//        REQUEST_VERSION: 1,
+        loadRemote: function(url, path, force){
+            url = templateRoot + '/' + url;
+            if(!force && url in loadedUrls){
+                return;
+            }
+            loading ++;
+            $.ajax({
+                url: url,
+                success: function(rsp){
+                    if(path){
+                        rsp = '<div beard="' + path + '">' + rsp + '</div>'
+                    }
+                    var $scope = $('<div>' + rsp + '</div>');
+                    loading--;
+                    _load($scope);
+                    loading++;
+                },
+                error: function(){
+                    readyFuncs = [];
+                    throw new Error('Sorry, but the template ' + templateRoot + url + ' cannot be found.');
+                },
+                dataType: 'text',
+                complete: function(){
+                    loadedUrls[url] = 1;
+                    loading--;
+                }
+            })
+            return Beard;
+        },
+        loadHtml: function(content, path){
             $beard.html($(content));
             if(path){
                 $beard.find('[' + BEARD_PATH + ']').each(function(){
@@ -480,28 +449,25 @@
                     $t.attr(BEARD_PATH, path + '.' + $t.attr(BEARD_PATH));
                 })
                 $beard.find('['+BEARD_NODE+']:not(['+BEARD_PATH+'])').each(function(){
-                    $(this).attr(BEARD_PATH, path);
+                    var $t = $(this);
+                    if(!$t.parent('[' + BEARD_PATH + ']').size()){
+                        $t.attr(BEARD_PATH, path);
+                    }
                 })
             }
             this.load();
-            if(_run == 1) nextOp();
             return Beard;
         },
-        loadScript: function(content, path, _run){
-            if(!_run){
-                pushOp(function(){
-                    Beard.loadScript(content, path, 1);
-                })
-                return Beard;
-            }
+        loadScript: function(content, path, skipReady){
             if(!$beard || !$beard.size()){
                 Beard.init();
             }
 
-
-            if(typeof content == 'string'){
+            if(typeof content == 'object' && content != null){
+                prepareTplsForCompilation(content, '');
+                loadEachScript(content);
+            } else {
                 if(!path){
-                    nextOp();
                     return compileTemplate(content, '');
                 } else {
                     if(typeof path == 'string'){
@@ -515,7 +481,13 @@
                         cf = path;
                     }
                     if(!cf.r){
-                        var f = compileTemplate(content, cf.p, cf.a, cf.b);
+                        if(typeof content == 'string'){
+                            var f = compileTemplate(content, cf.p, cf.a, cf.b);
+                        } else if(typeof content == 'function'){
+                            f = content;
+                        } else {
+                            throw new Error(cf.p + " cannot be compiled as the content is not a string.");
+                        }
                     } else {
                         f = getTplFunction(cf.r);
                     }
@@ -525,11 +497,15 @@
                     }
                     pushFunction(tmp.join('.'), tmp[tmp.length - 1], f, cf.r);
                 }
-            } else if(typeof content == 'object' && content != null){
-                prepareTplsForCompilation(content, '');
-                loadEachScript(content);
             }
-            if(_run == 1) nextOp();
+            if(!skipReady){
+                if(!loading){
+                    for(var i = 0, len = readyFuncs.length; i < len; i++){
+                        readyFuncs[i]();
+                    }
+                    readyFuncs = [];
+                }
+            }
             return Beard;
         },
         $beard: function(){
@@ -545,6 +521,12 @@
         },
         isDebug: function(){
             return isDebug;
+        },
+        hostUrl: function(){
+            return root;
+        },
+        appUrl: function(){
+            return root + app;
         },
         init: function(option){
             _options = $.extend({}, defOpts, _options, option);
@@ -594,6 +576,9 @@
             safeMode = _options.safeMode;
             utils.__dataMode = _options.dataMode;
 
+            Beard.url(_options.root);
+            delete _options.root;
+
             return Beard;
         },
         extendUtils: function(newUtils){
@@ -605,7 +590,7 @@
             if(firstRun){
                 this.load();
             }
-            if(!running){
+            if(!loading){
                 ready(); // if no request queue there, simply run the function
             } else {
                 readyFuncs.push(ready);
@@ -629,8 +614,6 @@
             return F.apply(this, fArgs);
         },
         reset: function(){
-            operationQueue = [];
-            running = false;
             firstRun = true;
             tplsByPath = {};
             Beard._objCache = {};
@@ -643,6 +626,7 @@
             }
             if($beard) $beard.html('');
             withinZone = _options.withinZone;
+            loadedUrls = {};
             return Beard;
         },
         initEvents: function(events, path, $context, action, type){
@@ -674,6 +658,9 @@
             for(var key in events){
                 if(events.hasOwnProperty(key)){
                     var val = events[key];
+                    pts = key.split(/\/\//);
+                    if(1 in pts) key = pts[1];
+
                     var pts = key.split(',');
                     for(var i = 0; i < pts.length; i++){
                         key = $.trim(pts[i]);
@@ -720,37 +707,6 @@
         }
     } // end of Beard object
 
-    // This is to chain the operation into a queue
-    // For ensure that the ready function will be called after all templates
-    // are loaded
-    var running = false;
-    function pushOp(fn){
-        operationQueue.push(fn);
-        if(firstRun){
-            Beard.load();
-        }
-        if(!running){
-            running = true;
-            nextOp();
-        }
-    }
-
-    function nextOp(){
-        var op = operationQueue.shift();
-        if(op){
-            op();
-        } else {
-            while(true){
-                var func = readyFuncs.shift();
-                if(func){
-                    func();
-                } else {
-                    break;
-                }
-            }
-            running = false;
-        }
-    }
 
     // Go through the object and prepare it for the next step : compilation
     function prepareTplsForCompilation(j, p){ // sc : shortcuts
@@ -797,7 +753,7 @@
         for(var i in j){
             if(i && j.hasOwnProperty(i)){
                 var cf = j[i][''];
-                Beard.loadScript(cf.t, cf, 2);
+                Beard.loadScript(cf.t, cf, true);
                 loadEachScript(j[i]);
             }
         }
@@ -805,8 +761,9 @@
 
     // For loading templates from html into a nested template object
     // This template object will be passed to loadScript()
-    function _load(){
-        var beards = firstRun && !withinZone? $('div[' + BEARD_NODE + ']') : $beard.find('div['+ BEARD_NODE + ']');
+    function _load($scope){
+        if(!$scope) $scope = $beard;
+        var beards = firstRun && !withinZone? $('div[' + BEARD_NODE + ']') : $scope.find('div['+ BEARD_NODE + ']');
 
         var script = {}, parent;
         beards
@@ -842,7 +799,7 @@
         })
         .each(function(){
             // move all the templates to the top level
-            $(this).appendTo($beard);
+            $(this).appendTo($scope);
         })
         .each(function(){
             var $t = $(this);
@@ -859,10 +816,10 @@
             $t.remove();
         })
 
-        Beard.loadScript(script, '', 2);
+        Beard.loadScript(script, '');
 
         // empty the beard zone
-        $beard.html('');
+        $scope.html('');
     }
 
     function pushFunction(path, name, f, refto){
@@ -1038,8 +995,6 @@
         pts = pts.split(ec);
 
         var PLAIN_HTML_1 = "o[o.length]='";
-        var ESC_1 = "o[o.length]=esc(";
-        var EXPRE_1 = "o[o.length]=";
         var THROW_1 = "u.__log(e.message + ' @ ";
 
         var code = [];
@@ -1064,9 +1019,9 @@
                     switch(ch){
                         case 'q': // eQual
                             // the expression to be exported to output
-                            code.push(EXPRE_1,
+                            code.push("o[o.length]=__tmp__=",
                                 pt,
-                                isDebug? ';\n__tmp__=' + pt + ';\nlog(new Date().toLocaleTimeString() + "  ----->   "+   (' + (locIndex++) + ")   +'" +
+                                isDebug? ';\n\nlog(new Date().toLocaleTimeString() + "  ----->   "+   (' + (locIndex++) + ")   +'" +
                                 pt.replace(/(\\|')/g, '\\$1').split(rgxNewLine).join('\\n') + " {non-escaped} => ' + __tmp__);\n": ";\n"
                                 );
                             break;
@@ -1103,7 +1058,7 @@
         .split(["o[o.length]='';\n"].join('')).join('')
         .replace(/try{}catch\(e\){.*?}\n/g, '');
 
-        code = ['var e=typeof _e_=="undefined"?{}:_e_,u=Beard.utils,o=[],t=this,g=Btpls.g;if(typeof e=="object")e.def=u.__defVal;function out(){o.push.apply(o, arguments);}',
+        code = ['var __tmp__,e=typeof _e_=="undefined"?{}:_e_,u=Beard.utils,o=[],t=this,g=Btpls.g;if(typeof e=="object")function out(){o.push.apply(o, arguments);}',
         '_d_=arguments[0];function slot(name, tpl){return u.__slot(name, tpl, _d_)}',
         compileUtils(path, args),
         'try{',
@@ -1136,9 +1091,10 @@
         getJqueryObj:function(){
             var h = this.fn.apply(this, arguments);
             if(h.indexOf('<') != -1){
-                h = $(h);
+                var ret = $.buildFragment( [ h ], [ d ] );
+                h = $((ret.cacheable ? $.clone(ret.fragment) : ret.fragment).childNodes);
             } else {
-                return $($('<div>' + h + '</div>').contents());
+                return $(d.createTextNode(h));
             }
             h.bindData();
             return h;
@@ -1216,7 +1172,8 @@
                     var ret = callback(data[k], k, data, extra);
                     if(typeof ret != 'undefined' && ret !== true) return {
                         ret: ret,
-                        num: k
+                        num: k + 1,
+                        key: k
                     };
                 }
             } else if(mode == OBJECT || data && typeof data == OBJECT){
@@ -1238,12 +1195,12 @@
                     for(var l in data){
                         if(data.hasOwnProperty(l) && l.charAt(0) != '_'){
                             ret = callback(data[l], l, data, extra);
+                            k++;
                             if(typeof ret != 'undefined' && ret !== true) return {
                                 ret: ret,
                                 num: k,
                                 key: l
                             };
-                            k++;
                         }
                     }
                 }
@@ -1276,33 +1233,6 @@
                 return true;
             }
         },
-        search: function(target, needle){
-            if(target === undefined || target === null || target === false) {
-                return false;
-            }
-            // currently only support searching in string
-            if(typeof target != 'string'){
-                return false;
-            }
-            return target.indexOf(needle) + 1;
-        },
-        partial: function(source, keys, target, removeOld){
-            if(!target) target = {};
-            utils.loop(keys, function(from, to){
-                if(typeof to == 'number'){
-                    target[from] = source[from];
-                    if(removeOld){
-                        delete source[from];
-                    }
-                } else {
-                    target[to] = source[from];
-                    if(removeOld){
-                        delete source[from];
-                    }
-                }
-            })
-            return target;
-        },
         strcat: function(){
             var o = [];
             for(var i = 0, len = arguments.length; i < len; i++){
@@ -1322,7 +1252,7 @@
                 } else {
                     id = objSeq ++;
                 }
-                objCache = Beard._objCache;
+                var objCache = Beard._objCache;
                 if(!(id in objCache) && !nocache){
                     objCache[id] = obj;
                     hasDataCached = true;
@@ -1340,7 +1270,24 @@
             var attr = [' data-beard-data="', id, '" data-beard-mark="1"'];
             return attr.join('');
         },
-
+        remove: function(data, func){
+            if(data instanceof Array){
+                var l = data.length;
+                while(l--){
+                    if(func(data[l], l)){
+                        data.splice(l, 1);
+                    }
+                }
+            } else {
+                for(var i in data){
+                    if(data.hasOwnProperty(i)){
+                        if(func(data[i], i)){
+                            delete data[i];
+                        }
+                    }
+                }
+            }
+        },
         // *** this method might be organised in beard-advanced
         __slot: function(name, tpl, obj){
             // bs = beard slot
@@ -1354,101 +1301,14 @@
             }
             attr.push(' ');
             return attr.join('');
-        },
-        clear: function(obj, keys, val){
-            keys = keys.split(/,/);
-            for(var i = 0, len = keys.length; i < len; i++){
-                if(typeof defval == 'undefined') delete obj[keys[i]];
-                else obj[keys[i]] = val;
-            }
-        },
-        __defVal: function(key, val){
-            if(typeof key == "object"){
-                for(var i in key){
-                    if(key.hasOwnProperty(i)){
-                        if(!(i in this) || typeof this[i] == 'undefined'){
-                            this[i] = key[i];
-                        }
-                    }
-                }
-            } else if(!(key in this) || typeof this[i] == 'undefined'){
-                this[key] = val;
-            }
-        },
-        sort: function(data, func){
-            if(!func || typeof func == 'string'){
-                func = utils.__getSortFunc(func);
-            }
-            if(data instanceof Array){
-                data.sort(func);
-            } else {
-                var tmp = [];
-                utils.loop(data, function(d, k){
-                    tmp.push(d);
-                    if(d._key){
-                        d.__tmp_key__ = d.key
-                    }
-                    d._key = k;
-                })
-                tmp.sort(func);
-
-                var seq = data._seq = [];
-                utils.loop(tmp, function(d){
-                    seq.push(d._key);
-                    if(d.__tmp_key__){
-                        d._key = d.__tmp_key__
-                    }
-                })
-            }
-            return data;
-        },
-        __getSortFunc:function(funcStr){
-            if(!funcStr) funcStr = 'asc';
-            if(funcStr in utils.__sortFuncs){
-                return utils.__sortFuncs[funcStr];
-            }
-            var cols = funcStr.split(',');
-            for(var i = 0, len = cols.length; i < len; i++){
-                cols[i] = $.trim(cols[i]).split(/\s+/);
-            }
-            var body = utils.__generateSortFunc(cols, 0, cols.length - 1);
-            try{
-                return utils.__sortFuncs[funcStr] = new Function('a,b', body);
-            } catch(e){
-                utils.log(body);
-                return utils.__sortFuncs[funcStr] = emptyFunc;
-            }
-        },
-        __generateSortFunc: function(cols, index, len){
-            var o = [];
-            var col = cols[index];
-            if(col[1] == 'desc'){
-                var cmp1 = '>', cmp2 = '<'
-            } else {
-                cmp1 = '<', cmp2 = '>';
-            }
-            var colStr = col[0];
-            o.push('try{if(a.', colStr, cmp1, 'b.', colStr, ')return -1;else if(a.', colStr, cmp2, 'b.', colStr, ')return 1;',
-                'else{', index == len? 'return 0' : utils.__generateSortFunc(cols, index + 1, len), '}}catch(e){return 0}');
-            return o.join('');
-        },
-        __sortFuncs: {
-            asc: function(a, b){
-                if(a > b) return 1;
-                else if (a == b) return 0;
-                else return -1;
-            },
-            desc: function(a, b){
-                if(a < b) return 1;
-                else if (a == b) return 0;
-                else return -1;
-            }
         }
     }
 
     var utils = Beard.utils = {
         _edit: 0
     };
+
+    Beard._utils_bak = utils_bak;
     function resetUtils(){
         for(var i in utils){
             if(utils.hasOwnProperty(i) && !(i in utils_bak) && i != '_edit'){

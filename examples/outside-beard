@@ -5,15 +5,14 @@ and call <b>load()</b> to load the templates into <b>Btpls</b>.
 You can refer to Beard APIs to get more information.
 ***
 <div beard='Root'>
-    <!--@ @#d#@ will do nothing @-->
+    <!--@ <b>${d}</b> will do nothing <br/> @-->
     <div beard='Sub1'>
-        <!--@ @#d#@ will do nothing again @-->
+        <!--@ <b>${d}</b> will do nothing again @-->
     </div>
 </div>
 ***
-Beard.init({equalOpen: '@#', equalClose: '#@'}).load();
+Beard.init({equalOpen: '${', equalClose: '}'}).load();
 
-***
 var data =  ''
 
 result = Btpls.Root('Root template');

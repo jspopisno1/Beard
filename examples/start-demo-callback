@@ -1,0 +1,166 @@
+Beard allow you to bind data or callback to html element.
+Thanks to jQuery, this feature becomes really cool and useful.
+
+***
+<div beard="Twitter">
+    <!--@
+        <style>
+            .tweet-image {
+                float: left;
+                height: 48px;
+                overflow: hidden;
+                width: 48px;
+                margin-top: 3px;
+            }
+
+            .tweet-row {
+                display: block;
+                position: relative;
+                line-height: 15px;
+                margin-bottom: 5px;
+            }
+
+            .user a{
+                margin-rigth: 4px;
+            }
+
+            .tweet-content {
+                margin-left: 58px;
+                min-height: 48px;
+            }
+
+            .tweet {
+                padding: 10px 20px;
+                font-size: 15px;
+                position: relative;
+                zoom: 1;
+                clear: both;
+            }
+
+            .callback-demo input.text {
+                box-shadow:  #aaa 1px 1px 1px inset;
+                border-radius: 5px;
+                margin-left: 24px;
+                position: relative;
+                width: 300px;
+                font-size: 14px;
+                font-family: inherit;
+                line-height: 16px;
+                border: 0;
+                outline: none;
+                padding: 6px;
+                height: 34px;
+                border: 1px solid #999;
+            }
+
+            .callback-demo input.button{
+                line-height: 16px;
+                font-size: 14px;
+                padding: 6px;
+            }
+
+            .callback-demo .odd{
+                background-color: #eee;
+            }
+
+            .callback-demo .msg{
+                padding: 4px 25px;
+                color: #de9834;
+            }
+
+            .callback-demo .error{
+                color: #ee5634;
+            }
+        </style>
+        <div class='callback-demo'>
+            <input type='text' class='text' value='[`/ d.name `]' [`` callback('text') `]/>
+            <input type='button' class='button' id='submit' value='Refresh' [`` callback('submit') `]/>
+            <div [`` callback('list', d.refresh, t.RecordList, d.name) `]> Loading ... </div>
+        </div>
+    @-->
+    <div beard="RecordList">
+        <!--@
+            [##
+                var recordNumber = loop(d, t.Record)
+                if(!recordNumber){
+                    out('<div class="msg"> No new message found </div>');
+                }
+            #]
+        @-->
+        <div beard='Record' bargs='d, idx'>
+            <!--@
+                <div class='tweet [``idx%2?'odd':''`] '>
+                    <div class='tweet-image'>
+                        <img height='48' width='48' src='[`` d.user.profile_image_url `]' alt='[`` d.user.name `]'/>
+                    </div>
+                    <div class='tweet-content'>
+                        <div class='user tweet-row'>
+                            <a href='javascript:void(0)' [`` bind(d) `]>[`` d.user.screen_name `]</a>
+                            <span>[`` d.user.name `]</span> :
+                        </div>
+                        <div class='content tweet-row'>
+                            [``
+                                d.text.replace(/\b(https?\:\/\/(\S+))/g, '<a href="$1" target="_blank">$2</a>')
+                                      .replace(/@(\w+)/g, '@<a href="http://twitter.com/#!/$1" target="_blank">$1</a>')
+                            `]
+                        </div>
+                    </div>
+                </div>
+            @-->
+        </div>
+        <div beard='Error'>
+            <!--@ <div class='error msg'>Request timeout.</div>@-->
+        </div>
+    </div>
+</div>
+
+***
+Beard.init({debug: true}).load();
+
+var data =  {
+    name: 'jquery',
+    refresh: function(tmpl, name, $elems){
+        var $list = this;
+        $elems.submit.click(function(){
+            name = $elems.text.val();
+            data.load(tmpl, name, $list);
+        })
+        .trigger('click');
+
+        $elems.text
+        .mouseup(function(){$(this).select()})
+        .keyup(function(e){
+            if(e.keyCode == 13){
+                $(this).select();
+                $elems.submit.trigger('click');
+            }
+        });
+
+        $list.initEvents({
+            '.user a': function(){
+                var data = $(this).beardData();
+                alert('This twitter was created at ' + data.created_at);
+            }
+        })
+    },
+    load: function(tmpl, name, $list){
+        $list.html('<div class="msg"> Loading ... </div>');
+        var timer = setTimeout(function(){
+            $list.html(tmpl.Error());
+        }, 3000);
+        $.ajax({
+            url: 'http://twitter.com/status/user_timeline/' + name + '.json?count=10',
+            dataType: 'jsonp',
+            success: function(rsp){
+                clearTimeout(timer);
+
+                $list.html(tmpl(rsp))
+                .bindData();
+            }
+        });
+    }
+}
+
+result = Btpls.Twitter(data);
+
+

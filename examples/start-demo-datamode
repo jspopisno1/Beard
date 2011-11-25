@@ -150,8 +150,6 @@ $result.initEvents({
     }
 })
 
-***
-
 var data =  [
     {id: 1, isMember:true, gender: 'm', first:'Liangliang', last:'Zheng'},
     {id: 2, isMember:true, gender: 'f', first:'Annie', last:'Green'},

@@ -1,0 +1,116 @@
+<div beard="Month" bargs="data">
+    <!--@
+        [## var months = ['January', 'Feburary', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+
+            e.days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+        #]
+        <div class='month-div'>
+            <div class="month">
+                <div class='month-control'></div>
+                <div class='month-title'>[`` months[data.month - 1] `] [`` data.year `]</div>
+            </div>
+            <ul data-year='[`` data.year `]' data-month='[`` data.month `]'>
+                [`` t.Content(data, e) `]
+            </ul>
+            <div class='month-summary-title'>
+                <div class='summary-toggle'>Month Summary
+    <span class='light-color'>[</span><span class='toggle'>+</span><span class='light-color'>]</span>
+                </div>
+                <div class='currency-list'>
+                </div>
+            </div>
+            <div class='month-summary'>
+
+            </div>
+        </div>
+    @-->
+    <div beard="SaveButton">
+        <!--@
+        <div class='save-button'>Save [`` d? '(<span>' + d + '</span>)' : '' `] </div>
+        @-->
+    </div>
+    <div beard="Summary">
+        <!--@ [## var curr = ' ' + d.currency #]
+        <table>
+            <tr>
+               [// <td rowspan='4' class='month-summary'>Month Summary</td> /]
+                <td></td>
+                <td class='title'>Income</td>
+                <td class='title'>Expense</td>
+                <td class='title'>Net Income</td>
+            </tr>
+            <tr>
+                <td class='category'>Day Average</td>
+                <td>[`` d.dayI + curr `]</td>
+                <td>[`` d.dayO + curr `]</td>
+                <td>[`` d.dayT + curr `]</td>
+            </tr>
+            <tr>
+                <td class='category'>Week Average</td>
+                <td>[`` d.weekI + curr `]</td>
+                <td>[`` d.weekO + curr `]</td>
+                <td>[`` d.weekT + curr `]</td>
+            </tr>
+            <tr>
+                <td class='category'>Month Total</td>
+                <td>[`` d.i + curr `]</td>
+                <td>[`` d.o + curr `]</td>
+                <td>[`` d.t + curr `]</td>
+            </tr>
+            <tr>
+                <td colspan='4'>
+                <div class='exchange-rate'>To change the exchange rates</div>
+                <i class='exchange-rate-exp'>(the summary might not be correct if you do not set up the exchanage rates)</i>
+                </td>
+            </tr>
+        </table>
+        @-->
+        <div beard="CurrencyList">
+            <!--@
+            <select class='currencies'>
+                [## 
+                    loop(d, function(c){
+                        c = c.toUpperCase();
+                        out('<option value="', c, '" ', c==e?'selected':'', '>',
+                        c.toUpperCase(), '</option>');
+                    });
+                #]
+            </select>
+            @-->
+            <!--            end of currency list-->
+        </div>
+        <!--        end of summary -->
+    </div>
+    <div beard="List" bargs="data">
+        <!--@
+            [##
+                loop(data, function(month){
+                    out(t.p()(month));
+                });
+            #]
+        @-->
+        <!--        end of month list -->
+    </div>
+    <div beard="Content" bargs="data">
+        <!--@
+        [##
+            loop(data.records, function(record){
+                record.year = data.year;
+                record.month = data.month;
+                out(t.p().Record(record));
+            })
+
+            var d = new Date();
+            d.setFullYear(data.year);
+            d.setMonth(data.month - 1);
+            if(!data.isCurr) d.setDate(1);
+
+            out(t.p().Record({mode: 'edit', type: 'out',
+                date: d.getDate(), day: e.days[d.getDay()],
+                year: data.year, month: data.month
+            }));
+        #]
+        @-->
+    </div>
+</div>

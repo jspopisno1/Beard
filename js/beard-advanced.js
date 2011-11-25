@@ -34,7 +34,7 @@
     */
 
 ;
-(function(g, d, undefined){
+(function(g, d){
     if(!g.Beard){
         var e = new Error('Beard\s core should be loaded before its extension. ');
         throw e;
@@ -627,9 +627,10 @@
         _getBeardNode: function(data, e, isTop){
             var h = this.fn(data, e);
             if(h.indexOf('<') != -1){
-                h = $(h);
+                var ret = $.buildFragment( [ h ], [ d ] );
+                h = $((ret.cacheable ? $.clone(ret.fragment) : ret.fragment).childNodes);
             } else {
-                h = $($('<div>' + h + '</div>').contents());
+                return $(d.createTextNode(h));
             }
             var bn = new BeardNode(data, e);
             bn.$ = h;
@@ -689,6 +690,135 @@
     Beard = $.extend(g.Beard, Beard);
     $.extend(g.Beard._extra, extra);
     
+
+    var advance_utils = {
+
+        clear: function(obj, keys, val){
+            keys = keys.split(/,/);
+            for(var i = 0, len = keys.length; i < len; i++){
+                if(typeof defval == 'undefined') delete obj[keys[i]];
+                else obj[keys[i]] = val;
+            }
+        },
+        search: function(target, needle){
+            if(!target) {
+                return false;
+            }
+
+            if(typeof target == 'object'){
+                utils.loop(target, function(d, key){
+                    if(d === needle){
+                        if(typeof key == 'number') return key + 1;
+                    } else {
+                        return {key: key}
+                    }
+                });
+            } else if(typeof target != 'string'){
+                return false;
+            }
+            return target.indexOf(needle) + 1;
+        },
+        partial: function(source, keys, target, removeOld){
+            if(!target) target = {};
+            utils.loop(keys, function(from, to){
+                if(typeof to == 'number'){
+                    target[from] = source[from];
+                    if(removeOld){
+                        delete source[from];
+                    }
+                } else {
+                    target[to] = source[from];
+                    if(removeOld){
+                        delete source[from];
+                    }
+                }
+            })
+            return target;
+        },
+        sort: function(data, func){
+            if(!func || typeof func == 'string'){
+                func = utils.__getSortFunc(func);
+            }
+            if(data instanceof Array){
+                data.sort(func);
+            } else {
+                var tmp = [];
+                utils.loop(data, function(d, k){
+                    tmp.push(d);
+                    if(d._key){
+                        d.__tmp_key__ = d.key
+                    }
+                    d._key = k;
+                })
+                tmp.sort(func);
+
+                var seq = data._seq = [];
+                utils.loop(tmp, function(d){
+                    seq.push(d._key);
+                    if(d.__tmp_key__){
+                        d._key = d.__tmp_key__
+                    }
+                })
+            }
+            return data;
+        },
+        __getSortFunc:function(funcStr){
+            if(!funcStr) funcStr = 'asc';
+            if(funcStr in utils.__sortFuncs){
+                return utils.__sortFuncs[funcStr];
+            }
+            var cols = funcStr.split(',');
+            for(var i = 0, len = cols.length; i < len; i++){
+                cols[i] = $.trim(cols[i]).split(/\s+/);
+            }
+            var body = utils.__generateSortFunc(cols, 0, cols.length - 1);
+            try{
+                return utils.__sortFuncs[funcStr] = new Function('a,b', body);
+            } catch(e){
+                utils.log(body);
+                return utils.__sortFuncs[funcStr] = emptyFunc;
+            }
+        },
+        __generateSortFunc: function(cols, index, len){
+            var o = [];
+            var col = cols[index];
+            if(col[1] == 'desc'){
+                var cmp1 = '>', cmp2 = '<'
+            } else {
+                cmp1 = '<', cmp2 = '>';
+            }
+            var colStr = col[0];
+            o.push('try{if(a.', colStr, cmp1, 'b.', colStr, ')return -1;else if(a.', colStr, cmp2, 'b.', colStr, ')return 1;',
+                'else{', index == len? 'return 0' : utils.__generateSortFunc(cols, index + 1, len), '}}catch(e){return 0}');
+            return o.join('');
+        },
+        __sortFuncs: {
+            asc: function(a, b){
+                if(a > b) return 1;
+                else if (a == b) return 0;
+                else return -1;
+            },
+            desc: function(a, b){
+                if(a < b) return 1;
+                else if (a == b) return 0;
+                else return -1;
+            }
+        },
+        // *** this method might be organised in beard-advanced
+        __slot: function(name, tpl, obj){
+            // bs = beard slot
+            var attr = [' data-bs="', name, '" data-beard-mark="1"'];
+            if(tpl){
+                attr.push(' data-bs-tpl="', tpl.__path, '"');
+            }
+            if(obj){
+                var id = utils.__objId(obj[name]);
+                attr.push(' data-bs-raw="', id, '"');
+            }
+            attr.push(' ');
+            return attr.join('');
+        }
+    }
 
     var log = utils.log;
 

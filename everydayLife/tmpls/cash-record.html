@@ -1,0 +1,72 @@
+<div beard="CashRecord" bargs="rec">
+    <!--@
+        [## if(rec.mode == 'edit') out(t.Edit(rec));
+        else out(t.Read(rec)); #]
+    @-->
+    <div beard="Read" bargs="rec">
+        <!--@
+            <li class="cash-record read" [`` bind(rec) `]>
+                <div class="date text">[`` rec.date `]</div>
+                <div class="day-of-week [``rec.day`]">[`` rec.day `]</div>
+                <div class="category text">
+                    [## if(rec.cate) var cates = rec.cate.split(/\s?\s*\/\s*/);
+                        else cates = [];
+
+                        loop(cates, function(cate) { if(cate){#]
+                        <span class="split">/</span> [`` cate `]
+                    [## } // end of if
+                       })
+                    #]
+                </div>
+                <div type="button" class="[`` rec.type `]">[`` rec.type `]</div>
+                <div class="amount text">[`` rec.amount `] [`` rec.currency `]</div>
+                <div class="remove record-button"></div>
+                <div class="descr text">
+                    [`` rec.descr `]
+                </div>
+            </li>
+        @-->
+    </div>
+    <div beard="Edit" bargs="rec">
+        <!--@
+            <li class="cash-record [`` rec.id?'edit':'create' `]" [`` bind(rec) `]>
+                <input type="text" name='date' class="date textbox" value='[`/ rec.date `]'/>
+
+                <div class="day-of-week [`` rec.day `]">[`` rec.day `]</div>
+
+                <input type="text" name='cate' class="category textbox" value='[`/ rec.cate `]'/>
+                <input type='hidden' name='cateId' value='[`/ rec.cateRemoved?'':rec.cateId `]' />
+
+                <div type="button" class="[`` rec.type `]">[`` rec.type `]</div>
+        
+                <input type="text" name='amountStr' class="amount textbox" value='[`/ rec.amountStr `]'/>
+                <input type='hidden' name='amount' value='[`/ rec.id?rec.amount:'?' `]'/>
+                <div class='amount-cal'>
+                    = ?
+                </div>
+
+                <input type="text" name='currency' maxlength='3' class="currency textbox" value='[`/ rec.currency `]'/>
+                <input type='hidden' name='oldCurr' value='1' />
+                [## if(rec.id) { #]
+                <div class="edit record-button"></div>
+                [## } else { #]
+                <div class="create record-button"></div>
+                [## } #]
+                <div class="descr">
+                    <textarea name='descr'>[`/ rec.descr `]</textarea>
+                </div>
+            </li>
+        @-->
+        <div beard="Select" bargs="items, selected">
+            <!--@
+            <select class='date textbox'>
+                [## loop(items, function(item){#]
+                <option value='[`/item.value`]' [`` selected == item.value? 'selected': '' `]>
+                [`/ item.text `]
+                </option>
+                [##})#]
+            </select>
+            @-->
+        </div>
+    </div>
+</div>

@@ -14,7 +14,7 @@ this can make it more safe to use 'dot' chain to get data from the input object.
 </div>
 ***
 Beard.load();
-***
+
 var data =  {css:{width: 'width:550px;'}}
 result = Btpls.SafeMode(data);
 

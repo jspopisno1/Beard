@@ -28,7 +28,6 @@ If bargs is not set, the default argument list will be function(d, _e_).
 ***
 Beard.load();
 
-***
 var data =  {
     name: 'Little boy',
     age: 5

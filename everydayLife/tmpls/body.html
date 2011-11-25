@@ -1,0 +1,50 @@
+<div beard="body" bargs="page">
+    <!--@
+        <div id="header">
+            <div class="navigate">
+                [`` t.Navigate(page.currMonth, page.currYear, e) `]
+            </div>
+            <h1> SIMPLE CASHBOOK </h1>
+        </div>
+        <div id="content">
+        </div>
+        <div id="footer">
+            [`` page.footerText `]
+        </div>
+        <div style="display:none">
+            <div id='dlgConfirm'></div>
+            <div id='dlgAlert'></div>
+        </div>
+    @-->
+    <div beard="NavigateMonths" bargs="currMonth, currYear">
+        <!--@
+            [##
+                e.selected = [];
+        
+                var currMonth = currMonth - 4, yearPrinted = -1;
+                if(currMonth <= 0) { currMonth += 12; currYear-- }
+
+                for(var i = 0; i < 9; i++, currMonth ++){
+                    if(currMonth > 12){ currMonth = 1; currYear ++; }
+                    if(i > 2 && i < 7) {
+                        e.selected.push({year: currYear, month: currMonth});
+                    }
+                    if(currYear != yearPrinted){ out( t.Year( currYear ) ); yearPrinted = currYear }
+                    out( t.Month( currYear, currMonth, i==4) );
+                }
+            #]
+        @-->
+        <div beard="Year" bargs="year">
+            <!--@
+            <span class="year">[`` year `] : </span>
+            @-->
+        </div>
+        <div beard="Month" bargs="year, month, currMonth">
+            <!--@
+                <a href='javascript:void(0)' class='[`` currMonth? "current-month":"" `]' data-month='[`` month `]' data-year='[`` year `]'>
+                    [`` month `]
+                </a>
+            @-->
+        </div>
+    </div>
+</div>

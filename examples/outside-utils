@@ -37,7 +37,6 @@ function name.
 ***
 Beard.load();
 
-***
 var data =  ''
 
 Beard.extendUtils({func: function(){ return '{{ from func }}' } });

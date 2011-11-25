@@ -1,5 +1,5 @@
 From this example, we will start learning Beard.js.
-First of all, the template syntax !!
+First of all, the template syntax !! 
 <div style='margin:18px 0 5px'>
 <b>[`` some js expr `]</b> :
 Assignment Tag
@@ -35,23 +35,25 @@ are not loading templates using pure text or json object.
 &lt;!--@ @--&gt; will be used to enclose your template in the html. Therefore, it is illegal to
 place another &lt;!-- --&gt; inside this scope. If you really want to output a comment,
 use html comment tag instead. </i>
+<p>
+<b>NOTE:</b> you can create a template function without
+using any html markups.
 ***
 <!-- In this example we will use loadScript() to load template from a plain text,
 instead of from a block of HTML. -->
 ***
-Beard.loadScript(
+var tmpl = Beard.load('',
     '   [// a comment string /] ' +
     '   [/// an html comment string /]' +
     '   unescaped : [`` d.raw `]<br/> ' +
     '   escaped : [`/ d.esc `] <br/> ' +
     '   [## if(d.isCool) { #] cool [## }#] '
-,'Syntax');
+);
 
-***
 var data =  {
     raw: '<b>bold</b>',
     esc: '<b>bold</b>',
     isCool: true
 }
 
-result = Btpls.Syntax(data);
+result = tmpl(data);

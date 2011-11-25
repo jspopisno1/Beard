@@ -31,7 +31,6 @@ you need to call Btpls.MyTemplate() instead of Btpls.myTemplate()
 ***
 Beard.load();
 
-***
 var data =  ''
 
 result = Btpls.Root();

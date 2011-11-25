@@ -16,7 +16,6 @@ are created to make your life much easier. <p>The very first one is <b>t</b>.
 ***
 Beard.load();
 
-***
 var data =  ''
 
 result = Btpls.Root();

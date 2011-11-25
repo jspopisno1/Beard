@@ -56,7 +56,6 @@ which is fantastic for doing recursive stuff.
 ***
 Beard.load();
 
-***
 var data = [
 [1, 2, 3],
 [3, 12, 33],

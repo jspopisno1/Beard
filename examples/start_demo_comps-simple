@@ -93,7 +93,7 @@ Here is the example.
 
 ***
 Beard.load();
-***
+
 var users = [1, 2, 3];
 var books = [];
 

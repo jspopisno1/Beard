@@ -26,7 +26,6 @@ via t.p(). Isn't that cool?
 </div>
 ***
 Beard.load();
-***
 
 var data =  [
     {id: 'item1', text: 'Top Item #1', subItems: [
@@ -37,7 +36,7 @@ var data =  [
                             {id: 'item1', text: 'Level 4 Item #3'}
                         ]},
                     {id: 'item1', text: 'Level 3 Item #2', subItems: [
-                            {id: 'item1', text: 'Level 4 Item #4'},
+                            {id: 'item1', text: 'Level 4 Item #4'}
                         ]},
                     {id: 'item1', text: 'Level 3 Item #3', subItems: []}
                 ]},
@@ -54,7 +53,7 @@ var data =  [
                             {id: 'item1', text: 'Level 4 Item #5'}
                         ]},
                     {id: 'item1', text: 'Level 3 Item #7', subItems: [
-                            {id: 'item1', text: 'Level 4 Item #6'},
+                            {id: 'item1', text: 'Level 4 Item #6'}
                         ]},
                     {id: 'item1', text: 'Level 3 Item #8', subItems: []}
                 ]},

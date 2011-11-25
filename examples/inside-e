@@ -43,7 +43,6 @@ see that creating a recursive function is doable and easy.
 ***
 Beard.load();
 
-***
 var data =  {
     size: 0,
     children: [

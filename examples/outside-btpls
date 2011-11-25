@@ -35,7 +35,6 @@ window.itemClicked = function(btn){
     data.$.after('<div> Clicked~ the data bound is : ' + data.val + '</div>');
 }
 
-***
 var data =  ''
 result = false;
 

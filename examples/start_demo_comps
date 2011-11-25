@@ -39,7 +39,7 @@ You can take a look at the example using jquery template.
 </div>
 ***
 Beard.load();
-***
+
 data =  [
     { type: 'Item',
         part: '99Designs', description: '99 Designs Logo',

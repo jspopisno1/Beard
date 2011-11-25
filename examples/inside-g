@@ -19,7 +19,6 @@ To use the magical g, you need to first assign the variable to <b>Btpls.g</b>
 ***
 Beard.load();
 
-***
 Btpls.g.canUserSeeButtons = false;
 $.extend(Btpls.g, {formatUserName: function(person){ return person.title + ' ' + person.name } });
 

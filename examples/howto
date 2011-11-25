@@ -20,7 +20,7 @@ $result or bind some events to it.
 </div>
 ***
 Beard.load();
-***
+
 data = '';
 
 // assign result as false in order to manipulate the $result object

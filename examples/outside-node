@@ -29,7 +29,6 @@ $result.initEvents({
     }
 });
 
-***
 result = false;
 
 $result.html('');

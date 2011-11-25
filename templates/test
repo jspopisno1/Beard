@@ -1,0 +1,10 @@
+<div beard='HelloRemote'>
+    <!--@
+    hello remote~ my name is [`` d `]
+    @-->
+    <div beard='Sub'>
+        <!--@
+        <h1> [`` d.header `] [## alert('wahahah') #] </h1>
+        @-->
+    </div>
+</div>

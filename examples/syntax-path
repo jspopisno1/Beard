@@ -26,7 +26,6 @@ define its parent template.
 ***
 Beard.load();
 
-***
 var data =  ''
 
 result = Btpls.Root();

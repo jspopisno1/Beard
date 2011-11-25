@@ -23,7 +23,7 @@ the debug info will just beneath the page.
 </div>
 ***
 Beard.init({debug: true}).load();
-***
+
 var data =  {var1: 'value of var1', var3: 'value of var2'}
 result = Btpls.Test(data);
 

@@ -42,7 +42,6 @@ Beard.init({
     nodeRef: 'data-beard-ref'
 }).load()
 
-***
 var data =  ''
 
 result = Btpls.Root('<b>bold text</b>');

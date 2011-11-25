@@ -1,17 +1,45 @@
-function(){var e=typeof _e_=="undefined"?{}:_e_,u=Beard.utils,o=[],t=this,g=Btpls.g;if(typeof e=="object")e.def=u._defVal;function out(){o.push.apply(o, arguments);}/**/
-if(u._edit>0){return Beard._recompileTemplate(u._tplsStr["TodoApp.TodoItem.Edit"], "TodoApp.TodoItem.Edit", "d,_e_", d,_e_)}
-function esc(){return u.esc.apply(u, arguments)}
-function log(){return u.log.apply(u, arguments)}
-function loop(){return u.loop.apply(u, arguments)}
-function has(){return u.has.apply(u, arguments)}
-function search(){return u.search.apply(u, arguments)}
-function partial(){return u.partial.apply(u, arguments)}
-function strcat(){return u.strcat.apply(u, arguments)}
-function field(){return u.field.apply(u, arguments)}
-function clear(){return u.clear.apply(u, arguments)}
-function sort(){return u.sort.apply(u, arguments)}/**/try{u.log(new Date().toLocaleTimeString() + " Level @" + (u.__level++) + "  ------ START : <<   TodoApp.TodoItem.Edit   >> ------");o[o.length]=' <li class="editing">\n                        <input value=\'';
-try{__tmp__= d.content ;
-o[o.length]=esc(__tmp__);log(new Date().toLocaleTimeString() + "  ----->   "+   (1)   +' d.content  {escaped} => ' + __tmp__));
-}catch(e){u._log(e.message + ' @  d.content ')}
-o[o.length]='\' class="todo-input"/>\n                    </li> ';
-;u.log(new Date().toLocaleTimeString() + " Level @" + (--u.__level) + "  ###### END : <<   TodoApp.TodoItem.Edit   >> ######");;return o.join("");}catch(e){u.log(arguments.callee.toString());log(e);throw e;}}
+var data =  {
+    name: 'jquery',
+    refresh: function(tmpl, name, $elems){
+        var $list = this;
+        $elems.submit.click(function(){
+            name = $elems.text.val();
+            data.load(tmpl, name, $list);
+        })
+        .trigger('click');
+
+        $elems.text
+        .mouseup(function(){$(this).select()})
+        .keyup(function(e){
+            if(e.keyCode == 13){
+                $(this).select();
+                $elems.submit.trigger('click');
+            }
+        });
+
+        $list.initEvents({
+            '.user a': function(){
+                var data = $(this).beardData();
+                alert('This twitter was created at ' + data.created_at);
+            }
+        })
+    },
+    load: function(tmpl, name, $list){
+        $list.html('<div class="msg"> Loading ... </div>');
+        var timer = setTimeout(function(){
+            $list.html(tmpl.Error());
+        }, 3000);
+        $.ajax({
+            url: 'http://twitter.com/status/user_timeline/' + name + '.json?count=10',
+            dataType: 'jsonp',
+            success: function(rsp){
+                clearTimeout(timer);
+
+                $list.html(tmpl(rsp))
+                .bindData();
+            }
+        });
+    }
+}
+
+result = Btpls.Twitter(data);

@@ -27,7 +27,7 @@ title. Enjoy!
 </div>
 ***
 Beard.load();
-***
+
 data = 'Beard';
 
 result = Btpls.HelloWorld(data);

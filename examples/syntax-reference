@@ -40,12 +40,11 @@ for it later to remove this 'Not Implemented' exception.
 ***
 Beard.load();
 
-***
 var data =  ''
 
 result = Btpls.Top();
 
-Beard.loadScript('<input type="button" value="don\'t click me" />', 'Inputs.Button');
+Beard.load('Inputs.Button', '<input type="button" value="don\'t click me" />');
 
 result += '\n\n';
 result += Btpls.Top();

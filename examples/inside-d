@@ -16,7 +16,6 @@ in <a href='#exmp_syntax-arguments'>Customise the Arguments</a>.
 ***
 Beard.load();
 
-***
 var data =  ''
 
 // color = red

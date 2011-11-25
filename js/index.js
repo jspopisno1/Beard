@@ -1,7 +1,7 @@
 ;
 (function(g, d, undefined){
 
-    var htmlEd, jsEd, dataEd, resEd, u = Beard.utils,
+    var htmlEd, jsEd, resEd, u = Beard.utils,
     jqr;
 
     $(document).ready(function(){
@@ -57,14 +57,13 @@
                 $result.html('');
                 var result = '<<< You should assign the result to the variable : result >>>';
                 eval(jsEd.getValue());
-                eval(dataEd.getValue());
                 if(typeof result == 'string'){
                     resEd.setValue(result);
                     jqr.resHtml.html(result);
+                    jqr.resHtml.bindData();
                 } else {
                     resEd.setValue('<<< the result variable is not a string >>>')
                 }
-                $q = $result;
             } catch(e){
                 resEd.setValue("The html cannot be generated due to the error : " + e.message);
                 jqr.resHtml.html('');
@@ -85,7 +84,6 @@
             resEd : $('.editor.result'),
             htmlEd : $('.editor.html'),
             jsEd : $('.editor.js'),
-            dataEd : $('.editor.data'),
             descr : $('#content .description'),
             debugToggler : $('#content .debug.link-text'),
             tabs: $('#content .tabs')
@@ -121,16 +119,6 @@
             onBlur: recompile
         });
         var jsLine = jsEd.setLineClass(0, "activeline");
-        dataEd = CodeMirror(document.getElementById("dataEd"), {
-            mode: "javascript",
-            lineNumbers: true,
-            onCursorActivity: function() {
-                jsEd.setLineClass(dataLine, null);
-                dataLine = jsEd.setLineClass(jsEd.getCursor().line, "activeline");
-            },
-            onBlur: recompile
-        });
-        var dataLine = jsEd.setLineClass(0, "activeline");
         resEd = CodeMirror(document.getElementById("resEd"), {
             mode: "application/xml",
             lineNumbers: false,
@@ -203,7 +191,6 @@
                             $e.slideUp(1000, function(){
                                 jqr.htmlEd.parent().appendTo($e);
                                 jqr.jsEd.parent().appendTo($e);
-                                jqr.dataEd.parent().appendTo($e);
                                 jqr.resEd.parent().appendTo($e);
                                 jqr.resHtml.parent().appendTo($e);
                                 $e.slideDown(1000, function(){
@@ -240,14 +227,12 @@
                     jqr.descr.html(tmp[0]?$.trim(tmp[0]):'');
                     htmlEd.setValue(tmp[1]?$.trim(tmp[1]):'');
                     jsEd.setValue(tmp[2]?$.trim(tmp[2]):'');
-                    dataEd.setValue(tmp[3]?$.trim(tmp[3]):'');
                     recompile();
                 },
                 dataType: 'text',
                 error: function(){
                     htmlEd.setValue('This example is still under construction.');
-                    jsEd.setValue('// This example is still under construction.');
-                    dataEd.setValue('result = "This example is still under construction."');
+                    jsEd.setValue('result = "This example is still under construction."');
                     jqr.descr.html('The case "' + key + '" cannot be found. <p> Please choose another case from the menu.');
                 },
                 complete: function(){
