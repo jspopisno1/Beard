@@ -153,7 +153,7 @@
                 }
             }
         },
-        extendTpl: function(path, config){
+        extend: function(path, config){
             if(this.__path){
                 var p = this.__path + '.';
                 if(typeof path == 'string'){
@@ -169,13 +169,43 @@
             }
             Beard.load(path, config);
             return this;
+        },
+        remote: function(config, force){
+            if(this.__path)var p = this.__path;
+            else p = '';
+            if(typeof config == 'string'){
+                var cfg = {}; cfg[p] = arguments;
+                var f = false;
+            } else if(config === true){
+                cfg = {}; cfg[p] = arguments;
+                f = true;
+            } else if(config instanceof Array){
+                cfg = {}; cfg[p] = config;
+                f = force;
+            } else {
+                cfg = {};
+                for(var i in config){
+                    if(config.hasOwnProperty(i)){
+                        cfg[p+i] = config[i];
+                    }
+                }
+                f = force;
+            }
+            Beard.remote(cfg, f);
+            return this;
+        },
+        ready: function(func){
+            Beard.ready(func);
+            return this;
         }
     },
 
     // for the tpls
     Btpls = g.Btpls = {
         __tpls__: [],
-        extend: extra.extendTpl,
+        extend: extra.extend,
+        ready: extra.ready,
+        remote: extra.remote,
         g: {}
     };
 
@@ -344,7 +374,8 @@
         REQUEST_VERSION: 1,
         loadRemote: function(url, path, force){
             url = templateRoot + '/' + url;
-            if(!force && url in loadedUrls){
+            var key = url + ':' + path;
+            if(!force && key in loadedUrls){
                 return;
             }
             loading ++;
@@ -366,11 +397,11 @@
                 },
                 error: function(){
                     readyFuncs = [];
-                    throw new Error('Sorry, but the template ' + templateRoot + url + ' cannot be found.');
+                    throw new Error('Sorry, but the template ' + url + ' cannot be found.');
                 },
                 dataType: 'html',
                 complete: function(){
-                    loadedUrls[url] = 1;
+                    loadedUrls[key] = 1;
                     loading--;
                 }
             })
@@ -543,7 +574,9 @@
             // for the tpls
             Btpls = g.Btpls = {
                 __tpls__: [],
-                extend: extra.extendTpl,
+                extend: extra.extend,
+                ready: extra.ready,
+                remote: extra.remote,
                 g: {}
             }
             if($beard) $beard.html('');
@@ -992,7 +1025,9 @@
         tpl.__refbys = {};
         tpl.p = extra.getParentTpl;
         tpl.$ = extra.getJqueryObj;
-        tpl.extend = extra.extendTpl;
+        tpl.extend = extra.extend;
+        tpl.remote = extra.remote;
+        tpl.ready = extra.ready;
         if(extra.initTplFunc){
             extra.initTplFunc(tpl);
         }
