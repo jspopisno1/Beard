@@ -22,7 +22,7 @@ $(function(){
         return;
     }
 
-    g.localStorage.removeItem('addrbook');
+//    g.localStorage.removeItem('addrbook');
 
     Addrbook.data = $.parseJSON(g.localStorage.getItem( "addrbook" ));
     if(Addrbook.data){
