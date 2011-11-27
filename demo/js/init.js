@@ -22,7 +22,7 @@ $(function(){
         return;
     }
 
-//    g.localStorage.removeItem('addrbook');
+    //    g.localStorage.removeItem('addrbook');
 
     Addrbook.data = $.parseJSON(g.localStorage.getItem( "addrbook" ));
     if(Addrbook.data){
@@ -52,6 +52,12 @@ $(function(){
     
 })
 
+if('onhashchange' in g){
+    g.onhashchange = function(){
+        Addrbook.onRefreshPage();
+    }
+}
+
 var Addrbook = {
     actions: {},
     hasStorage: true,
@@ -74,6 +80,7 @@ var Addrbook = {
             this.hash[item.id] = item;
         }
         alert('before save');
+        alert(JSON.stringify(this.data));
         g.localStorage.setItem('addrbook', JSON.stringify(this.data));
         alert('after save');
         g.localStorage.setItem('addrbook_idSeq', this.idSeq);
@@ -94,13 +101,18 @@ var Addrbook = {
         if(this.history.length > 0)
             g.location.hash = this.history[this.history.length - 1];
         else g.location.hash = '';
-        this.refreshPage(false);
+        this.refreshPage();
     },
     refreshPage: function(url){
         if(url){
             g.location = '#' + url;
         }
 
+        if(!url || !('onhashchange' in g)){
+            this.onRefreshPage(url);
+        }
+    },
+    onRefreshPage: function(url){
         if(Addrbook.bStorage){
             var urlObj = Addrbook.parseUrl();
             var page = urlObj.act;
@@ -112,12 +124,12 @@ var Addrbook = {
         } else {
             page = 'empty';
         }
-        if(url !== false) this.history.push(g.location.hash);
+        if(url) this.history.push(g.location.hash);
 
         Beard
         .remote('body.html')
         .ready(function(){
-//            debugger;
+            //            debugger;
             Addrbook.$body.html(Btpls.Body(page));
             Addrbook.actions[page]();
         })
