@@ -119,8 +119,8 @@ Beard.init({debug: true}).load();
 
 var data =  {
     name: 'jquery',
-    refresh: function(tmpl, name, $elems){
-        var $list = this;
+    refresh: function(tmpl, name, $this, $elems){
+        var $list = $this;
         $elems.submit.click(function(){
             name = $elems.text.val();
             data.load(tmpl, name, $list);

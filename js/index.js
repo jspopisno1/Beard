@@ -62,7 +62,7 @@
                     jqr.resHtml.html(result);
                     jqr.resHtml.bindData();
                 } else {
-                    resEd.setValue('<<< the result variable is not a string >>>')
+                    resEd.setValue('NOTE: the result returned is not a string,\n\nplease see the rendered html below.')
                 }
             } catch(e){
                 resEd.setValue("The html cannot be generated due to the error : " + e.message);

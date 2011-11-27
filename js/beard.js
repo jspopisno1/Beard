@@ -559,9 +559,10 @@
             }
             if(typeof events == 'function' || type){
                 if(rgxEmptyStr.test(path)) {
-                    type = type||'bind'; path = '';
+                    type = type||'bind';
+                    path = '';
                 }
-//                    alert(path + ' ' + (action?action:'click') + ' ' + type);
+                //                    alert(path + ' ' + (action?action:'click') + ' ' + type);
                 if(type == 'bind'){
                     if(path) $context = $context.find(path);
                     $context.bind(action?action:'click', events);
@@ -722,7 +723,9 @@
     // This template object will be passed to _loadScript()
     function _load($scope){
         if(!$scope) $scope = $beard;
-        var beards = firstRun? $('div[' + BEARD_NODE + ']') : $scope.find('div['+ BEARD_NODE + ']');
+        var beards = firstRun
+        ? $('div[' + BEARD_NODE + ']').union($scope.find('div['+ BEARD_NODE + ']'))
+        : $scope.find('div['+ BEARD_NODE + ']');
 
         var script = {}, parent;
         beards
