@@ -12,9 +12,9 @@ $(function(){
         debug: false
     })
     if(Beard.hostUrl().indexOf('github') != -1){
-        Beard.url('demo/tmpls', 5)
+        Beard.url('demo/tmpls', 6)
     } else {
-        Beard.url('/demo/tmpls', 5)
+        Beard.url('/demo/tmpls', 6)
     }
 
     if(!g.localStorage){
@@ -22,7 +22,7 @@ $(function(){
         return;
     }
 
-    g.localStorage.removeItem('addrbook');
+//    g.localStorage.removeItem('addrbook');
 
     Addrbook.data = $.parseJSON(g.localStorage.getItem( "addrbook" ));
     if(Addrbook.data){
