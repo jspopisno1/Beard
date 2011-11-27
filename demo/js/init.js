@@ -80,22 +80,22 @@ var Addrbook = {
             this.data.push(item);
             this.hash[item.id] = item;
         }
-        alert('before save');
+//        alert('before save');
         var t = JSON.stringify(this.data);
-        alert(JSON.stringify(t));
+//        alert(JSON.stringify(t));
         g.localStorage.removeItem('addrbook_idSeq');
         g.localStorage.removeItem('addrbook');
         g.localStorage.setItem('addrbook_idSeq', this.idSeq);
-        alert('after save id seq');
+//        alert('after save id seq');
         g.localStorage.setItem('addrbook', JSON.stringify(this.data));
-        alert('after save');
+//        alert('after save');
     },
     remove: function(item){
         var l = this.data.length;
         while(l--){
             if(this.data[l].id == item.id) this.data.splice(l, 1);
         }
-        alert(item.id);
+//        alert(item.id);
         delete this.hash[item.id];
         this.save();
     },
