@@ -49,7 +49,8 @@ $(function(){
             dataType: 'text'
         })
     }
-    
+
+    Addrbook.onRefreshPage();
 })
 
 if('onhashchange' in g){
@@ -101,16 +102,18 @@ var Addrbook = {
         if(this.history.length > 0)
             g.location.hash = this.history[this.history.length - 1];
         else g.location.hash = '';
-        this.refreshPage();
+        this.refreshPage(false);
     },
     refreshPage: function(url){
         if(url){
             g.location = '#' + url;
         }
 
-        if(!url || !('onhashchange' in g)){
-            this.onRefreshPage(url);
+        if(url === false || !('onhashchange' in g)){
+            this.onRefreshPage();
         }
+
+        if(url !== false) this.history.push(g.location.hash);
     },
     onRefreshPage: function(url){
         if(Addrbook.bStorage){
@@ -124,7 +127,6 @@ var Addrbook = {
         } else {
             page = 'empty';
         }
-        if(url) this.history.push(g.location.hash);
 
         Beard
         .remote('body.html')
