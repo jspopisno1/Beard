@@ -358,10 +358,8 @@
             if(!url){
                 url = root;
             } else {
-                if(url.charAt(0) == '/'){
-                    url = root + url.substr(1) + '/';
-                } else if(!rgxFullUrl.test(url)) {
-                    url = root + app + url + '/';
+                if(rgxFullUrl.test(url)) {
+                    //url = root + app + url + '/';
                 }
             }
             if(version){
@@ -493,6 +491,9 @@
         },
         appUrl: function(){
             return root + app;
+        },
+        appName: function(){
+            return app;
         },
         init: function(option){
             _options = $.extend({}, defOpts, _options, option);

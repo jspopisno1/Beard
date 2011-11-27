@@ -11,11 +11,11 @@ $(function(){
     .init({
         debug: false
     })
-    if(Beard.hostUrl().indexOf('github') != -1){
-        Beard.url('demo/tmpls', 8)
-    } else {
-        Beard.url('/demo/tmpls', 8)
-    }
+//    if(Beard.hostUrl().indexOf('github') != -1){
+        Beard.url('tmpls', 8)
+//    } else {
+//        Beard.url('/demo/tmpls', 8)
+//    }
 
     if(!g.localStorage){
         Addrbook.refreshPage('empty');
