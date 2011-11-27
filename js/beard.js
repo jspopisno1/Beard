@@ -70,8 +70,6 @@
         nodePath: 'bpath',
         nodeArgs: 'bargs',
         nodeRef: 'bref',
-        beardZone: 'beards',
-        withinZone: false,
 
         // compile config
         debug: false,
@@ -79,7 +77,7 @@
         dataMode: false
     },
 
-    isDebug = false,
+    isDebug = false, __tmp_func__,
     safeMode = true, // if set to true (default), the assignment tags will be enclosed with try statement
     $debug,
     locIndex = 0, // for showing the location id in compiled templates
@@ -93,6 +91,9 @@
 
     // in IE, \r should also be considered
     rgxNewLine = /\n|\r\n|\n\r|\r/,
+
+    rgxFullUrl = /^https?:/,
+    rgxEmptyStr = /^\s*$/,
 
     // containing the tags, this will be used in compilation phase
     tplTags,
@@ -111,7 +112,6 @@
     },
 
     firstRun = true, readyFuncs = [], loading = 0,
-    withinZone,
 
     objSeq = 1, parsingCallback = 0;
 
@@ -136,7 +136,6 @@
             if(typeof key == 'number'){
                 for(var i = key; i > 0; i--){
                     ret = ret.__parent;
-                    utils.log(ret);
                     if(!ret) {
                         throw new Error(' No more parent template for t.p(' + key + ')');
                     }
@@ -285,7 +284,6 @@
 
             if(firstRun || !path) _load();
             firstRun = false;
-            withinZone = false;
 
             if(path || content) {
                 return this._loadScript(path, content);
@@ -326,18 +324,22 @@
             }
             return Beard;
         },
-        url: function(url){
+        url: function(url, version){
             if(!url){
                 url = root;
             } else {
                 if(url.charAt(0) == '/'){
                     url = root + url.substr(1) + '/';
-                } else {
+                } else if(!rgxFullUrl.test(url)) {
                     url = root + app + url + '/';
                 }
             }
+            if(version){
+                Beard.REQUEST_VERSION = version;
+            }
             // setting the root url of templates
-            templateRoot = url;
+            templateRoot = _options.root = url;
+            return Beard;
         },
         REQUEST_VERSION: 1,
         loadRemote: function(url, path, force){
@@ -435,10 +437,8 @@
             }
             if(!skipReady){
                 if(!loading){
-                    for(var i = 0, len = readyFuncs.length; i < len; i++){
-                        readyFuncs[i]();
-                    }
-                    readyFuncs = [];
+                    var func = readyFuncs.shift();
+                    if(func) func();
                 }
             }
             return Beard;
@@ -470,22 +470,8 @@
 
             if(!$beard || !$beard.size()){
                 // first we need to get the beard template zone and hide it
-                $beard = $('#' + BEARD_ZONE);
-                if($beard.size() == 0){
-                    $beard = $('<div id="' + BEARD_ZONE + '"></div>').appendTo('body');
-                }
-                $beard.css('display', 'none');
-
-                $debug = $('#debug');
-                if(!$debug.size()){
-                    $debug = $('<div id="debug" style="text-align: left;padding:12px;"></div>').appendTo('body');
-                }
-            } else if (_options.beardZone != BEARD_ZONE){
-                BEARD_ZONE = _options.beardZone;
-                $beard.attr('id', BEARD_ZONE);
+                $beard = $('<div></div>');
             }
-
-            withinZone = _options.withinZone;
 
             BEARD_NODE = _options.nodeDef;
             BEARD_PATH = _options.nodePath;
@@ -561,7 +547,6 @@
                 g: {}
             }
             if($beard) $beard.html('');
-            withinZone = _options.withinZone;
             loadedUrls = {};
             return Beard;
         },
@@ -573,10 +558,16 @@
                 return Beard;
             }
             if(typeof events == 'function' || type){
+                if(rgxEmptyStr.test(path)) {
+                    type = type||'bind'; path = '';
+                }
+//                    alert(path + ' ' + (action?action:'click') + ' ' + type);
                 if(type == 'bind'){
-                    $context.find(path).bind(action?action:'click', events);
+                    if(path) $context = $context.find(path);
+                    $context.bind(action?action:'click', events);
                 } else if(type == 'unbind'){
-                    $context.find(path).unbind(action?action:'click');
+                    if(path) $context = $context.find(path);
+                    $context.unbind(action?action:'click');
                 } else if(type == 'undelegate'){
                     $context.undelegate(path, action?action:'click');
                 } else if(type == 'live') {
@@ -591,10 +582,11 @@
             if(action || type){
                 return Beard;
             }
+            if(!path) path = '';
             for(var key in events){
                 if(events.hasOwnProperty(key)){
                     var val = events[key];
-                    pts = key.split(/\/\//);
+                    pts = key.split('//');
                     if(1 in pts) key = pts[1];
 
                     var pts = key.split(',');
@@ -655,6 +647,8 @@
                 try{
                     var cb = callbacks[i];
                     utils.__runCallback(cb.$, cb.d, $elems);
+                } catch(e){
+                    log(e);
                 } finally{
                     parsingCallback --;
                 }
@@ -728,7 +722,7 @@
     // This template object will be passed to _loadScript()
     function _load($scope){
         if(!$scope) $scope = $beard;
-        var beards = firstRun && !withinZone? $('div[' + BEARD_NODE + ']') : $scope.find('div['+ BEARD_NODE + ']');
+        var beards = firstRun? $('div[' + BEARD_NODE + ']') : $scope.find('div['+ BEARD_NODE + ']');
 
         var script = {}, parent;
         beards
@@ -1100,7 +1094,7 @@
 
         code = ['var __tmp__,e=typeof _e_=="undefined"?{}:_e_,u=Beard.utils,o=[],__TPL__="__tpls__",t=this,g=Btpls.g;function out(){o.push.apply(o, arguments);}',
         '_d_=arguments[0];function slot(name, tpl){return u.__slot(name, tpl, _d_)}',
-        'function loop(d,c,e){if(__TPL__ in c){return u.loop(d,function(i,k){out(c(i,k,d,e))},e)}else return u.loop(d,c,e)}',
+        'function loop(d,c,e){if(c&&__TPL__ in c){return u.loop(d,function(i,k){out(c(i,k,e,d))},e)}else return u.loop(d,c,e)}',
         compileUtils(path, args),
         'try{',
         isDebug?'u.log(new Date().toLocaleTimeString() + " Level @" + (u.__level++) + "  ------ START : <<   ' + path + '   >> ------");':'',
@@ -1121,9 +1115,9 @@
             if(e.message.indexOf('reserved_word') != -1){
                 e.messge += '\nMake sure you are not using some reserved_word in your template, such as class... e.g., var class = 1 will break some browser';
             }
-            e.funcString = code;
             utils.log(new Date().toLocaleTimeString() + ' ---- FAILED: The compiled function for template <<' + path + '>> : ---- \n\n' +
                 'function(){' + code + '}'); // log the code anyway..
+            
             throw e;
         }
     }
@@ -1158,8 +1152,8 @@
             } else {
                 if(!$debug){
                     $debug = $('<div id="debug" style="text-align: left;padding:12px;"></div>');
-                    $('body').append($debug);
                 }
+                $('body').append($debug);
                 if(msg){
                     $('<div style="text-align:left;"></div>').appendTo($debug)[0].innerText = '\n' + msg.toString();
                 }
@@ -1308,8 +1302,8 @@
         },
         __runCallback: function($t, args, $elems){
             var func = args.shift();
-            args.push($elems);
-            if(typeof func == 'function') var ret = func.apply($t, args);
+            args.push($t, $elems);
+            if(typeof func == 'function') var ret = func.apply(this, args);
             else return;
             var t = typeof ret;
             if(ret instanceof jQuery || t == 'string' || t == 'number'){

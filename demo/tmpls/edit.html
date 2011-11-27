@@ -1,0 +1,59 @@
+<div beard="Edit" bpath="Content">
+    <!--@
+        <div class='single-item edit' [`` callback(t.p().Setup, d) `]>
+            <div class="avatar">
+                <img src="[`` d.avatar `]"/>
+            </div>
+            <div class="info">
+                <div class='sec'> Change Avatar </div>
+                [## if(e.fileAPI) { #]
+                <input type='file' style='margin-bottom:12px'/>
+                [## } else { #]
+                <div class='urlInput'>
+                    <input type='text' value='http://' class='txtAvatarUrl' style='width:320px;'/>
+                    <input value='Change Avatar' type='button' style='width:120px;' class='btnChangeAvatar'/>
+                </div>
+                [## } #]
+                <div class='sec'> Main Info. </div>
+                [## loop(d.main, t.MainItem) #]
+                <div class='sec optional'> Optional Info. </div>
+                [## loop(d.info, t.OptItem);
+                    out(t.NewItem({}));
+                #]
+            </div>
+            <div class="clear"></div>
+        </div>
+        </ul>
+        <div class="controls">
+            [ <a class="save" href="javascript:void(0)">Save</a> ]
+            [ <a class="cancel" href="javascript:void(0)">Cancel</a> ]
+        </div>
+        <div id="change-avatar" style='opacity: 0;position:absolute'>Change Avatar</div>
+    @-->
+    <div beard="MainItem" bargs="d, idx">
+        <!--@
+            <div class="row">
+               <label> [`/ d.key `] </label>
+               <input name='[`/ 'main' + idx + '_' + d.key `]' style='width:320' value='[`/ d.value `]'/>
+            </div>
+        @-->
+    </div>
+    <div beard="NewItem" bargs="d, idx">
+        <!--@
+            <div class="row">
+                <img src='img/add.png' class='imgNewItem'/>
+                <input name='newkey' value=''/>
+                <input name='newval' style='width:320' value='[`/ d.value `]'/>
+            </div>
+        @-->
+    </div>
+    <div beard="OptItem" bargs="d, idx">
+        <!--@
+            <div class="row opt">
+                <img src='img/remove.png' class='imgRemoveItem'/>
+                <input name='[`/ 'optkey_' + idx `]' value='[`/d.key`]'/>
+                <input name='[`/ 'optval_' + idx `]' style='width:320' value='[`/ d.value `]'/>
+            </div>
+        @-->
+    </div>
+</div>

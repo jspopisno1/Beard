@@ -1,0 +1,31 @@
+<div beard="Read" bpath="Content">
+    <!--@
+        <div class='single-item' [`` callback(t.p().Setup, d) `]>
+            <div class="avatar">
+                <img src="[`` d.avatar `]"/>
+            </div>
+            <div class="info">
+                <div class='sec'> Main Info. </div>
+                [## loop(d.main, t.ItemInfo) #]
+                <div class='sec optional'> Optional Info. </div>
+                [## if(!loop(d.info, t.ItemInfo)){
+                    out('<div class="row">No optional information</div>');
+                }#]
+            </div>
+            <div class="clear"></div>
+        </div>
+        </ul>
+        <div class="controls">
+            [ <a class="edit" href="javascript:void(0)">Edit</a> ]
+            [ <a class="remove" href="javascript:void(0)">Remove</a> ]
+            [ <a class="back" href="javascript:void(0)">Back</a> ]
+        </div>
+    @-->
+    <div beard="ItemInfo">
+        <!--@
+            <div class="row">
+                <label> [`/ d.key `] </label> [`/ d.value `]
+            </div>
+        @-->
+    </div>
+</div>

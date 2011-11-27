@@ -1,0 +1,143 @@
+var g = window;
+
+$(function(){
+    var 
+    ts = new Date().getTime()
+    ;
+    
+    Addrbook.$body = $('body')
+    
+    Beard
+    .init({
+        debug: false
+    })
+    .url('/demo/tmpls', 5)
+
+    if(!g.localStorage){
+        Addrbook.refreshPage('empty');
+        return;
+    }
+
+    g.localStorage.removeItem('addrbook');
+
+    Addrbook.data = $.parseJSON(g.localStorage.getItem( "addrbook" ));
+    if(Addrbook.data){
+        Addrbook.idSeq = Number(g.localStorage.getItem('addrbook_idSeq'));
+        var rsp = Addrbook.data, i = rsp.length, l = i - 1;
+        while(i--){
+            Addrbook.hash[rsp[i].id] = rsp[i]
+        }
+        Addrbook.refreshPage();
+    }else {
+        $.ajax({
+            'url': 'data.json?' + ts,
+            success: function(rsp){
+                rsp = $.parseJSON(rsp);
+                Addrbook.data = rsp;
+                var i = rsp.length, l = i - 1;
+                while(i--){
+                    rsp[l-i].id = Addrbook.idSeq ++;
+                    Addrbook.hash[rsp[l-i].id] = rsp[l-i]
+                }
+                Addrbook.refreshPage();
+                Addrbook.save();
+            },
+            dataType: 'text'
+        })
+    }
+    
+})
+
+var Addrbook = {
+    hasStorage: true,
+    $body: null,
+    url: {},
+    parseUrl: function(){
+        var hash = g.location.hash.substr(1), url = hash.split('/');
+        url[0] = url[0] || 'list';
+        return Addrbook.url = {
+            act: url[0],
+            id: url[1]
+        }
+    },
+    data:  null,
+    hash: {},
+    save: function(item){
+        if(item && item.id == -1){
+            item.id = this.idSeq ++;
+            this.data.push(item);
+            this.hash[item.id] = item;
+        }
+        g.localStorage.setItem('addrbook', JSON.stringify(this.data));
+        g.localStorage.setItem('addrbook_idSeq', this.idSeq);
+    },
+    remove: function(item){
+        var l = this.data.length;
+        while(l--){
+            if(this.data[l].id == item.id) this.data.splice(l, 1);
+        }
+        delete this.hash[item.id];
+        this.save();
+    },
+    history: [],
+    goBack: function(){
+        this.history.pop()
+        if(this.history.length > 0)
+            g.location.hash = this.history[this.history.length - 1];
+        else g.location.hash = '';
+        this.refreshPage(false);
+    },
+    refreshPage: function(url){
+        if(url){
+            g.location = '#' + url;
+        }
+
+        if(Addrbook.bStorage){
+            var urlObj = Addrbook.parseUrl();
+            var page = urlObj.act;
+
+            if(page == 'create') {
+                page = 'edit';
+                urlObj.id='-1';
+            }
+        } else {
+            page = 'empty';
+        }
+        if(url !== false) this.history.push(g.location.hash);
+
+        Beard
+        .remote('body.html')
+        .ready(function(){
+            Addrbook.$body.html(Btpls.Body(page));
+        })
+    },
+    bStorage: true,
+    idSeq: 0,
+    centerImg: function($imgs){
+        $imgs.each(function(){
+            var $img = $(this).css({
+                width: '',
+                height: 120 + 'px',
+                left: '',
+                top: ''
+            });
+            $img.load(function(){
+                var w = $img.width(), h = $img.height();
+                if(h > w){
+                    $img.css({
+                        width: 120 + 'px',
+                        height: ''
+                    })
+                    h = $img.height();
+                    $img.css({
+                        top: (120-h)/2 + 'px'
+                    })
+                } else {
+                    $img.css({
+                        left: (120-w)/2 + 'px'
+                    })
+                }
+            })
+        })
+    }
+}
