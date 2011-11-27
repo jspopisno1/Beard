@@ -8,30 +8,5 @@
             {"key": "last name", "value": "Cat"},
             {"key": "phone", "value": "123123123"},
             {"key": "email", "value": "iamflying@cat.com"}
-    ]},
-    {"avatar":"img/2.jpg", "info":[
-            {"key": "gender", "value": "Female"}
-    ], "main":[
-            {"key": "first name", "value": "Hen"},
-            {"key": "last name", "value": "Animal"},
-            {"key": "phone", "value": "N/A"},
-            {"key": "email", "value": "hen_abc@somewhere.com"}
-    ]},
-    {"avatar":"img/3.jpg", "info":[
-    ], "main":[
-            {"key": "first name", "value": "Cock"},
-            {"key": "last name", "value": "Fighting"},
-            {"key": "phone", "value": "99999999"},
-            {"key": "email", "value": "cock_kof@fighting.com"}
-    ]},
-    {"avatar":"img/4.jpg", "info":[
-            {"key": "gender", "value": "Unknown"},
-            {"key": "goal", "value": "to be a human"},
-            {"key": "reason", "value": "I don't believe I am a dog"}
-    ], "main":[
-            {"key": "first name", "value": "Puppy"},
-            {"key": "last name", "value": "Mann"},
-            {"key": "phone", "value": "09881122"},
-            {"key": "email", "value": "dog@cat.com"}
     ]}
 ]

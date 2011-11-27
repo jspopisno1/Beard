@@ -22,7 +22,7 @@ $(function(){
         return;
     }
 
-    //    g.localStorage.removeItem('addrbook');
+    g.localStorage.removeItem('addrbook');
 
     Addrbook.data = $.parseJSON(g.localStorage.getItem( "addrbook" ));
     if(Addrbook.data){
@@ -34,7 +34,7 @@ $(function(){
         Addrbook.refreshPage();
     }else {
         $.ajax({
-            'url': 'data.json?' + ts,
+            'url': 'data_2.json?' + ts,
             success: function(rsp){
                 rsp = $.parseJSON(rsp);
                 Addrbook.data = rsp;
