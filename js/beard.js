@@ -29,9 +29,6 @@
  * VERSION Beta-1.0
  *
  *
- * TODO:        ***
- *              *** START
- *
  */
 
 ;
@@ -174,13 +171,16 @@
             if(this.__path)var p = this.__path;
             else p = '';
             if(typeof config == 'string'){
-                var cfg = {}; cfg[p] = arguments;
+                var cfg = {};
+                cfg[p] = arguments;
                 var f = false;
             } else if(config === true){
-                cfg = {}; cfg[p] = arguments;
+                cfg = {};
+                cfg[p] = arguments;
                 f = true;
             } else if(config instanceof Array){
-                cfg = {}; cfg[p] = config;
+                cfg = {};
+                cfg[p] = config;
                 f = force;
             } else {
                 cfg = {};
@@ -388,7 +388,7 @@
                 url: u,
                 success: function(rsp){
                     if(path){
-                        rsp = '<div beard="' + path + '">' + rsp + '</div>'
+                        rsp = '<div beard="' + path + '" data-bskip="1">' + rsp + '</div>'
                     }
                     var $scope = $('<div>' + rsp + '</div>');
                     loading--;
@@ -746,7 +746,8 @@
         for(var i in j){
             if(i && j.hasOwnProperty(i)){
                 var cf = j[i][''];
-                Beard._loadScript(cf, cf.t, true);
+                if(typeof cf.t != 'undefined')
+                    Beard._loadScript(cf, cf.t, true);
                 loadEachScript(j[i]);
             }
         }
@@ -787,9 +788,7 @@
                 parent = script
             }
 
-            var t = parent[path + name + args + ref] = {
-                '': $t
-            };
+            var t = parent[path + name + args + ref] = {};
             $t.data('beard-node', t);
         })
         .each(function(){
@@ -798,15 +797,17 @@
         })
         .each(function(){
             var $t = $(this);
-            var curr = $t.data('beard-node');
-            curr[''] = $t.html()
-            // remove the <!--@ @--> annotation
-            .replace(/<!--@\s*|@-->\s*/g, '')
-            //                .split('<!--@').join('').split('@-->').join('')
-            // replace special chars
-            .split('&lt;').join('<')
-            .split('&gt;').join('>')
-            .split('&amp;').join('&');
+            if(!this.getAttribute('data-bskip')){
+                var curr = $t.data('beard-node');
+                curr[''] = $t.html()
+                // remove the <!--@ @--> annotation
+                .replace(/<!--@\s*|@-->\s*/g, '')
+                //                .split('<!--@').join('').split('@-->').join('')
+                // replace special chars
+                .split('&lt;').join('<')
+                .split('&gt;').join('>')
+                .split('&amp;').join('&');
+            }
 
             $t.remove();
         })
