@@ -81,11 +81,12 @@ var Addrbook = {
             this.hash[item.id] = item;
         }
         alert('before save');
-        alert(JSON.stringify(this.data));
-        g.localStorage.setItem('addrbook', JSON.stringify(this.data));
-        alert('after save');
+        var t = JSON.stringify(this.data);
+        alert(JSON.stringify(t));
         g.localStorage.setItem('addrbook_idSeq', this.idSeq);
         alert('after save id seq');
+        g.localStorage.setItem('addrbook', JSON.stringify(this.data));
+        alert('after save');
     },
     remove: function(item){
         var l = this.data.length;
