@@ -12,9 +12,9 @@ $(function(){
         debug: false
     })
     if(Beard.hostUrl().indexOf('github') != -1){
-        Beard.url('demo/tmpls', 6)
+        Beard.url('demo/tmpls', 7)
     } else {
-        Beard.url('/demo/tmpls', 6)
+        Beard.url('/demo/tmpls', 7)
     }
 
     if(!g.localStorage){
