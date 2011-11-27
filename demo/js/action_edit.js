@@ -125,14 +125,14 @@ Addrbook.actions.edit = function(){
                     clearTimeout(avatarTimer);
                     avatarTimer = setTimeout(function(){
                         var op = $ca.css('opacity'), dur = (0.6 - op) * 500 / 0.6;
-                        $ca.fadeTo(dur, 0.6);
+                        $ca.stop().fadeTo(dur, 0.6);
                     }, 10)
                 },
                 'leave the avatar //[type=file]@mouseleave, .urlInput@mouseleave': function(){
                     clearTimeout(avatarTimer);
                     avatarTimer = setTimeout(function(){
                         var op = $ca.css('opacity'), dur = op * 600;
-                        $ca.fadeTo(dur, 0);
+                        $ca.stop().fadeTo(dur, 0);
                     }, 10)
                 },
                 'changing the avatar for browsers without support to File Api //.urlInput .btnChangeAvatar': function(){
