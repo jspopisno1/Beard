@@ -83,6 +83,8 @@ var Addrbook = {
         alert('before save');
         var t = JSON.stringify(this.data);
         alert(JSON.stringify(t));
+        g.localStorage.removeItem('addrbook_idSeq');
+        g.localStorage.removeItem('addrbook');
         g.localStorage.setItem('addrbook_idSeq', this.idSeq);
         alert('after save id seq');
         g.localStorage.setItem('addrbook', JSON.stringify(this.data));
