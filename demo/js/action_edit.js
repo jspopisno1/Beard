@@ -37,7 +37,7 @@ Addrbook.actions.edit = function(){
             }
         } else if(!item){
             alert('The id is unknown. Go back to the list.')
-            Addrbook.goBack();
+            Addrbook.refreshPage('list');
             return;
         }
 

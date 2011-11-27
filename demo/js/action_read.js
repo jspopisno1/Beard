@@ -9,7 +9,8 @@ Addrbook.actions.read = function(){
         //    debugger;
 
         if(!item){
-            Addrbook.goBack();
+            alert('The id is unknown. Go back to the list.')
+            Addrbook.refreshPage('list');
             return;
         }
 
