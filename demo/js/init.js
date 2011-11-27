@@ -34,7 +34,7 @@ $(function(){
         Addrbook.refreshPage();
     }else {
         $.ajax({
-            'url': 'data_2.json?' + ts,
+            'url': 'data.json?' + ts,
             success: function(rsp){
                 rsp = $.parseJSON(rsp);
                 Addrbook.data = rsp;
