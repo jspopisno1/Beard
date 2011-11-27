@@ -8,12 +8,12 @@
                 <div class='sec'> Change Avatar </div>
                 [## if(e.fileAPI) { #]
                 <input type='file' style='margin-bottom:12px'/>
-                [## } else { #]
+                <div> Or you can specify the url of the image </div>
+                [## } #]
                 <div class='urlInput'>
                     <input type='text' value='http://' class='txtAvatarUrl' style='width:320px;'/>
                     <input value='Change Avatar' type='button' style='width:120px;' class='btnChangeAvatar'/>
                 </div>
-                [## } #]
                 <div class='sec'> Main Info. </div>
                 [## loop(d.main, t.MainItem) #]
                 <div class='sec optional'> Optional Info. </div>
