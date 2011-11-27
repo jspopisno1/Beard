@@ -11,7 +11,7 @@ $(function(){
     .init({
         debug: false
     })
-    if(Beard.hostUrl().indexOf('github')){
+    if(Beard.hostUrl().indexOf('github') != -1){
         Beard.url('demo/tmpls', 5)
     } else {
         Beard.url('/demo/tmpls', 5)
