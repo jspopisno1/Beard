@@ -98,22 +98,26 @@ var Addrbook = {
     },
     history: [],
     goBack: function(){
-        this.history.pop()
-        if(this.history.length > 0)
-            g.location.hash = this.history[this.history.length - 1];
-        else g.location.hash = '';
-        this.refreshPage(false);
+        if('onhashchange' in g){
+            g.history.go(-1);
+        } else {
+            this.history.pop()
+            if(this.history.length > 0)
+                g.location.hash = this.history[this.history.length - 1];
+            else g.location.hash = '';
+            this.refreshPage(false);
+        }
     },
     refreshPage: function(url){
         if(url){
             g.location = '#' + url;
         }
 
-        if(url === false || !('onhashchange' in g)){
+        if(!('onhashchange' in g)){
             this.onRefreshPage();
+            if(url !== false) this.history.push(g.location.hash);
         }
 
-        if(url !== false) this.history.push(g.location.hash);
     },
     onRefreshPage: function(url){
         if(Addrbook.bStorage){
