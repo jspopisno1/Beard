@@ -11,7 +11,11 @@ $(function(){
     .init({
         debug: false
     })
-    .url('/demo/tmpls', 5)
+    if(Beard.hostUrl().indexOf('github')){
+        Beard.url('demo/tmpls', 5)
+    } else {
+        Beard.url('/demo/tmpls', 5)
+    }
 
     if(!g.localStorage){
         Addrbook.refreshPage('empty');
