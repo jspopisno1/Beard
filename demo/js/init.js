@@ -53,6 +53,7 @@ $(function(){
 })
 
 var Addrbook = {
+    actions: {},
     hasStorage: true,
     $body: null,
     url: {},
@@ -112,7 +113,9 @@ var Addrbook = {
         Beard
         .remote('body.html')
         .ready(function(){
+//            debugger;
             Addrbook.$body.html(Btpls.Body(page));
+            Addrbook.actions[page]();
         })
     },
     bStorage: true,
