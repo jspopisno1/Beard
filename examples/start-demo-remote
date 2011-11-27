@@ -1,0 +1,13 @@
+Beard can load remote templates easily. You can then organise all your
+templates in one place, so that you don't need to embed template everywhere
+but just load any template whenever it is needed.
+
+<p>
+In this example, we will load some templates from the demo app <a href='demo/' target='_blank'>Addressbook</a>
+
+***
+<!-- we don't need any embedded template here
+as we are gonna load the template remotely
+
+***
+
